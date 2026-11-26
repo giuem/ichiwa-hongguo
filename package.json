@@ -1,0 +1,10 @@
+{
+  "name": "ichiwa-hongguo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:live": "HONGGUO_LIVE=1 node --test test/live.test.js"
+  }
+}
