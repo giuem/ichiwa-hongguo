@@ -470,6 +470,10 @@ export async function media(req) {
             current: s.id === series.id,
             available: s.online,
           };
+          const name = String(s.title || "").trim();
+          if (name) item.name = name;
+          const img = httpUrl(s.coverUrl);
+          if (img) item.image = img;
           if (s.note) item.note = s.note;
           return item;
         });

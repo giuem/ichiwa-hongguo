@@ -5,6 +5,7 @@ const CALENDAR_DAYS = 7;
 const CALENDAR_PAGES = 3;
 const CALENDAR_CACHE_TTL_SEC = 600;
 const CALENDAR_CACHE_PREFIX = "hongguo_cal:";
+export const CALENDAR_BUDGET_MS = 1000;
 
 export function seasonsOf(rawSeasons) {
   const seen = new Set();
@@ -108,7 +109,7 @@ export function calendarDates(dates, today, online) {
   return out.slice(0, CALENDAR_DAYS);
 }
 
-async function fetchCalendarDay(client, day) {
+function readCachedDay(day) {
   const cacheKey = CALENDAR_CACHE_PREFIX + (day || "today");
   try {
     const cached = host.cache.get(cacheKey);
@@ -116,31 +117,64 @@ async function fetchCalendarDay(client, day) {
   } catch {
     // Ignore cache parse error.
   }
+  return null;
+}
 
-  let page = await client.newReleases({ date: day });
-  const result = {
-    date: page.date,
-    dates: page.dates,
-    items: [...page.items],
-  };
-  for (let i = 0; i < CALENDAR_PAGES - 1; i++) {
-    if (!page.hasMore || !page.cursor) break;
-    try {
-      page = await client.newReleases({ cursor: page.cursor });
-      result.items.push(...page.items);
-    } catch {
-      break;
-    }
-  }
+function writeCachedDay(day, result) {
+  const cacheKey = CALENDAR_CACHE_PREFIX + (day || "today");
   try {
     host.cache.set(cacheKey, JSON.stringify(result), CALENDAR_CACHE_TTL_SEC);
   } catch {
     // Ignore cache quota error.
   }
-  return result;
 }
 
-export async function announceSeasons(client, seasons) {
+async function fetchCalendarDay(client, day, signal) {
+  const cached = readCachedDay(day);
+  if (cached) {
+    return { result: cached, complete: true, fromCache: true };
+  }
+  if (signal?.aborted) {
+    return { result: null, complete: false, fromCache: false };
+  }
+
+  let page;
+  try {
+    page = await client.newReleases({ date: day, signal });
+  } catch {
+    return { result: null, complete: false, fromCache: false };
+  }
+
+  const result = {
+    date: page.date,
+    dates: page.dates,
+    items: [...page.items],
+  };
+
+  let complete = true;
+  for (let i = 0; i < CALENDAR_PAGES - 1; i++) {
+    if (!page.hasMore || !page.cursor) break;
+    if (signal?.aborted) {
+      complete = false;
+      break;
+    }
+    try {
+      page = await client.newReleases({ cursor: page.cursor, signal });
+      result.items.push(...page.items);
+    } catch {
+      complete = false;
+      break;
+    }
+  }
+
+  // Only cache a day when all pages (up to CALENDAR_PAGES) completed cleanly.
+  if (complete && !signal?.aborted) {
+    writeCachedDay(day, result);
+  }
+  return { result, complete, fromCache: false };
+}
+
+export async function announceSeasons(client, seasons, options = {}) {
   const out = seasons.map((s) => ({ ...s }));
   let pending = [];
   for (let i = 0; i < out.length; i++) {
@@ -150,12 +184,22 @@ export async function announceSeasons(client, seasons) {
   }
   if (pending.length === 0) return out;
 
-  let today;
-  try {
-    today = await fetchCalendarDay(client, "");
-  } catch {
-    return out;
-  }
+  const budgetMs =
+    typeof options.budgetMs === "number" && options.budgetMs > 0
+      ? options.budgetMs
+      : CALENDAR_BUDGET_MS;
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  let timedOut = false;
+  let timer = null;
+  const deadline = new Promise((resolve) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+      resolve("timeout");
+    }, budgetMs);
+  });
 
   const look = (items) => {
     pending = pending.filter((idx) => {
@@ -169,17 +213,69 @@ export async function announceSeasons(client, seasons) {
   };
   const waiting = (online) => pending.some((idx) => out[idx].online === online);
 
-  look(today.items);
-  for (const online of [false, true]) {
-    for (const day of calendarDates(today.dates, today.date, online)) {
-      if (!waiting(online)) break;
-      try {
-        const d = await fetchCalendarDay(client, day);
-        look(d.items);
-      } catch {
-        // Skip failed calendar day.
+  try {
+    const todayRes = await Promise.race([
+      fetchCalendarDay(client, "", signal),
+      deadline.then(() => null),
+    ]);
+    if (!todayRes || !todayRes.result) {
+      if (timedOut) {
+        console.log(`[hongguo] season calendar timed out after ${budgetMs}ms`);
+      }
+      return out;
+    }
+    const today = todayRes.result;
+    look(today.items);
+    if (pending.length === 0 || signal.aborted) {
+      return out;
+    }
+
+    const days = [];
+    const seenDays = new Set();
+    for (const online of [false, true]) {
+      if (!waiting(online)) continue;
+      for (const day of calendarDates(today.dates, today.date, online)) {
+        if (!seenDays.has(day)) {
+          seenDays.add(day);
+          days.push(day);
+        }
       }
     }
+
+    const uncached = [];
+    for (const day of days) {
+      const cached = readCachedDay(day);
+      if (cached) {
+        look(cached.items);
+        if (pending.length === 0) return out;
+      } else {
+        uncached.push(day);
+      }
+    }
+
+    const toFetch = uncached.filter((day) => waiting(day < today.date));
+    if (toFetch.length === 0 || signal.aborted) {
+      return out;
+    }
+
+    const tasks = toFetch.map((day) =>
+      fetchCalendarDay(client, day, signal).then((res) => {
+        if (res?.result?.items?.length) {
+          look(res.result.items);
+          if (pending.length === 0 && !signal.aborted) {
+            controller.abort();
+          }
+        }
+      })
+    );
+    await Promise.race([Promise.allSettled(tasks), deadline]);
+    if (timedOut) {
+      console.log(`[hongguo] season calendar budget (${budgetMs}ms) reached with ${pending.length} pending`);
+    }
+    return out;
+  } finally {
+    if (timer !== null && typeof clearTimeout === "function") {
+      clearTimeout(timer);
+    }
   }
-  return out;
 }

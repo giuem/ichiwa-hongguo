@@ -846,3 +846,200 @@ test("shortFilter pagination across 20 pages keeps cursor well under 4096 bytes 
     globalThis.fetch = origFetch;
   }
 });
+
+test("announceSeasons enforces time budget, reads days concurrently, and caches only complete days", async () => {
+  const host = installHost();
+  const normalized = seasonsOf([
+    { seriesId: "100", title: "多季剧 第一季", index: 1, episodeCount: 60 },
+    { seriesId: "200", title: "多季剧 第二季", index: 2, episodeCount: 60 },
+  ]);
+
+  let inFlight = 0;
+  let maxConcurrent = 0;
+  let slowPage2Aborted = false;
+  const fetchedDays = [];
+
+  const fakeClient = {
+    async newReleases({ date, cursor, signal }) {
+      inFlight++;
+      maxConcurrent = Math.max(maxConcurrent, inFlight);
+      try {
+        if (!date && !cursor) {
+          return {
+            date: "20261127",
+            dates: ["20261125", "20261126", "20261127"],
+            items: [],
+            hasMore: false,
+            cursor: "",
+          };
+        }
+        if (date === "20261126") {
+          fetchedDays.push("20261126");
+          await new Promise((r) => setTimeout(r, 20));
+          return {
+            date: "20261126",
+            dates: ["20261125", "20261126", "20261127"],
+            items: [],
+            hasMore: false,
+            cursor: "",
+          };
+        }
+        if (date === "20261125") {
+          fetchedDays.push("20261125:p1");
+          await new Promise((r) => setTimeout(r, 20));
+          return {
+            date: "20261125",
+            dates: ["20261125", "20261126", "20261127"],
+            items: [],
+            hasMore: true,
+            cursor: "cur-20261125-p2",
+          };
+        }
+        if (cursor === "cur-20261125-p2") {
+          fetchedDays.push("20261125:p2");
+          await new Promise((resolve, reject) => {
+            const t = setTimeout(resolve, 500);
+            if (signal) {
+              signal.addEventListener(
+                "abort",
+                () => {
+                  clearTimeout(t);
+                  slowPage2Aborted = true;
+                  const err = new Error("aborted");
+                  err.name = "AbortError";
+                  reject(err);
+                },
+                { once: true }
+              );
+            }
+          });
+          return {
+            date: "20261125",
+            dates: ["20261125", "20261126", "20261127"],
+            items: [
+              {
+                seriesId: "200",
+                title: "多季剧 第二季",
+                online: true,
+                publishAt: 1795564800, // 2026-11-25 08:00 UTC+8
+              },
+            ],
+            hasMore: false,
+            cursor: "",
+          };
+        }
+        return { date: date || "", dates: [], items: [], hasMore: false, cursor: "" };
+      } finally {
+        inFlight--;
+      }
+    },
+  };
+
+  const t0 = Date.now();
+  await announceSeasons(fakeClient, normalized, { budgetMs: 120 });
+  const elapsed = Date.now() - t0;
+
+  assert.ok(elapsed < 400, `announceSeasons exceeded budget: ${elapsed}ms`);
+  assert.ok(maxConcurrent >= 2, `days should be fetched concurrently, saw maxConcurrent=${maxConcurrent}`);
+  assert.equal(slowPage2Aborted, true, "in-flight request should be aborted on budget timeout");
+  assert.ok(host.cache.get("hongguo_cal:today"), "complete today should be cached");
+  assert.ok(host.cache.get("hongguo_cal:20261126"), "complete day 20261126 should be cached");
+  assert.equal(host.cache.get("hongguo_cal:20261125"), undefined, "incomplete day 20261125 must NOT be cached");
+
+  // Second run: cached days are not refetched; 20261125 completes within generous budget and gets cached.
+  fetchedDays.length = 0;
+  const second = await announceSeasons(fakeClient, normalized, { budgetMs: 1500 });
+  assert.equal(fetchedDays.includes("20261126"), false, "cached day 20261126 should not be refetched");
+  assert.equal(second[1].note, "11月25日上新");
+  assert.ok(host.cache.get("hongguo_cal:20261125"), "completed day 20261125 should now be cached");
+});
+
+test("media populates seasons name and image fields", async () => {
+  installHost();
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = new URL(url);
+    if (u.pathname.includes("/service/2/device_register/")) {
+      return mockResponse(
+        { device_id_str: "7123456789012345678", install_id_str: "7123456789012345679", new_user: 1 },
+        { setCookies: ["ttreq=1$mock; Path=/"] }
+      );
+    }
+    if (u.pathname.includes("/novel/player/video_detail/v1/")) {
+      return mockResponse({
+        code: 0,
+        data: {
+          video_data: {
+            series_id_str: "7100000000000001",
+            series_title: "家里家外 第一季",
+            series_cover: "https://p3-reading-sign.fqnovelpic.com/s1.jpg",
+            episode_cnt: 1,
+            is_multi_season: true,
+            season_index: 1,
+            video_list: [{ vid: "7100000000001001", vid_index: 1, duration: 90, vertical: true }],
+          },
+        },
+      });
+    }
+    if (u.pathname.includes("/reading/bookapi/plan/v1/")) {
+      return mockResponse({
+        code: 0,
+        data: [
+          {
+            show_type: 547,
+            video_data: [
+              {
+                series_id: "7100000000000001",
+                title: "家里家外 第一季",
+                season_index: 1,
+                cover: "https://p3-reading-sign.fqnovelpic.com/s1.jpg",
+                episode_cnt: 60,
+              },
+              {
+                series_id: "7100000000000002",
+                title: "家里家外2",
+                season_index: 2,
+                cover: "https://p3-reading-sign.fqnovelpic.com/s2.jpg",
+                episode_cnt: 80,
+              },
+            ],
+          },
+        ],
+      });
+    }
+    if (u.pathname.includes("/reading/user/subscribe/list/v1/")) {
+      return mockResponse({
+        code: 0,
+        data: {
+          calendar_schema: { default_date: "20261127", date_list: ["20261127"] },
+          has_more: false,
+          subscribe_items: [],
+        },
+      });
+    }
+    throw new Error(`unexpected fetch: ${url}`);
+  };
+
+  try {
+    const m = await plugin.media({ id: "7100000000000001" });
+    assert.equal(m.seasons.length, 2);
+    assert.deepEqual(m.seasons[0], {
+      id: "7100000000000001",
+      title: "第1季",
+      name: "家里家外 第一季",
+      image: "https://p3-reading-sign.fqnovelpic.com/s1.jpg",
+      current: true,
+      available: true,
+    });
+    assert.deepEqual(m.seasons[1], {
+      id: "7100000000000002",
+      title: "第2季",
+      name: "家里家外2",
+      image: "https://p3-reading-sign.fqnovelpic.com/s2.jpg",
+      current: false,
+      available: true,
+    });
+  } finally {
+    globalThis.fetch = origFetch;
+  }
+});

@@ -123,9 +123,34 @@ const SEARCH_FILTERS = new Set([
   "search_range_unread",
 ]);
 
-function sleep(ms) {
+function isAbortError(err) {
+  return Boolean(err && (err.name === "AbortError" || err.code === "ABORT_ERR"));
+}
+
+function makeAbortError() {
+  const err = new Error("aborted");
+  err.name = "AbortError";
+  return err;
+}
+
+function sleep(ms, signal) {
   if (ms <= 0) return Promise.resolve();
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  if (signal?.aborted) return Promise.reject(makeAbortError());
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      if (signal && typeof signal.removeEventListener === "function") {
+        signal.removeEventListener("abort", onAbort);
+      }
+      resolve();
+    }, ms);
+    function onAbort() {
+      if (typeof clearTimeout === "function") clearTimeout(timer);
+      reject(makeAbortError());
+    }
+    if (signal && typeof signal.addEventListener === "function") {
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
+  });
 }
 
 function validID(id) {
@@ -303,7 +328,10 @@ export class HongguoClient {
     return out;
   }
 
-  async _doOnce(method, rawURL, headers, body) {
+  async _doOnce(method, rawURL, headers, body, signal = null) {
+    if (signal?.aborted) {
+      throw makeAbortError();
+    }
     const hdrs = { ...(headers || {}) };
     for (const k of Object.keys(hdrs)) {
       if (CREDENTIAL_HEADER_NAMES.includes(k.toLowerCase())) {
@@ -315,13 +343,19 @@ export class HongguoClient {
     }
     let resp;
     try {
-      resp = await this.fetchFn(rawURL, {
+      const init = {
         method,
         headers: hdrs,
         body: body ?? undefined,
-      });
+      };
+      if (signal) init.signal = signal;
+      resp = await this.fetchFn(rawURL, init);
     } catch (e) {
+      if (signal?.aborted || isAbortError(e)) throw e;
       throw new HongguoError(ErrCode.Transport, `network error: ${e?.message || e}`);
+    }
+    if (signal?.aborted) {
+      throw makeAbortError();
     }
     if (!resp) {
       throw new HongguoError(ErrCode.Transport, "empty response");
@@ -337,7 +371,16 @@ export class HongguoClient {
     if (resp.status < 200 || resp.status >= 300) {
       throw new HongguoError(ErrCode.APIError, `HTTP ${resp.status}`, { httpStatus: resp.status });
     }
-    let rawBytes = new Uint8Array(await resp.arrayBuffer());
+    let rawBytes;
+    try {
+      rawBytes = new Uint8Array(await resp.arrayBuffer());
+    } catch (e) {
+      if (signal?.aborted || isAbortError(e)) throw e;
+      throw new HongguoError(ErrCode.Transport, `network error: ${e?.message || e}`);
+    }
+    if (signal?.aborted) {
+      throw makeAbortError();
+    }
     // Handle servers/mocks returning raw gzipped bytes without fetch auto-decompression.
     if (rawBytes.length >= 2 && rawBytes[0] === 0x1f && rawBytes[1] === 0x8b) {
       rawBytes = host.encoding.gunzip(rawBytes);
@@ -384,11 +427,14 @@ export class HongguoClient {
     return { json, cookies };
   }
 
-  async _doRaw(method, rawURL, headers, body = null) {
+  async _doRaw(method, rawURL, headers, body = null, signal = null) {
     for (let attempt = 0; ; attempt++) {
       try {
-        return await this._doOnce(method, rawURL, headers, body);
+        return await this._doOnce(method, rawURL, headers, body, signal);
       } catch (err) {
+        if (signal?.aborted || isAbortError(err)) {
+          throw err;
+        }
         if (!isRetryable(err) || attempt + 1 >= this.retryAttempts) {
           throw err;
         }
@@ -399,7 +445,7 @@ export class HongguoClient {
         if (waitMs > MAX_RETRY_WAIT_MS) {
           throw err;
         }
-        await sleep(waitMs);
+        await sleep(waitMs, signal);
       }
     }
   }
@@ -681,7 +727,9 @@ export class HongguoClient {
       const { json } = await this._doRaw(
         "GET",
         `${this.apiOrigin}${PATH_SUBSCRIBE_LIST}?${query}`,
-        this._anonymousHeaders(p, ticket, headers)
+        this._anonymousHeaders(p, ticket, headers),
+        null,
+        q.signal || null
       );
       const res = parseNewReleases(json);
       const pageDate = res.date || date;
