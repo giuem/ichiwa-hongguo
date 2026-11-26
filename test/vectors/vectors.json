@@ -1,0 +1,476 @@
+{
+  "upstream": "v0.4.1",
+  "sha512": [
+    {
+      "inputHex": "",
+      "digest": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+    },
+    {
+      "inputHex": "616263",
+      "digest": "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"
+    },
+    {
+      "inputHex": "61626364656667686263646566676869636465666768696a6465666768696a6b65666768696a6b6c666768696a6b6c6d6768696a6b6c6d6e68696a6b6c6d6e6f696a6b6c6d6e6f706a6b6c6d6e6f70716b6c6d6e6f7071726c6d6e6f707172736d6e6f70717273746e6f707172737475",
+      "digest": "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909"
+    },
+    {
+      "inputHex": "00254a6f94b9de03284d7297bce1062b50759abfe4092e53789dc2e70c31567ba0c5ea0f34597ea3c8ed12375c81a6cbf0153a5f84a9cef3183d6287acd1f61b40658aafd4f91e43688db2d7fc21466b90b5daff24496e93b8dd02274c7196bbe0052a4f7499bee3082d52779cc1e60b30557a9fc4e90e33587da2c7ec11365b80a5caef14395e83a8cdf2173c6186abd0f51a3f6489aed3f81d42678cb1d6fb20456a8fb4d9fe23486d92b7dc01264b7095badf04294e7398bde2072c51769bc0e50a2f54799ec3e80d32577ca1c6eb10355a7fa4c9ee13385d82a7ccf1163b6085aacff4193e6388add2f71c41668bb0d5fa1f44698eb3d8fd22476c91b6db00",
+      "digest": "bc768d87dbf069c859340f32afd44caff9d087bd3e7c78beef3475f0e897c80b32eb2ff57e979b96d3a414c2518b58e4a3d5e71cbb9a29900a3d0d8879dd1cbe"
+    }
+  ],
+  "sm3": [
+    {
+      "inputHex": "",
+      "digest": "1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b"
+    },
+    {
+      "inputHex": "616263",
+      "digest": "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0"
+    },
+    {
+      "inputHex": "00000000000000000000000000000000",
+      "digest": "106e34a2b8c7bb13156cfdd0d91379dcc47543dcf9787c68ae5eb582620ae6e8"
+    },
+    {
+      "inputHex": "6169643d38363632266465766963655f69643d373030303030303030303030303030303030312674733d31373935343430383136265f727469636b65743d31373935343430383136313233",
+      "digest": "277ace5d4315aa84208853dc1206f7673672c180cf6f697ef9c3650509358028"
+    }
+  ],
+  "spade": [
+    {
+      "spadeA": "nLwSxG6JI85zhT//c7AK4HauO+lzrg7TdZwO0XWrP+J0pDypqQ==",
+      "hex": "1be760855c48a8c86000eeb8c5bb1010",
+      "version": "1"
+    },
+    {
+      "spadeA": "lM5h2XT9VrYfsxyfH4UHhgZLBN6X9L+3/rD7mvqM7ofnV+TSw8PsxYHsx9bAxw==",
+      "hex": "0123456789abcdef0123456789abcdef",
+      "version": "2"
+    },
+    {
+      "spadeA": "xppmiHOJcY90hn+CgX5/h4hJitsa/jm0cbSPto+zjLeOtoqkWUtMcVgccUpcQw==",
+      "hex": "deadbeefcafebabe0011223344556677",
+      "version": "3a"
+    }
+  ],
+  "ttEncrypt": [
+    {
+      "inputHex": "68656c6c6f20686f6e6767756f",
+      "outputHex": "7463051000003176c9b6d71579d7e82179c9e7cbde787b54d541bad3b15f2e8fed92293fa25a6c9777404f9aa22265dd94bff739d2a5090f28af863bca69319f1561e787e226392fd9a205c59f9771f3bf55a6b86b0b0a74ecf3732cd6d4dd4e153bece083c39c824700d9c3fcfbbd98716a27dbd044"
+    },
+    {
+      "inputHex": "7b226d616769635f746167223a2273735f6170705f6c6f67222c22686561646572223a7b22616964223a383636327d2c225f67656e5f74696d65223a313739353434303831363030307d",
+      "outputHex": "7463051000003176c9b6d71579d7e82179c9e7cbde787b54d541bad3b15f2e8fed92293fa25a1b1b171ddad07d34ea8b0ef73a98c8d51f94b8cc228372b27815893afd867c2dd4ba588e1efb3ac93a529205d5e3981fb833eeef2eb5039008085785d6f1a4c6281fef17ab409133a7a29e60a14b715f4a0a38357268a7f43998b662f82ffe5b1cc58e92e9c83c9262c6460f020b78e1b960c1918d5506b5821aa031a10495492602c2287227285f03cce35f121bbabd"
+    }
+  ],
+  "playbackUrl": [
+    {
+      "value": "https://v3-default.example.com/path/video.mp4?expires=1800000000\u0026sign=abcdef",
+      "seed": "",
+      "want": "https://v3-default.example.com/path/video.mp4?expires=1800000000\u0026sign=abcdef"
+    },
+    {
+      "value": "aHR0cHM6Ly92My1kZWZhdWx0LmV4YW1wbGUuY29tL3BhdGgvdmlkZW8ubXA0P2V4cGlyZXM9MTgwMDAwMDAwMCZzaWduPWFiY2RlZg==",
+      "seed": "",
+      "want": "https://v3-default.example.com/path/video.mp4?expires=1800000000\u0026sign=abcdef"
+    },
+    {
+      "value": "qAABAOlbGMkQfecPCu0mnj75WbyxyFuEEDZOhZXlbVeSuKxC8ae3sk7lQdSmYaAmAwKMQiaC57v8fMuJiEZaNdLjBnhoOsSJc4fGEjNd2bQu7SQE",
+      "seed": "Zml4ZWQtc2VlZC1tYXRlcmlhbC0yMDI2",
+      "want": "https://v3-default.example.com/path/video.mp4?expires=1800000000\u0026sign=abcdef"
+    }
+  ],
+  "keyHash": [
+    {
+      "signKeyHex": "8ebdfa3806ecc5cee79423e6029ed82540bc2218bb7eaef71cb691f7aa8aa2f5",
+      "random": 2378451149,
+      "hashHex": "1b35023431b99a949ab7b70fc50a30216076492a6229d102a7a33fa3a1104170",
+      "seedHex": "b0dff9ff"
+    },
+    {
+      "signKeyHex": "b23c2a470a20d105dc3f8c4438f8272ed46d6c89ffdcdedd5108698d26e9489d",
+      "random": 305419896,
+      "hashHex": "2464acd73b2a6be40622fc8e87470c65a5243f858997079403cdf061df87fcd0",
+      "seedHex": "d85ffeff"
+    },
+    {
+      "signKeyHex": "b23c2a470a20d105dc3f8c4438f8272ed46d6c89ffdcdedd5108698d26e9489d",
+      "random": 2147483647,
+      "hashHex": "90a59d36e0cd055ec600981e56d42e1990e64febb888a46b513497d235b45da5",
+      "seedHex": "7807f8ff"
+    }
+  ],
+  "xmxor": [
+    {
+      "dataHex": "303132333435363738396162636465666768696a30313233343536373839",
+      "keyHex": "1b35023431b99a949ab7b70fc50a30216076492a6229d102a7a33fa3a1104170",
+      "outputHex": "13bdf88740bc13eb96fb802aa8882631c1c2fa14b48edabda96e87b9b08f"
+    },
+    {
+      "dataHex": "303132333435363738396162636465666768696a30313233343536373839",
+      "keyHex": "2464acd73b2a6be40622fc8e87470c65a5243f858997079403cdf061df87fcd0",
+      "outputHex": "bd30a8c72de4ed0482cbb46f4a86df5c748f7c49a35ca044afc6abaff765"
+    },
+    {
+      "dataHex": "303132333435363738396162636465666768696a30313233343536373839",
+      "keyHex": "90a59d36e0cd055ec600981e56d42e1990e64febb888a46b513497d235b45da5",
+      "outputHex": "a710ea4a0d764e9b8f6684da118894156653389eef8b73798b161e8b65f9"
+    }
+  ],
+  "encryptPlaybackV5": [
+    {
+      "dataHex": "135ca5ee3780c9125ba4ed367fc8115aa3ec357ec71059a2eb347dc60f58a1ea337cc50e57a0e9327bc40d569fe8317ac30c559ee73079c20b549de62f78c10a539ce52e77c009529be42d76bf08519ae32c75be075099e22b74bd064f98e12a73bc054e97e02972bb044d96df2871ba034c95de2770b9024b94dd266fb8014a93dc256eb7004992db246db6ff4891da236cb5fe4790d9226bb4fd468fd8216ab3fc458ed72069b2fb448dd61f68b1fa438cd51e67b0f9428bd41d66aff8418ad31c65aef74089d21b64adf63f88d11a63acf53e87d01962abf43d86cf1861aaf33c85ce1760a9f23b84cd165fa8f13a83cc155ea7f03982cb145da6ef3881ca135ca5ee",
+      "keyHex": "00112233445566778899aabbccddeeff",
+      "ivHex": "ffeeddccbbaa99887766554433221100",
+      "timestamp": 1795440800,
+      "outputHex": "ec537ca5ee3700cb125ba4e5367fc8135aa3cc3d7ec31059a3ab3475d60b58a1eb335ccd0e53a0e9333bc40d569f68337bc30c5d8ee3307bc34b749de62ff8c30b53bce52e73400b529be42576bf08519ba32c7dae07d09be32b54bd164b98e32b73bc055e93602973fb044d86dfa873ba036c9dce27f0b9024bb4dd366fb8034b93dc2d7eb3004b929b0465b6fb4891db236cb5ee4310db222b94f5568bd8216ab3dc4d8ed3a06bb2bb648dc61fe8b1fa438cdd0e63b0fb428bd41d66ab78418bd31c6daef74089d21b44ade63f88d11b23acfd2e83d01b62abd43d86cb1861aab33c85ce1360abf23ba4c5165f28f33a83ec1d4ea3703982cb145da6ef3881ca135ca5ee"
+    },
+    {
+      "dataHex": "135ca5ee3780c9125ba4ed367fc8115aa3ec357ec71059a2eb347dc60f58a1ea337cc50e57a0e9327bc40d569fe8317ac30c559ee73079c20b549de62f78c10a539ce52e77c009529be42d76bf08519ae32c75be075099e22b74bd064f98e12a73bc054e97e02972bb044d96df2871ba034c95de2770b9024b94dd266fb8014a93dc256eb7004992db246db6ff4891da236cb5fe4790d9226bb4fd468fd8216ab3fc458ed72069b2fb448dd61f68b1fa438cd51e67b0f9428bd41d66aff8418ad31c65aef74089d21b64adf63f88d11a63acf53e87d01962abf43d86cf1861aaf33c85ce1760a9f23b84cd165fa8f13a83cc155ea7f03982cb145da6ef3881ca135ca5ee",
+      "keyHex": "00112233445566778899aabbccddeeff",
+      "ivHex": "ffeeddccbbaa99887766554433221100",
+      "timestamp": 1795440801,
+      "outputHex": "e1535ca5ee3700cb121b84ed267bc8135ae3cc356ec7905ba3ab1475d60f58a1eb735ccd0e53a0eb323bc40d469b68317a832c5d8ee7307bc30b749de62f78c10a139ce53e73400b539be42566bf88519be30c75be035099e36b74b5164b18e32a73bc0d4e93602b73fb044596dba873ba036c95ce27f0bb030b94d5366fb8034b93dc2d7eb3004b929b0465a6fbc893db236cbdee4310db232b94fd468b58216ab3fc4d8ed3206bb3bb648dd61fe8b3fa438cd51e6730fb438bf41576abf8438bd33c65aef7c089d35b44adf63f88d31b238cfd2e83d01963abf43586cb9861aab33c8dde1360a9f37ba4cd165f28f13ac3cc1d4ea3f03b83cb145da6ef3881ca135ca5ee"
+    },
+    {
+      "dataHex": "135ca5ee3780c9125ba4ed367fc8115aa3ec357ec71059a2eb347dc60f58a1ea337cc50e57a0e9327bc40d569fe8317ac30c559ee73079c20b549de62f78c10a539ce52e77c009529be42d76bf08519ae32c75be075099e22b74bd064f98e12a73bc054e97e02972bb044d96df2871ba034c95de2770b9024b94dd266fb8014a93dc256eb7004992db246db6ff4891da236cb5fe4790d9226bb4fd468fd8216ab3fc458ed72069b2fb448dd61f68b1fa438cd51e67b0f9428bd41d66aff8418ad31c65aef74089d21b64adf63f88d11a63acf53e87d01962abf43d86cf1861aaf33c85ce1760a9f23b84cd165fa8f13a83cc155ea7f03982cb145da6ef3881ca135ca5ee",
+      "keyHex": "00112233445566778899aabbccddeeff",
+      "ivHex": "ffeeddccbbaa99887766554433221100",
+      "timestamp": 1795440802,
+      "outputHex": "f9535ca5ee3380cb121b84ed267b48135be3cc3d7ec7105ba3ab3475d60f58a3eb337cc50e57a0e9327be405569f68337ac30c5d9ee3b07bc30b749de62f78c10b13bce53e73c00b53dbe42576bb88519be32c7dbe07d09be22b74bd064f98e12b339c0d4e97602b73fb044586dfa873ba434c9dde2770bb020bb4d5366b38014bd3fc256eb7804b92db246db6ff4891da236cb5ee4710db222bb4f5568f58216ab3fc4d8ed32069b2bb448dc61f68b3fa03acdd1e6730f9428bf41566aff8438b931c6dbef3c089d35b44a5e63f88d11a238cfd2e87501b63abd43596cb9863aab33c8dde1760abf27b84cd165fa8f13b83ec154ea3703b82cb145da6ef3881ca135ca5ee"
+    },
+    {
+      "dataHex": "135ca5ee3780c9125ba4ed367fc8115aa3ec357ec71059a2eb347dc60f58a1ea337cc50e57a0e9327bc40d569fe8317ac30c559ee73079c20b549de62f78c10a539ce52e77c009529be42d76bf08519ae32c75be075099e22b74bd064f98e12a73bc054e97e02972bb044d96df2871ba034c95de2770b9024b94dd266fb8014a93dc256eb7004992db246db6ff4891da236cb5fe4790d9226bb4fd468fd8216ab3fc458ed72069b2fb448dd61f68b1fa438cd51e67b0f9428bd41d66aff8418ad31c65aef74089d21b64adf63f88d11a63acf53e87d01962abf43d86cf1861aaf33c85ce1760a9f23b84cd165fa8f13a83cc155ea7f03982cb145da6ef3881ca135ca5ee",
+      "keyHex": "00112233445566778899aabbccddeeff",
+      "ivHex": "ffeeddccbbaa99887766554433221100",
+      "timestamp": 1795440803,
+      "outputHex": "6f537cadee3700c9125b84ed267bc8135aa3ec357ec79059a2ab3475d60b58a3ea735ccd1e5320e9333be40d569fe8337bc30c5d8ee3b07bc24b7495f62ff8c30a53bced3e73c00b53dbe42566bf88519aa32c75be03d099e36b54b5064f18e12b33bc0d5e97e02b73fb244d96dfa873ba434c95ce2370b9034bb4d5266bb8034ad3dc257eb38049939b046da6fbc893da236cb5fe4790db222b94f5568fd8236bb3dc4d8ed3206bb3bb4485c61fe8b1fa038cdd1e63b0fb438bf41d66ab78438a931c65bef7c089d35b44a5f63f08d11b63acf52e87501962abf43586cf9861aaf31c8dce17e0abf37b84cd065b28f33b83cc1d5ea3f03b83cb145da6ef3881ca135ca5ee"
+    }
+  ],
+  "f13V5": [
+    {
+      "querySM3Hex": "803d046b00000000000000000000000035800580000000000000000000000000",
+      "bodyMD5Hex": "6f83a9b5000000000000000000000000",
+      "ts": 1795440000,
+      "variant": 8,
+      "headMD5Hex": "6ca30562016c198ff035a4b3efbf49fa",
+      "headSHAHex": "3ff799f5f5c6d749a8df676944223ea7",
+      "tailHex": "49aa9747",
+      "supported": false
+    },
+    {
+      "querySM3Hex": "813d046b000000000000000000000000d3b77f31000000000000000000000000",
+      "bodyMD5Hex": "6e83a9b5000000000000000000000000",
+      "ts": 1795440001,
+      "variant": 1,
+      "headMD5Hex": "0fc4e759b08a04324c60e8d7aaa50b83",
+      "headSHAHex": "b94156390777928188e8253d7393f1a3",
+      "tailHex": "0364c946",
+      "supported": false
+    },
+    {
+      "querySM3Hex": "843d046b000000000000000000000000ae5dec44000000000000000000000000",
+      "bodyMD5Hex": "6b83a9b5000000000000000000000000",
+      "ts": 1795440004,
+      "variant": 12,
+      "headMD5Hex": "a104e37a2dddb08d9b4f597b3bc7fcbe",
+      "headSHAHex": "477aa57f41a0d4c3f9a4ea3d1c655526",
+      "tailHex": "0bd90d33",
+      "fullHex": "477aa57f41a0d4c3f9a4ea3d1c655526d36533fa",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "a53d046b00000000000000000000000013849c15000000000000000000000000",
+      "bodyMD5Hex": "4a83a9b5000000000000000000000000",
+      "ts": 1795440037,
+      "variant": 12,
+      "headMD5Hex": "b8fafa37f77af0b061bba54ae704f4b5",
+      "headSHAHex": "184a5e04ce7556d9adf77333e8c1b5c7",
+      "tailHex": "d912a0ae",
+      "fullHex": "184a5e04ce7556d9adf77333e8c1b5c74b7ed0a6",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "ae3d046b000000000000000000000000a377e34e000000000000000000000000",
+      "bodyMD5Hex": "4183a9b5000000000000000000000000",
+      "ts": 1795440046,
+      "variant": 5,
+      "headMD5Hex": "019e0393027c870998af7c81bc1832c1",
+      "headSHAHex": "5aa9128a191999322e847ce27aa7250d",
+      "tailHex": "82c12686",
+      "fullHex": "019e0393027c870998af7c81bc1832c182c12686",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "b13d046b0000000000000000000000007e1e5061000000000000000000000000",
+      "bodyMD5Hex": "5e83a9b5000000000000000000000000",
+      "ts": 1795440049,
+      "variant": 12,
+      "headMD5Hex": "bd26755680b20cf09152ce2f32ba9b09",
+      "headSHAHex": "a6c249ca163b99133199808f922aa57a",
+      "tailHex": "1afdfb6d",
+      "fullHex": "a6c249ca163b99133199808f922aa57a0181d415",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "be3d046b00000000000000000000000086ef7e5e000000000000000000000000",
+      "bodyMD5Hex": "5183a9b5000000000000000000000000",
+      "ts": 1795440062,
+      "variant": 5,
+      "headMD5Hex": "c495081c5850718b068978245524cb00",
+      "headSHAHex": "c954e7b975c165189cc9bb6fc1b57479",
+      "tailHex": "53caae59",
+      "fullHex": "c495081c5850718b068978245524cb0053caae59",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "db3d046b0000000000000000000000007338476b000000000000000000000000",
+      "bodyMD5Hex": "3483a9b5000000000000000000000000",
+      "ts": 1795440091,
+      "variant": 5,
+      "headMD5Hex": "0af3cc639be11b55c20aa312ba526038",
+      "headSHAHex": "cd63ccd39ff59bd857b330e626bff517",
+      "tailHex": "0aa0a884",
+      "fullHex": "0af3cc639be11b55c20aa312ba5260380aa0a884",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "e33d046b00000000000000000000000064f414f3000000000000000000000000",
+      "bodyMD5Hex": "0c83a9b5000000000000000000000000",
+      "ts": 1795440099,
+      "variant": 12,
+      "headMD5Hex": "235aa5f77efb3b38090c4ac2b6142958",
+      "headSHAHex": "4b10e7e68ed7cd8fbb55e67a98da8861",
+      "tailHex": "c0b890e0",
+      "fullHex": "4b10e7e68ed7cd8fbb55e67a98da886150a76d9e",
+      "supported": true
+    },
+    {
+      "querySM3Hex": "eb3d046b00000000000000000000000056afe27b000000000000000000000000",
+      "bodyMD5Hex": "0483a9b5000000000000000000000000",
+      "ts": 1795440107,
+      "variant": 5,
+      "headMD5Hex": "1c06f06bb3bb43f11ec623e8a0badab3",
+      "headSHAHex": "c22db3e128682ac49c6bd62e2cced3d5",
+      "tailHex": "131d5624",
+      "fullHex": "1c06f06bb3bb43f11ec623e8a0badab3131d5624",
+      "supported": true
+    }
+  ],
+  "gorgon": [
+    {
+      "query": "aid=8662\u0026device_id=7000000000000000001\u0026ts=1795440816",
+      "bodyHex": "",
+      "hasBody": false,
+      "khronos": 1795440816,
+      "random": 4660,
+      "flagsHex": "0800000000000000",
+      "want": "8404341208006cdd12f9478d34381c47ae2ad716c8b45ae11ddb"
+    },
+    {
+      "query": "aid=8662\u0026device_id=7000000000000000001\u0026ts=1795440816",
+      "bodyHex": "7b227365726965735f6964223a223132333435227d",
+      "hasBody": true,
+      "khronos": 1795440816,
+      "random": 43981,
+      "flagsHex": "0405000000000000",
+      "want": "8404cdab04053bfb0604e85bce2b044cc146f054a49508531b37"
+    },
+    {
+      "query": "aid=8662\u0026device_id=7000000000000000001\u0026ts=1795440817",
+      "bodyHex": "",
+      "hasBody": true,
+      "khronos": 1795440817,
+      "random": 255,
+      "flagsHex": "0405000000000000",
+      "want": "8404ff0004056973b7dfb82d9726eabea46033004585fd36fd15"
+    }
+  ],
+  "helios": [
+    {
+      "ts": 1795440816,
+      "random": 67305985,
+      "want": "AQIDBL/5gk1n/84g/FbGDbvmb0xVEmWhOUva2nRpvOeHw03L"
+    },
+    {
+      "ts": 1700000000,
+      "random": 3735928559,
+      "want": "776t3iYrhmEXV6lridmiABvh+zutc9QZUHY7zuLOBgaZPKI+"
+    },
+    {
+      "ts": 1800000000,
+      "random": 4294967295,
+      "want": "/////5HJkqG96Finv9Rj6Me8XUn0+YeWt9glUS4hGA2t11MZ"
+    }
+  ],
+  "medusaDevice": [
+    {
+      "query": "aid=8662\u0026device_id=7123456789012345678\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026os_version=14\u0026version_name=7.3.9.32",
+      "deviceId": "7123456789012345678",
+      "launchMillis": 1795440000000,
+      "nowMillis": 1795440816543,
+      "blockHex": "08021a04383636322213373132333435363738393031323334353637382a08216e6f74736574213208216e6f7065726d2138efc06c40efc06c480450efc06c5a08216e6f7473657421620f417369612f5368616e676861692c386a057a685f434e7010850145f6f3438d01d3f698439501c74bef409d01d7a3f03ea50145f67344ad01d3f61844b201023134b80178c00114c801c2b1c8e7b568d001b8f88189c168d801c2b1c8e7b568e001bec6e589c168e80102f2010a3233313237504e304343fa01065869616f6d69820208216e6f74736574218a0208216e6f7473657421920208216e6f74736574219a02065869616f6d69a20208216e6f7473657421b00206c00280f08189c168"
+    }
+  ],
+  "medusaV5": [
+    {
+      "query": "aid=8662\u0026device_id=7123456789012345678\u0026version_name=7.3.9.32\u0026ts=1795440816\u0026_rticket=1795440816004",
+      "bodyHex": "",
+      "hasBody": false,
+      "ts": 1795440816,
+      "deviceId": "7123456789012345678",
+      "useDevice": false,
+      "status": 377,
+      "pid": 14321,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 42,
+      "rndMessage": 12345678,
+      "rndKey": 878082202,
+      "rndPacked": 1450744508,
+      "want": "tUAEa50LS6H5NQkoj/WqR5ItyD2aeAABmcqckmhSAdQMGPlenY30GoYggrCv6CiWb4mS660AfjJJVfVV3L/SjdAHHs2fthkz5DUwvFg1aDRCvCdwsl1M92e/lNDyLwEDl+xlGQLP/dKp2ODyhnuSqts5OAXg9ls/qL8BGZm6BrS0nRXBqveMdzWBvsq6/ut1vy+9PaSuDbLAD1OKrH9TMTIHxWrJoBzfoxOehvESJsHhbVwSrjLyMzNpHw2j2drG/vtetKvj7yB8/6uAd5DZjezJE3GE+bsY6VJHU7cd1Qykci5d0IAMiaar7JU6FAIOxfmkKnP2w/Pq1nTgBI5uHNnpvJsNscC4mdSvI8oMEd0wqi18xzxkGXgzIMYbmBghcmKX0O++8aR4nCkZV6qvkR8m9Z6iKORDJwHcurKEmcS2PdNqZdriI4M2AljpGQUZP6bkUBQ6zKmyRD5jwYSWoDDGvaEF3S/kspmIHsKwVsOx3y+BH8aT7LGYoSbX6Zd0yAl/GQengUz+IouDuwUxIjE7VB3OcUWFXCZTz12uXVzuGH5qGzTFm3KTnQLFb0USwSPITFiS5bQQb395AImREY3+EYEuHDfBndX4OZ5jDizK2RjofswrE8lkru/LZgsVADTWF7o21WVSTAHIcYqEqLsFSgfwBlzSH6uc2mEjX7Zha6xgH8l6XGFhHk3hI2JREBIzuOfxeLIZwmkYAef8HcIRoiU5oz+pg5rilfERul1D5nW0dkEhGXCpKeXyDby2d8rhE6b1fkkGJo0hdCP/86PRCHe81Ci0HDc84h7d6sXLadmhdl4Ww4XgHRD4rBc1AZ+QGOH42efX43n5q7IhLnjdL2Po9sITQ6dGKp0vLXj7g7aKaUsttJW8vKAzGQ1vcyrykhpzxUYyH5f4w4g8ZzIYklGfse0KSKqBclG6EcYSqnjnYzYg81lTr2+Yar7OKarKghRjDbUom8tzlm6S1yZSoHybDu+JJDxc/m+neVyj1z2rfVDPr0SyEB9y3Ka5b5lBnVNLu9ihwgkMJMCYw9hJxZm1Bd1HKc2HQTwURx/7pCSmnaG9JMJhe+KZtuT9+TlFDmUIf0U9xL4jjWObkF2opceibxOB2sxPE3Bf//1Pn//9T5dWNA=="
+    },
+    {
+      "query": "aid=8662\u0026device_id=7123456789012345678\u0026version_name=7.3.9.32\u0026ts=1795440816\u0026_rticket=1795440816002",
+      "bodyHex": "7b227365726965735f6964223a2237363930313834393333303337333239343332227d",
+      "hasBody": true,
+      "ts": 1795440816,
+      "deviceId": "7123456789012345678",
+      "useDevice": false,
+      "status": 377,
+      "pid": 14321,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 42,
+      "rndMessage": 12345678,
+      "rndKey": 878082202,
+      "rndPacked": 1450744508,
+      "want": "tUAEa50LS6H5NQkoj/WqR5ItyD2aeAABZsq8mmhSgSEJGGzDc0cYJ0o9hWJcKdEAI99x47wQ+T6tLsmftrZwk5MRSAivcm9KVdO2qnKOa00F619qeoki/FRZl17LePKlwPoDHIR4UkQrDtP5SQK8GqUQ6PNXtarzbSMg9IW7UhX98iWbaDfEdewBgHvp1QHJnlcEycPcEfWpLEykPHWXfjGqyR0Wn3Gwfqa+hvEWJsPhbVwSrjbyMTNpPwWz3VrE/7t+tLvj7yB8v6uId5RZje3JE3mE+bsa6RJnU6cZVQ6lcg5d0ISMiaer7J0qFAIMxfmEKmP2w/Pr1lToBI7uHtmpnJMNtcC6mNSvI8oIEd0wqi18xzxkGXgzIMYbmBghcmKX0O++8aR4nCkZV6qvkR8m9Z6iKORDJwHcurKEmcS2PdNqZdriI4M2AljpGQUZP6bkUBQ6zKmyRD5jwYSWoDDGvaEF3S/kspmIHsKwVsOx3y+BH8aT7LGYoSbX6Zd0yAl/GQengUz+IouDuwUxIjE7VB3OcUWFXCZTz12uXVzuGH5qGzTFm3KTnQLFb0USwSPITFiS5bQQb395AImREY3+EYEuHDfBndX4OZ5jDizK2RjofswrE8lkru/LZgsVADTWF7o21WVSTAHIcYqEqLsFSgfwBlzSH6uc2mEjX7Zha6xgH8l6XGFhHk3hI2JREBIzuOfxeLIZwmkYAef8HcIRoiU5oz+pg5rilfERul1D5nW0dkEhGXCpKeXyDby2d8rhE6b1fkkGJo0hdCP/86PRCHe81Ci0HDc84h7d6sXLadmhdl4Ww4XgHRD4rBc1AZ+QGOH42efX43n5q7IhLnjdL2Po9sITQ6dGKp0vLXj7g7aKaUsttJW8vKAzGQ1vcyrykhpzxUYyH5f4w4g8ZzIYklGfse0KSKqBclG6EcYSqnjnYzYg81lTr2+Yar7OKarKghRjDbUom8tzlm6S1yZSoHybDu+JJDxc/m+neVyj1z2rfVDPr0SyEB9y3Ka5b5lBnVNLu9ihwgkMJMCYw9hJxZm1Bd1HKc2HQTwURx/7pCSmnaG9JMJhe+KZtuT9+TlFDmUIf0U9xL4jjWObkF2opceibxOB2sxPE3D1//1Pn//9T5dWNA=="
+    },
+    {
+      "query": "aid=8662\u0026device_id=7123456789012345678\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026os_version=14\u0026version_name=7.3.9.32\u0026ts=1795440816\u0026_rticket=1795440816000",
+      "bodyHex": "",
+      "hasBody": false,
+      "ts": 1795440816,
+      "deviceId": "7123456789012345678",
+      "useDevice": true,
+      "status": 369,
+      "pid": 14321,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 42,
+      "rndMessage": 12345678,
+      "rndKey": 878082202,
+      "rndPacked": 1450744508,
+      "want": "tUAEa50LS6H5NQkoj/WqR5ItyD2aeAABSMqckmhWgU4AGMZp+59cURJ1Vu7HWzcTU/d4yBzy1K+YAEcXwvsUl6E6/2WFfP8ykGOcYaypcpJ6xdmirJl6En0S+E9scP+bi8Twm48mZBvZ1jZiiWr5CpdD1rsgNhaAYbKl8RyJyQQNI1Fz9AdjPlQYWxSIVUX59MimvfKYvYhftCOF3y/AA4U9z6AcSjHJBUXpp4FRmyratx4adE8aJZoEGbi/2zhIul/iMfs3M43AiDbdTEzYSL5qGNIPabA/bANMVsOYl+WKhl31pch60xliDPRKTOYYBheiNwjmX3FqO7t91NHE//LY2bGE/vOJgGd0d97wZ6aVeyGUEywqAeR0JMi6hO1wFa+E3fmHscCZYMPRHIERPJuYbZ3+y2GlTBruv2fPsFTGwb5IaBKX5gsCwb6zbGAiW8HmGHoEfRQY6g2zN+M9D5cDIYp9GVg5GidhPkCpVP2xoKxMPxPSSSld/orB+ZkQM4elUEfz9257YvhEq9dASYFwRfs7i7bsJbiUGTg6Rtu4mb4vu+v5SVkuOsJIDJe3JLF7URsKHpfaaHeGWRipdv2PntRcQyl1lElTk90xKdmBc3J7KIC/JmvlsBzm1NttV93TfQMSW6UiOQ46qGPdG7Fi9jaLwi3GKTKWRFKyX98vd03PqwUU+c9ij/0KX2txmoQ8GElrGnFQoDBHyrHXUlNzn+BqTj9RVguI0Krqdc47tozfsD9+31ecioFT2eWl858AkELvM1QGQZsICf+5hw6GUzUKwGK9iIxH5eKKRGZXXZJdMQIMNwWjLp7V6yJJ5OjW1rtYWbYouegOFJ+9D3oT5wRM5dPsRxHcx96f7GzG+8T5KFiPT0/ii15T22oVOgVvbNaMT61yu5LvqehJ71380P6ws9oht+3D7nyxZr6EfOnGmX1pehIEIG8Igv2C4Ji3T2r44FyGQdZVP/Y1tKnc57+18YrEU3tQztSkQK0GqpFjWs4D9pPF+yCL++GI/CY1Ohbz33jw2nB3WVD8ncbWyPmNdQ9iXcGlN8XYG9AqzmKvA2EYjMLnoQCnCR45eM1Pu5SwCSdPn//9T5/6+VY0"
+    },
+    {
+      "query": "aid=8662\u0026device_id=7123456789012345678\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026os_version=14\u0026version_name=7.3.9.32\u0026ts=1795440816\u0026_rticket=1795440816032",
+      "bodyHex": "7b227365726965735f6964223a2237363930313834393333303337333239343332227d",
+      "hasBody": true,
+      "ts": 1795440816,
+      "deviceId": "7123456789012345678",
+      "useDevice": true,
+      "status": 369,
+      "pid": 14321,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 42,
+      "rndMessage": 12345678,
+      "rndKey": 878082202,
+      "rndPacked": 1450744508,
+      "want": "tUAEa50LS6H5NQkoj/WqR5ItyD2aeAABOIqcmmhSgRcMGI8grGyCsvsVHoXU4G2K1Pb077H2f/LHP+EsjQxW2Ah4ty3fbrVsxI0/3uaMjY7vZ1e1coLItP4simZj40yLqKtqKJRtkfXT4p8TtTznktC7XW8R69dL/ZUZ+UDvFp4eE+PXZz+XhVVFkLCC2bcWndodutEASM3YzdPO1tTU1RfRI87g/arBpFoU5Ozh40ME7Gn3dE+aJZsEObiv2zhIu1/COfs3s43BiDbVTExYSr9qGNIPabA9bUNMVsOcl+WKxl31tcz60RkiLPxKSOYYB1eCNxji33FqO5t91NXE//LY2bmU/nOLgSd0f97056SUeyGUEywqAeR0JMi6hO1wFa+E3fmHscCZYMPRHIERPJuYbZ3+y2GlTBruv2fPsFTGwb5IaBKX5gsCwb6zbGAiW8HmGHoEfRQY6g2zN+M9D5cDIYp9GVg5GidhPkCpVP2xoKxMPxPSSSld/orB+ZkQM4elUEfz9257YvhEq9dASYFwRfs7i7bsJbiUGTg6Rtu4mb4vu+v5SVkuOsJIDJe3JLF7URsKHpfaaHeGWRipdv2PntRcQyl1lElTk90xKdmBc3J7KIC/JmvlsBzm1NttV93TfQMSW6UiOQ46qGPdG7Fi9jaLwi3GKTKWRFKyX98vd03PqwUU+c9ij/0KX2txmoQ8GElrGnFQoDBHyrHXUlNzn+BqTj9RVguI0Krqdc47tozfsD9+31ecioFT2eWl858AkELvM1QGQZsICf+5hw6GUzUKwGK9iIxH5eKKRGZXXZJdMQIMNwWjLp7V6yJJ5OjW1rtYWbYouegOFJ+9D3oT5wRM5dPsRxHcx96f7GzG+8T5KFiPT0/ii15T22oVOgVvbNaMT61yu5LvqehJ71380P6ws9oht+3D7nyxZr6EfOnGmX1pehIEIG8Igv2C4Ji3T2r44FyGQdZVP/Y1tKnc57+18YrEU3tQztSkQK0GqpFjWs4D9pPF+yCL++GI/CY1Ohbz33jw2nB3WVD8ncbWyPmNdQ9iXcGlN8XYG9AqzmKvA2EYjMLnoQCnCR45eM1Pu5SwCUNPn//9T5/6+VY0"
+    }
+  ],
+  "argus": [
+    {
+      "query": "aid=1967\u0026device_id=test-device\u0026iid=test-install",
+      "bodyHex": "",
+      "ts": 1700000000,
+      "nonce": 659662259,
+      "aid": "1967",
+      "deviceId": "test-device",
+      "installId": "test-install",
+      "want": "8oGwZRLe2V38m+1gfqIeLa2MoV9ZBWosW5Y0NXKHAB2aEYRF86eNA7rLWm6xUCiwYMBDI/yq5ajsCmDF+Zws9KOfZO0mqezSYjF9/D5C1EliRxXJBBuZBaQZJgT6gakwiRnJkm+8F1ZVFIFO9GxkdwLxdxYidY2sLQjAsG8q4241ayJ/0zOxsVJNlqzPs7PfJb83zY6J1eIUaugTB6QnbXOKEQUgLhiYC0Uszr1vBP2Vj1cgtWu0IgouGM/ie3CohEAkY2oOkN/W1leWheBszijv"
+    },
+    {
+      "query": "aid=8662\u0026device_id=7000000000000000001\u0026iid=7000000000000000002\u0026version_name=7.1.3.32\u0026_rticket=1800000000999\u0026ts=1800000000",
+      "bodyHex": "7b22766964656f5f6964223a22313233222c2262697a5f706172616d223a7b22766964656f5f706c6174666f726d223a337d7d",
+      "ts": 1800000000,
+      "nonce": 4294967295,
+      "aid": "8662",
+      "deviceId": "7000000000000000001",
+      "installId": "7000000000000000002",
+      "want": "8oGzD48Lx0I+DCXDwk+l2r54SBRLSexXn2DlWQdGZE1UFZXj1GWup1ztpbF3eGeKcJAItaddhQwgYm7odM2byEYHtJ0pNvNUAoumWtQPqducerNIGe0Hs3z5V7oJDVgEySh6Kqc69jI8T+zU13SblzavSSZGSegC030jul66JPvjsBGzZoerKy88GDYDbumRNPCtqnfztLNNlGwmnA+0Tv+dnBC1xJ9rIEBThybfhq8wL5YqxxstLwuLGffOIlbxoQdheycfZBDpJG5kiK4eX7b3gr+PVkmCZBkJleZIYDl22UQS7nQGJKyu/a0U2MC7oWo="
+    },
+    {
+      "query": "",
+      "bodyHex": "",
+      "ts": 1700000000,
+      "nonce": 0,
+      "aid": "1967",
+      "deviceId": "",
+      "installId": "",
+      "want": "8oHyrVYEy1xDCDlx64ko40qC6JC9VYY/ZkjJzEl50iSFDw8Yfph1hupLxfKrA9GswSEz0Yi4goA7OQ4u+H8ECdOaHRbHCQV+QFNgNz4TTRpioctLgrN97GbIKIQgZJjNRNiwbGqa+jIbLonncbTbsGIMv2WphwNMhXazKSewxik7/ecf0/SUOIiVd/3LhLMGeCIy+/ngOQr9VXnvmCb8HyzUbr01+pgwc1OKSfU29+FP4vYSq2WdmLCpvopUNQZhB8U="
+    }
+  ],
+  "ladon": [
+    {
+      "ts": 1700000000,
+      "nonce": 67305985,
+      "aid": "1967",
+      "want": "AQIDBKM7Y7bWnOIUXmTybD6/MpGbuge4sBwUJsyHVivhtMsH"
+    },
+    {
+      "ts": 1800000000,
+      "nonce": 67305985,
+      "aid": "8662",
+      "want": "AQIDBPhgjvKhYEWp2lodHDSBnITF8APHUjBLe2ja98bNrRn+"
+    },
+    {
+      "ts": 1795440816,
+      "nonce": 4277009102,
+      "aid": "8662",
+      "want": "zvrt/jj3Jlsd7iFTeAPGVhQixv3VZ+LQu11IXt8CQNQEtgE8"
+    }
+  ],
+  "encodeQuery": [
+    {
+      "pairs": [
+        [
+          "query",
+          "霸总 复仇!~*'()-_."
+        ],
+        [
+          "resolution",
+          "1200*2670"
+        ],
+        [
+          "empty",
+          ""
+        ]
+      ],
+      "want": "query=%E9%9C%B8%E6%80%BB%20%E5%A4%8D%E4%BB%87!~*'()-_.\u0026resolution=1200*2670\u0026empty="
+    }
+  ],
+  "requestBodies": {
+    "series": "{\"biz_param\":{\"caller_scene\":\"single_col\",\"detail_page_version\":0,\"from_video_id\":\"\",\"need_all_video_definition\":false,\"need_mp4_align\":false,\"source\":4,\"video_id_type\":1},\"series_id\":\"7690184933037329432\"}",
+    "seriesBatch": "{\"biz_param\":{\"detail_page_version\":0,\"need_all_video_definition\":false,\"need_mp4_align\":false,\"source\":7,\"use_os_player\":false,\"use_server_dns\":false},\"dr_scene\":\"player\",\"series_id\":\"7690184933037329432,7100000000000101\"}",
+    "album": "{\"album_id\":\"7690184933037329432\",\"biz_param\":{\"video_platform\":3},\"need_video_detail_info\":true,\"series_ids\":[]}",
+    "playback": "{\"biz_param\":{\"need_all_video_definition\":true,\"video_id_type\":0,\"video_platform\":3},\"video_id\":\"7690261304497458201\"}",
+    "shortFilterPanel": "{\"need_selector_panel\":false,\"req_scene\":\"default\",\"req_type\":\"only_panel\"}",
+    "shortFilterQuery": "{\"filter_ids\":\"111,222\",\"limit\":18,\"need_selector_panel\":false,\"offset\":18,\"req_scene\":\"comic_series\",\"req_type\":\"only_content\",\"select_items\":{\"category_dim_epoch\":[],\"category_dim_role\":[],\"category_dim_theme\":[],\"creation_status\":[],\"gender\":[],\"genre\":[\"comic_series\"],\"online_time\":[],\"sort\":[\"hot_score\"]},\"session_id\":\"sess-1\"}",
+    "userWorksTabs": "{\"aid\":8662,\"comment_source\":1506,\"extra_param\":{\"enter_source\":\"12\"},\"locate_album_id\":\"\",\"sort\":\"time_desc\",\"target_user_id\":\"12345678\"}",
+    "userWorks": "{\"comment_source\":1506,\"count\":18,\"cursor\":\"cur-1\",\"extra_param\":{\"is_video_tab_comment\":\"1\"},\"locate_post_id\":\"\",\"profile_user_type\":0,\"sort\":\"time_desc\",\"sub_tab_type\":100,\"tab_type\":8,\"target_user_id\":\"12345678\"}",
+    "danmaku": "{\"aid\":8662,\"business_param\":{\"book_id\":\"7690184933037329432\",\"need_danmaku_guide_type\":[1,3,4,2],\"playlet_item_duration\":135000,\"start_offset_time\":30000},\"comment_source\":601,\"comment_type\":20,\"compliance_status\":0,\"count\":90,\"cursor\":\"\",\"group_id\":\"7690261304497458201\",\"group_type\":30,\"server_channel\":1000,\"sort\":1}"
+  },
+  "registerPlaintext": {
+    "generatedAtMs": 1795440816123,
+    "cdid": "11111111-1111-4111-8111-111111111111",
+    "openudid": "0123456789abcdef",
+    "clientudid": "22222222-2222-4222-8222-222222222222",
+    "oaid": "33333333-3333-4333-8333-333333333333",
+    "reqId": "44444444-4444-4444-8444-444444444444",
+    "plaintext": "{\"magic_tag\":\"ss_app_log\",\"header\":{\"display_name\":\"红果免费短剧\",\"update_version_code\":73932,\"manifest_version_code\":73932,\"app_version_minor\":\"7.3.9.32\",\"aid\":8662,\"channel\":\"xiaomi_8662_64\",\"package\":\"com.phoenix.read\",\"app_version\":\"7.3.9.32\",\"version_code\":73932,\"os\":\"Android\",\"os_version\":\"14\",\"os_api\":34,\"device_model\":\"23127PN0CC\",\"device_brand\":\"Xiaomi\",\"device_manufacturer\":\"Xiaomi\",\"cpu_abi\":\"arm64-v8a\",\"language\":\"zh\",\"timezone\":8,\"access\":\"wifi\",\"region\":\"CN\",\"tz_name\":\"Asia/Shanghai\",\"tz_offset\":28800,\"cdid\":\"11111111-1111-4111-8111-111111111111\",\"openudid\":\"0123456789abcdef\",\"clientudid\":\"22222222-2222-4222-8222-222222222222\",\"ipv6_list\":[],\"sim_serial_number\":[],\"oaid\":{\"hw_id_version_code\":\"0\",\"id\":\"33333333-3333-4333-8333-333333333333\",\"is_track_limited\":\"false\",\"query_times\":\"1\",\"req_id\":\"33333333-3333-4333-8333-333333333333\",\"take_ms\":\"6\",\"time\":\"1795440815923\"},\"oaid_may_support\":true,\"req_id\":\"44444444-4444-4444-8444-444444444444\",\"device_platform\":\"android\",\"guest_mode\":0,\"is_system_app\":0,\"sdk_flavor\":\"china\",\"device_id\":\"0\",\"install_id\":\"0\"},\"_gen_time\":1795440816123}"
+  }
+}
