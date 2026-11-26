@@ -31,13 +31,13 @@ export function encodeFeedCursor(next) {
   const obj = {
     cell: next.cellId,
     session: next.sessionId,
-    show: next.showType,
-    tab: next.tabType,
-    offset,
   };
   if (next.clientTemplate) {
     obj.template = next.clientTemplate;
   }
+  obj.show = next.showType;
+  obj.tab = next.tabType;
+  obj.offset = offset;
   return "d1." + base64UrlEncode(utf8Bytes(JSON.stringify(obj)));
 }
 
@@ -77,16 +77,32 @@ export function encodeShortCursor(c) {
   const obj = { o: c.offset || 0 };
   if (c.seen && c.seen.length > 0) obj.s = c.seen;
   if (c.session) obj.x = c.session;
-  if (c.selections && Object.keys(c.selections).length > 0) obj.q = c.selections;
+  if (c.selections && Object.keys(c.selections).length > 0) {
+    const sorted = {};
+    for (const k of Object.keys(c.selections).sort()) {
+      sorted[k] = c.selections[k];
+    }
+    obj.q = sorted;
+  }
   if (c.content) obj.c = c.content;
   if (c.board) obj.b = c.board;
   if (c.date) obj.d = c.date;
+  if (c.seenKey) obj.k = c.seenKey;
   return "s1." + base64UrlEncode(utf8Bytes(JSON.stringify(obj)));
 }
 
 export function decodeShortCursor(token) {
   if (!token) {
-    return { offset: 0, seen: [], session: "", selections: null, content: "", board: "", date: "" };
+    return {
+      offset: 0,
+      seen: [],
+      seenKey: "",
+      session: "",
+      selections: null,
+      content: "",
+      board: "",
+      date: "",
+    };
   }
   if (typeof token !== "string" || !token.startsWith("s1.")) {
     throw new Error("short-drama cursor is not valid");
@@ -102,7 +118,8 @@ export function decodeShortCursor(token) {
     typeof c.o !== "number" ||
     c.o < 0 ||
     (c.x && /[\r\n]/.test(c.x)) ||
-    (c.d && !validDate(c.d))
+    (c.d && !validDate(c.d)) ||
+    (c.k !== undefined && (typeof c.k !== "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(c.k)))
   ) {
     throw new Error("short-drama cursor is not valid");
   }
@@ -115,6 +132,7 @@ export function decodeShortCursor(token) {
   return {
     offset: Math.trunc(c.o),
     seen,
+    seenKey: c.k || "",
     session: c.x || "",
     selections: c.q || null,
     content: c.c || "",

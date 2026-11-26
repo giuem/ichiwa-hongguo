@@ -63,6 +63,7 @@ test("cursor encode/decode round-trips for feed, short, works, and danmaku", () 
   const shortCur = {
     offset: 18,
     seen: ["7100000000000101", "7100000000000102"],
+    seenKey: "a1b2c3d4e5f6",
     session: "s-1",
     selections: { genre: ["comic_series"] },
     content: "all",
@@ -752,4 +753,96 @@ test("parseJSONSafe preserves 16+ digit integer IDs in top-level and nested JSON
   });
   const hot = parseHotSearch(parseJSONSafe(hotRaw));
   assert.equal(hot.boards[0].items[0].seriesId, "7709414179219721278");
+});
+
+test("shortFilter pagination across 20 pages keeps cursor well under 4096 bytes and tolerates cache loss", async () => {
+  const host = installHost();
+  const seenSent = [];
+  const origFetch = globalThis.fetch;
+
+  globalThis.fetch = async (url, init) => {
+    const u = new URL(url);
+    if (u.pathname.includes("/service/2/device_register/")) {
+      return mockResponse(
+        { device_id_str: "7123456789012345678", install_id_str: "7123456789012345679", new_user: 1 },
+        { setCookies: ["ttreq=1$mock; Path=/"] }
+      );
+    }
+    if (u.pathname.includes("/reading/distribution/category/landpage/v1/")) {
+      const reqBody = JSON.parse(Buffer.from(init.body).toString("utf8"));
+      if (reqBody.req_type === "only_panel") {
+        return mockResponse({
+          code: 0,
+          data: {
+            selector_rows: [
+              {
+                type: "genre",
+                row_name: "全部体裁",
+                items: [{ show_name: "真人剧", selector_item_id: "short_play" }],
+              },
+              {
+                type: "category_dim_theme",
+                row_name: "全部主题",
+                items: [{ show_name: "甜宠", selector_item_id: "sweet" }],
+              },
+            ],
+          },
+        });
+      }
+      seenSent.push(reqBody.filter_ids ? reqBody.filter_ids.split(",") : []);
+      const offset = reqBody.offset || 0;
+      const items = [];
+      for (let i = 0; i < 18; i++) {
+        items.push({
+          series_id: String(7700000000000000000n + BigInt(offset + i + 1)),
+          series_title: `剧${offset + i + 1}`,
+          series_cover: "https://p3-reading-sign.fqnovelpic.com/c.jpg",
+          episode_cnt: 60,
+        });
+      }
+      return mockResponse({
+        code: 0,
+        data: {
+          has_more: true,
+          next_offset: offset + 18,
+          session_id: "7700999999999999999",
+          video_data: items,
+        },
+      });
+    }
+    throw new Error(`unexpected fetch: ${url}`);
+  };
+
+  try {
+    let cursor = "";
+    const cursorSizes = [];
+    for (let pageIdx = 0; pageIdx < 20; pageIdx++) {
+      const page = await plugin.collection({
+        id: "filter",
+        filters: pageIdx === 0 ? { genre: "short_play", category_dim_theme: "sweet" } : undefined,
+        cursor: cursor || undefined,
+      });
+      assert.equal(page.items.length, 18);
+      assert.ok(page.cursor, `page ${pageIdx + 1} should return a cursor`);
+      const byteLen = Buffer.byteLength(page.cursor, "utf8");
+      cursorSizes.push(byteLen);
+      assert.ok(byteLen < 512, `page ${pageIdx + 1} cursor too large: ${byteLen} bytes`);
+      cursor = page.cursor;
+    }
+    assert.equal(seenSent.length, 20);
+    assert.equal(seenSent[0].length, 0);
+    assert.equal(seenSent[19].length, 19 * 18);
+    assert.ok(Math.max(...cursorSizes) < 512);
+
+    // Simulate host.cache eviction: next page should still work without throwing.
+    const decoded = decodeShortCursor(cursor);
+    assert.ok(decoded.seenKey);
+    host.cache.delete(`hongguo_seen:${decoded.seenKey}`);
+    const afterEvict = await plugin.collection({ id: "filter", cursor });
+    assert.equal(afterEvict.items.length, 18);
+    assert.equal(seenSent[20].length, 0);
+    assert.ok(Buffer.byteLength(afterEvict.cursor, "utf8") < 512);
+  } finally {
+    globalThis.fetch = origFetch;
+  }
 });

@@ -107,6 +107,9 @@ import { signGET, signPOST, signPlaybackPOST, signPlaybackV5 } from "./sign/requ
 const PROFILE_STORAGE_KEY = "hongguo_device_profile";
 const DURATION_CACHE_PREFIX = "hongguo_ep_dur:";
 const DURATION_CACHE_TTL_SEC = 3600;
+const SEEN_CACHE_PREFIX = "hongguo_seen:";
+const SEEN_CACHE_TTL_SEC = 1800;
+const MAX_CACHED_SEEN = 4000;
 const SERIES_BATCH_SIZE = 10;
 const MAX_RETRY_WAIT_MS = 10000;
 
@@ -981,6 +984,45 @@ export class HongguoClient {
     });
   }
 
+  _loadSeen(cur) {
+    if (cur.seen && cur.seen.length > 0) return cur.seen;
+    if (!cur.seenKey) return [];
+    try {
+      const raw = host.cache.get(SEEN_CACHE_PREFIX + cur.seenKey);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.filter((id) => typeof id === "string" && id) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  _saveSeen(existingKey, prevSeen, newIds) {
+    const key = existingKey || hexEncode(host.crypto.randomBytes(6));
+    const merged = [];
+    const uniq = new Set();
+    for (const id of prevSeen) {
+      if (id && !uniq.has(id)) {
+        uniq.add(id);
+        merged.push(id);
+      }
+    }
+    for (const id of newIds) {
+      if (id && !uniq.has(id)) {
+        uniq.add(id);
+        merged.push(id);
+      }
+    }
+    const bounded =
+      merged.length > MAX_CACHED_SEEN ? merged.slice(merged.length - MAX_CACHED_SEEN) : merged;
+    try {
+      host.cache.set(SEEN_CACHE_PREFIX + key, JSON.stringify(bounded), SEEN_CACHE_TTL_SEC);
+    } catch {
+      // Ignore cache quota errors; tolerate minor duplicates if cache drops seen IDs.
+    }
+    return key;
+  }
+
   async shortFilter(q = {}) {
     return this._withFreshDevice(false, async () => {
       let selections = q.selections || {};
@@ -1000,12 +1042,13 @@ export class HongguoClient {
           throw new Error("cursor continues a different filter");
         }
       }
+      const seen = this._loadSeen(cur);
       const genre =
         Array.isArray(selections.genre) && selections.genre.length === 1
           ? selections.genre[0]
           : "";
       const scene = shortFilterScene(genre);
-      const body = shortFilterBody(scene, selections, false, cur);
+      const body = shortFilterBody(scene, selections, false, { ...cur, seen });
       const res = await this._shortFilterPost(body);
       if (res.items.length === 0 && cur.offset === 0) {
         throw new HongguoError(ErrCode.ContentUnavailable, "no matching series");
@@ -1013,9 +1056,10 @@ export class HongguoClient {
       const ids = res.items.map((it) => it.id);
       let cursor = "";
       if (res.hasMore && ids.length > 0 && res.nextOffset > cur.offset) {
+        const seenKey = this._saveSeen(cur.seenKey, seen, ids);
         cursor = encodeShortCursor({
           offset: res.nextOffset,
-          seen: [...cur.seen, ...ids],
+          seenKey,
           session: res.sessionId,
           selections,
         });
@@ -1037,10 +1081,11 @@ export class HongguoClient {
         board = cur.board;
       }
       if (!content) content = "all";
+      const seen = this._loadSeen(cur);
       const p = await this.ensureGuest(true);
       const ticket = this.clock();
       const { query, headers } = signGET(
-        signedShortRankPairs(this._identity(p), content, board, cur),
+        signedShortRankPairs(this._identity(p), content, board, { ...cur, seen }),
         ticket,
         p.device_id_str,
         VERSION_NAME
@@ -1067,14 +1112,15 @@ export class HongguoClient {
         outContent = content;
         outBoard = board;
       }
-      const seenCount = cur.seen.length;
+      const seenCount = seen.length || cur.offset;
       const items = res.items.map((it) => ({ ...it, position: it.position + seenCount }));
       const ids = res.items.map((it) => it.seriesId || it.actorId);
       let cursor = "";
       if (res.hasMore && ids.length > 0 && res.nextOffset > cur.offset) {
+        const seenKey = this._saveSeen(cur.seenKey, seen, ids);
         cursor = encodeShortCursor({
           offset: res.nextOffset,
-          seen: [...cur.seen, ...ids],
+          seenKey,
           session: res.sessionId,
           content: outContent,
           board: outBoard,
