@@ -1,6 +1,7 @@
 // Response parsers for all Hongguo endpoints
 // (ported from openhongguo internal/protocol/parse.go & danmaku.go).
 import { SHOW_TYPE_SERIES_SEASONS } from "./app.js";
+import { parseJSONSafe } from "./json.js";
 import { decodePlaybackURL } from "./playback_url.js";
 
 const PROMOTED_TEXT = "平台推荐";
@@ -469,7 +470,7 @@ export function parsePlayback(env, episodeID) {
   );
   let video = entry.video_model;
   if (typeof video === "string") {
-    video = JSON.parse(video);
+    video = parseJSONSafe(video);
   }
   if (!video || typeof video !== "object") {
     throw new Error("playback model is not an object");
@@ -521,7 +522,7 @@ export function parsePlayback(env, episodeID) {
 export function parseAlbum(env, albumID) {
   checkCode(env, "album");
   let album = env?.data?.album_data;
-  if (typeof album === "string") album = JSON.parse(album);
+  if (typeof album === "string") album = parseJSONSafe(album);
   if (!album || typeof album !== "object") {
     throw new Error("album model missing");
   }
@@ -643,7 +644,7 @@ export function parseHotSearch(env) {
     let data = c?.lynx_data;
     if (!data) continue;
     if (typeof data === "string") {
-      data = JSON.parse(data);
+      data = parseJSONSafe(data);
     }
     if (!Array.isArray(data)) continue;
     for (const cell of data) {
@@ -826,7 +827,7 @@ function recommendRank(raw) {
   let obj = raw;
   if (typeof obj === "string") {
     try {
-      obj = JSON.parse(obj);
+      obj = parseJSONSafe(obj);
     } catch {
       return 0;
     }
@@ -948,7 +949,7 @@ export function parseDanmaku(env) {
   let total = 0;
   if (cursor) {
     try {
-      const win = JSON.parse(cursor);
+      const win = parseJSONSafe(cursor);
       start = flexInt(win?.start_offset_time);
       end = flexInt(win?.end_offset_time);
       total = flexInt(win?.danmaku_count);

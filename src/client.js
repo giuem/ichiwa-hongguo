@@ -54,6 +54,7 @@ import {
   encodeWorksCursor,
   validDate,
 } from "./protocol/cursor.js";
+import { parseJSONSafe } from "./protocol/json.js";
 import {
   discoverContinuationTab,
   parseAlbum,
@@ -344,7 +345,7 @@ export class HongguoClient {
     }
     let json;
     try {
-      json = JSON.parse(text);
+      json = parseJSONSafe(text);
     } catch (e) {
       throw new HongguoError(ErrCode.APIError, `invalid JSON response: ${e?.message || e}`);
     }

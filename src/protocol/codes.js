@@ -1,4 +1,5 @@
 // Business error code classification (ported from openhongguo internal/protocol/codes.go & parse.go).
+import { parseJSONSafe } from "./json.js";
 
 export const ErrorKind = Object.freeze({
   Unknown: "unknown",
@@ -116,7 +117,7 @@ export function banWindow(message) {
   const s = String(message || "").trim();
   if (!s.startsWith("{")) return null;
   try {
-    const parsed = JSON.parse(s);
+    const parsed = parseJSONSafe(s);
     const minWait = Number(parsed.minBanTime) || 0;
     const maxWait = Number(parsed.maxBanTime) || 0;
     if (minWait <= 0 && maxWait <= 0) return null;

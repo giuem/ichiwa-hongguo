@@ -11,6 +11,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 import { emojify } from "../src/emoji.js";
 import { ErrCode, HongguoError, toHostError } from "../src/errors.js";
+import { parseJSONSafe, quoteLargeIntegers } from "../src/protocol/json.js";
+import { parseAlbum, parseHotSearch, parsePlanCells, parseSeries } from "../src/protocol/parse.js";
 import {
   decodeDanmakuCursor,
   decodeFeedCursor,
@@ -685,4 +687,69 @@ test("rank, filter, person, searchHome, refresh, and fresh-device rotation on 26
   } finally {
     globalThis.fetch = origFetch;
   }
+});
+
+test("parseJSONSafe preserves 16+ digit integer IDs in top-level and nested JSON", () => {
+  const raw =
+    '{"small":123456789012345,"ts":1795440816123,"big":7709414179219721278,' +
+    '"neg":-9007199254740993,"flt":1234567890123456.5,"sci":1234567890123456e2,' +
+    '"str":"keep 7709414179219721278 and \\"7709414179219721279\\" untouched",' +
+    '"arr":[7709414179219721278,123]}';
+  const obj = parseJSONSafe(raw);
+  assert.equal(obj.small, 123456789012345);
+  assert.equal(obj.ts, 1795440816123);
+  assert.equal(obj.big, "7709414179219721278");
+  assert.equal(obj.neg, "-9007199254740993");
+  assert.equal(typeof obj.flt, "number");
+  assert.equal(typeof obj.sci, "number");
+  assert.equal(obj.str, 'keep 7709414179219721278 and "7709414179219721279" untouched');
+  assert.deepEqual(obj.arr, ["7709414179219721278", 123]);
+
+  // Invalid leading zero should not be turned into a valid string.
+  assert.throws(() => parseJSONSafe('{"bad":01234567890123456}'));
+  assert.equal(quoteLargeIntegers('{"x":42}'), '{"x":42}');
+
+  // Series response with numeric 64-bit series_id, related_album_id, related_novel_book_id.
+  const seriesRaw =
+    '{"code":0,"data":{"video_data":{' +
+    '"series_id":7690184933037329432,' +
+    '"series_title":"大整数测试剧",' +
+    '"related_album_id":7709414179219721278,' +
+    '"related_novel_book_id":7709414179219721999,' +
+    '"video_list":[{"vid":7690261304497458201,"vid_index":1,"duration":120}]' +
+    "}}}";
+  const detail = parseSeries(parseJSONSafe(seriesRaw));
+  assert.equal(detail.series.id, "7690184933037329432");
+  assert.equal(detail.series.relatedAlbumId, "7709414179219721278");
+  assert.equal(detail.series.relatedNovelBookId, "7709414179219721999");
+  assert.equal(detail.episodes[0].id, "7690261304497458201");
+
+  // Plan cells with numeric 64-bit cell_id.
+  const planRaw = '{"code":0,"data":[{"show_type":160,"cell_id":7709414179219721278,"video_data":[]}]}';
+  const cells = parsePlanCells(parseJSONSafe(planRaw));
+  assert.equal(cells[0].cellId, "7709414179219721278");
+
+  // Nested JSON string in album_data and lynx_data.
+  const albumRaw = JSON.stringify({
+    code: 0,
+    data: {
+      album_data:
+        '{"album_id":7709414179219721278,"series_list":[{"series_id":7709414179219721279,"series_title":"第一季","season_index":1,"episode_cnt":60}]}',
+    },
+  });
+  const album = parseAlbum(parseJSONSafe(albumRaw), "");
+  assert.equal(album.id, "7709414179219721278");
+  assert.equal(album.seasons[0].seriesId, "7709414179219721279");
+
+  const hotRaw = JSON.stringify({
+    code: 0,
+    data: [
+      {
+        lynx_data:
+          '[{"cell_data":[{"cell_name":"热榜","video_data":[{"series_id":7709414179219721278,"title":"热剧"}]}]}]',
+      },
+    ],
+  });
+  const hot = parseHotSearch(parseJSONSafe(hotRaw));
+  assert.equal(hot.boards[0].items[0].seriesId, "7709414179219721278");
 });
