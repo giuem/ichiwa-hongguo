@@ -234,7 +234,8 @@ export function signPlaybackPOST(
     queryValue(query, "iid")
   );
   headers["x-ladon"] = ladonHeader(ts, ladonNonce, aid);
-  delete headers["x-medusa"];
+  // Keep x-medusa on legacy playback: since 2026-11-23 the service returns an empty
+  // 200 body when x-medusa (device layout, field 21 = 369) is omitted (openhongguo#25).
   return { query, headers };
 }
 
