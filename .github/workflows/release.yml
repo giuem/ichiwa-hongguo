@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify tag matches plugin.json version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="$(node -p 'JSON.parse(require("node:fs").readFileSync("plugin.json", "utf8")).version')"
+          if [ "$TAG" != "v$VERSION" ]; then
+            echo "Tag $TAG does not match plugin.json version v$VERSION" >&2
+            exit 1
+          fi
+
+      - name: Run tests
+        run: node --test
+
+      - name: Pack plugin.zip and SHA256SUMS
+        run: |
+          zip -r plugin.zip plugin.json index.js icon.png LICENSE NOTICE src/
+          sha256sum plugin.zip > SHA256SUMS
+          unzip -l plugin.zip
+          cat SHA256SUMS
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" plugin.zip SHA256SUMS \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

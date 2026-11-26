@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run unit and vector tests
+        run: node --test
+
+      - name: Validate plugin.json manifest
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const m = JSON.parse(fs.readFileSync("plugin.json", "utf8"));
+            if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(m.id)) throw new Error("invalid id");
+            if (m.kind !== "source") throw new Error("invalid kind");
+            if (m.apiVersion !== 1) throw new Error("invalid apiVersion");
+            if (!fs.existsSync(m.main)) throw new Error("missing main file");
+            if (m.icon && !fs.existsSync(m.icon)) throw new Error("missing icon file");
+            if (!Array.isArray(m.permissions?.network) || m.permissions.network.length === 0) {
+              throw new Error("missing permissions.network");
+            }
+            console.log("manifest OK:", m.id, m.version);
+          '

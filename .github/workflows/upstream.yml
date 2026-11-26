@@ -1,0 +1,48 @@
+name: Check Upstream
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare latest openhongguo release with UPSTREAM
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT="$(tr -d '[:space:]' < UPSTREAM)"
+          LATEST="$(gh api repos/beilunyang/openhongguo/releases/latest --jq '.tag_name')"
+          echo "Current UPSTREAM: $CURRENT"
+          echo "Latest upstream:  $LATEST"
+
+          if [ -z "$LATEST" ] || [ "$LATEST" = "$CURRENT" ]; then
+            echo "Already up to date."
+            exit 0
+          fi
+
+          # Only open an issue if LATEST is strictly newer than CURRENT.
+          NEWEST="$(printf '%s\n%s\n' "$CURRENT" "$LATEST" | sort -V | tail -n 1)"
+          if [ "$NEWEST" != "$LATEST" ]; then
+            echo "Upstream $LATEST is not newer than $CURRENT."
+            exit 0
+          fi
+
+          TITLE="Upstream openhongguo updated to $LATEST"
+          EXISTING="$(gh issue list --state all --search "\"$TITLE\" in:title" --json title --jq ".[] | select(.title == \"$TITLE\") | .title")"
+          if [ -n "$EXISTING" ]; then
+            echo "Issue already exists: $TITLE"
+            exit 0
+          fi
+
+          RELEASE_URL="$(gh api repos/beilunyang/openhongguo/releases/latest --jq '.html_url')"
+          gh issue create \
+            --title "$TITLE" \
+            --body "$(printf '检测到上游 `beilunyang/openhongguo` 发布了新版本 **%s**（当前插件对应版本为 **%s**）。\n\n- 上游 Release：%s\n- 变更对比：https://github.com/beilunyang/openhongguo/compare/%s...%s\n\n请检查签名算法、接口路径或解析逻辑是否有变更，并同步更新插件与 `UPSTREAM`。' "$LATEST" "$CURRENT" "$RELEASE_URL" "$CURRENT" "$LATEST")"
