@@ -472,5 +472,1951 @@
     "oaid": "33333333-3333-4333-8333-333333333333",
     "reqId": "44444444-4444-4444-8444-444444444444",
     "plaintext": "{\"magic_tag\":\"ss_app_log\",\"header\":{\"display_name\":\"红果免费短剧\",\"update_version_code\":73932,\"manifest_version_code\":73932,\"app_version_minor\":\"7.3.9.32\",\"aid\":8662,\"channel\":\"xiaomi_8662_64\",\"package\":\"com.phoenix.read\",\"app_version\":\"7.3.9.32\",\"version_code\":73932,\"os\":\"Android\",\"os_version\":\"14\",\"os_api\":34,\"device_model\":\"23127PN0CC\",\"device_brand\":\"Xiaomi\",\"device_manufacturer\":\"Xiaomi\",\"cpu_abi\":\"arm64-v8a\",\"language\":\"zh\",\"timezone\":8,\"access\":\"wifi\",\"region\":\"CN\",\"tz_name\":\"Asia/Shanghai\",\"tz_offset\":28800,\"cdid\":\"11111111-1111-4111-8111-111111111111\",\"openudid\":\"0123456789abcdef\",\"clientudid\":\"22222222-2222-4222-8222-222222222222\",\"ipv6_list\":[],\"sim_serial_number\":[],\"oaid\":{\"hw_id_version_code\":\"0\",\"id\":\"33333333-3333-4333-8333-333333333333\",\"is_track_limited\":\"false\",\"query_times\":\"1\",\"req_id\":\"33333333-3333-4333-8333-333333333333\",\"take_ms\":\"6\",\"time\":\"1795440815923\"},\"oaid_may_support\":true,\"req_id\":\"44444444-4444-4444-8444-444444444444\",\"device_platform\":\"android\",\"guest_mode\":0,\"is_system_app\":0,\"sdk_flavor\":\"china\",\"device_id\":\"0\",\"install_id\":\"0\"},\"_gen_time\":1795440816123}"
+  },
+  "signed": [
+    {
+      "kind": "get",
+      "path": "",
+      "pairs": [
+        [
+          "iid",
+          "7123456789012345679"
+        ],
+        [
+          "device_id",
+          "7123456789012345678"
+        ],
+        [
+          "ac",
+          "wifi"
+        ],
+        [
+          "channel",
+          "xiaomi_8662_64"
+        ],
+        [
+          "aid",
+          "8662"
+        ],
+        [
+          "app_name",
+          "novelread"
+        ],
+        [
+          "cdid",
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        [
+          "version_code",
+          "73932"
+        ],
+        [
+          "version_name",
+          "7.3.9.32"
+        ],
+        [
+          "device_platform",
+          "android"
+        ],
+        [
+          "os",
+          "android"
+        ],
+        [
+          "ssmix",
+          "a"
+        ],
+        [
+          "device_type",
+          "23127PN0CC"
+        ],
+        [
+          "device_brand",
+          "Xiaomi"
+        ],
+        [
+          "language",
+          "zh"
+        ],
+        [
+          "os_api",
+          "34"
+        ],
+        [
+          "os_version",
+          "14"
+        ],
+        [
+          "manifest_version_code",
+          "73932"
+        ],
+        [
+          "resolution",
+          "1200*2670"
+        ],
+        [
+          "dpi",
+          "460"
+        ],
+        [
+          "update_version_code",
+          "73932"
+        ],
+        [
+          "host_abi",
+          "arm64-v8a"
+        ],
+        [
+          "dragon_device_type",
+          "phone"
+        ],
+        [
+          "pv_player",
+          "73932"
+        ],
+        [
+          "compliance_status",
+          "0"
+        ],
+        [
+          "need_personal_recommend",
+          "1"
+        ],
+        [
+          "player_so_load",
+          "1"
+        ],
+        [
+          "is_android_pad_screen",
+          "0"
+        ],
+        [
+          "openudid",
+          "0123456789abcdef"
+        ],
+        [
+          "q",
+          "家里家外"
+        ],
+        [
+          "count",
+          "10"
+        ],
+        [
+          "search_source",
+          "1"
+        ],
+        [
+          "user_is_login",
+          "0"
+        ]
+      ],
+      "nowMillis": 1795440816123,
+      "deviceId": "7123456789012345678",
+      "versionName": "7.3.9.32",
+      "bodyHex": "",
+      "hasBody": false,
+      "entropy": {
+        "EnvLaunch": 107,
+        "EnvPID": 10432,
+        "NowSecs": 0,
+        "MessageRandom": 305419896,
+        "Random": 2596069104,
+        "PackedRandom": 267242409,
+        "GorgonRandom": 17185,
+        "HeliosRandom": 2271560481
+      },
+      "pid": 12345,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 57,
+      "query": "iid=7123456789012345679\u0026device_id=7123456789012345678\u0026ac=wifi\u0026channel=xiaomi_8662_64\u0026aid=8662\u0026app_name=novelread\u0026cdid=11111111-1111-4111-8111-111111111111\u0026version_code=73932\u0026version_name=7.3.9.32\u0026device_platform=android\u0026os=android\u0026ssmix=a\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026language=zh\u0026os_api=34\u0026os_version=14\u0026manifest_version_code=73932\u0026resolution=1200*2670\u0026dpi=460\u0026update_version_code=73932\u0026host_abi=arm64-v8a\u0026dragon_device_type=phone\u0026pv_player=73932\u0026compliance_status=0\u0026need_personal_recommend=1\u0026player_so_load=1\u0026is_android_pad_screen=0\u0026openudid=0123456789abcdef\u0026q=%E5%AE%B6%E9%87%8C%E5%AE%B6%E5%A4%96\u0026count=10\u0026search_source=1\u0026user_is_login=0\u0026ts=1795440816\u0026_rticket=1795440816129",
+      "headers": {
+        "Accept": "application/json; charset=utf-8,application/x-protobuf",
+        "passport-sdk-version": "50561",
+        "sdk-version": "2",
+        "x-argus": "sEAEaw==",
+        "x-gorgon": "84042143040588e8897494012d3416d6aef3ce3f902186f82bcb",
+        "x-helios": "IUNlh4mRXztjBerEWOZR35akFS5zsVkv/yH6Y7PJRcIQdrry",
+        "x-khronos": "1795440816",
+        "x-ladon": "awRAsA==",
+        "x-medusa": "tUAEa50LS6H5NQkoj/WqR5ItyD3w3gABIIqJy+0LgQQIGAbdleOLpi19twXktavMhk3+Wj1QlFklI+myW9E3xvx1DMfaamsntg/MbX27Z4hTYAJ57Aa61HZ9KpmL6DR60L/KVKx7Icu+VHNBoRtXp/wfbLyKVu6dTvwavP7pRykK6sg5RjWevXRsd+vv/j8JzszAMKKAghBmc5irw/U44+xCX+pmwMORI3AEOUH2BRdS2qSnV7Wi59kkYKX1uPyuffw2jEcwGZLVygtjMMgL/a8Sa7Pr20AeLq3JpNWWD52UnBlLelp+ny6uMxJwiCFIRELhX0/DTrRJT/4WHRaCS/oatK+fsr+m609GWxD/YAuWOU45JdoVu1NVToO1rOPNkWSwLFsxeRdwW7VWOEJ3/WFM/0gTIwVxLjAdF4Tt8hpFHXvhSyHlPpuw6mSPG6ov+s1WhcTZjsGnbAKDLttynJH+kJnsosGCf4IYtVZTyw+N9ntnze2yzBjAoJIc3GHny+IafXfLlhUQKPGBBC1jKpmgTJq7k3zwMMTId4zNtkD/PvEKeN/hhLjX99vg0uq3HKTSld1h1QXr3Azj3Dsxw/qmbgW1yzs6GCfwllTapOEgkvLcaLp5j5h7bV34Hp3Al+5MI2tZHGCKM8kb5X4dkQt0xqfuRmSM5lrZK6kuv8KFH8UpRcctHIbV4vC/B6XqZy+LvTc7wdxWXy+Y/ZmVRC+0EBDr3f6mOThBHZBbNtMfYvQy8hot2VABJrhQS1bw9P1a8b4B9Lk3Qm3XqI14JOFRQpV1q+jv4Zb131ByFkX+vXLQpFgJIl6xos+UNsxhMZPq4jk1YQd5gQ+rbg+cvXG/NmARgpRHSOQPXMGIKg7mLRnnsoeD5ZByY5kD8wnBDxcTudRlydmPhOP7gIAACM28GNOyOEicvEzkM6C6waaXUfQlspPylk8TJnXXVbLGaNxUNAebuyAjxFn1NP4wwW1GvprKT3H9ynGjNffSi6oCwVxAAZwrH/wO7ELEwfYq5hTAcxSZTsREebk/8pDxN2X9GhxB5tYSWGTtMPV6gR/mfhVKOYY39uRW/4TO7zEOzj4XIgZLuY+9XP/6H1z//xu8Gg==",
+        "x-ss-req-ticket": "1795440816129",
+        "x-tt-dt": "",
+        "x-tt-request-tag": "t=0;n=0",
+        "x-vc-bdturing-sdk-version": "3.7.2.cn",
+        "x-xs-from-web": "0"
+      }
+    },
+    {
+      "kind": "post",
+      "path": "/novel/player/video_detail/v1/",
+      "pairs": [
+        [
+          "iid",
+          "7123456789012345679"
+        ],
+        [
+          "device_id",
+          "7123456789012345678"
+        ],
+        [
+          "ac",
+          "wifi"
+        ],
+        [
+          "channel",
+          "xiaomi_8662_64"
+        ],
+        [
+          "aid",
+          "8662"
+        ],
+        [
+          "app_name",
+          "novelread"
+        ],
+        [
+          "cdid",
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        [
+          "version_code",
+          "73932"
+        ],
+        [
+          "version_name",
+          "7.3.9.32"
+        ],
+        [
+          "device_platform",
+          "android"
+        ],
+        [
+          "os",
+          "android"
+        ],
+        [
+          "ssmix",
+          "a"
+        ],
+        [
+          "device_type",
+          "23127PN0CC"
+        ],
+        [
+          "device_brand",
+          "Xiaomi"
+        ],
+        [
+          "language",
+          "zh"
+        ],
+        [
+          "os_api",
+          "34"
+        ],
+        [
+          "os_version",
+          "14"
+        ],
+        [
+          "manifest_version_code",
+          "73932"
+        ],
+        [
+          "resolution",
+          "1200*2670"
+        ],
+        [
+          "dpi",
+          "460"
+        ],
+        [
+          "update_version_code",
+          "73932"
+        ],
+        [
+          "host_abi",
+          "arm64-v8a"
+        ],
+        [
+          "dragon_device_type",
+          "phone"
+        ],
+        [
+          "pv_player",
+          "73932"
+        ],
+        [
+          "compliance_status",
+          "0"
+        ],
+        [
+          "need_personal_recommend",
+          "1"
+        ],
+        [
+          "player_so_load",
+          "1"
+        ],
+        [
+          "is_android_pad_screen",
+          "0"
+        ],
+        [
+          "openudid",
+          "0123456789abcdef"
+        ]
+      ],
+      "nowMillis": 1795440816123,
+      "deviceId": "7123456789012345678",
+      "versionName": "7.3.9.32",
+      "bodyHex": "7b2262697a5f706172616d223a7b2263616c6c65725f7363656e65223a2273696e676c655f636f6c222c2264657461696c5f706167655f76657273696f6e223a302c2266726f6d5f766964656f5f6964223a22222c226e6565645f616c6c5f766964656f5f646566696e6974696f6e223a66616c73652c226e6565645f6d70345f616c69676e223a66616c73652c22736f75726365223a342c22766964656f5f69645f74797065223a317d2c227365726965735f6964223a2237363930313834393333303337333239343332227d",
+      "hasBody": true,
+      "entropy": {
+        "EnvLaunch": 107,
+        "EnvPID": 10432,
+        "NowSecs": 0,
+        "MessageRandom": 305419896,
+        "Random": 2596069104,
+        "PackedRandom": 267242409,
+        "GorgonRandom": 17185,
+        "HeliosRandom": 2271560481
+      },
+      "pid": 12345,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 58,
+      "query": "iid=7123456789012345679\u0026device_id=7123456789012345678\u0026ac=wifi\u0026channel=xiaomi_8662_64\u0026aid=8662\u0026app_name=novelread\u0026cdid=11111111-1111-4111-8111-111111111111\u0026version_code=73932\u0026version_name=7.3.9.32\u0026device_platform=android\u0026os=android\u0026ssmix=a\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026language=zh\u0026os_api=34\u0026os_version=14\u0026manifest_version_code=73932\u0026resolution=1200*2670\u0026dpi=460\u0026update_version_code=73932\u0026host_abi=arm64-v8a\u0026dragon_device_type=phone\u0026pv_player=73932\u0026compliance_status=0\u0026need_personal_recommend=1\u0026player_so_load=1\u0026is_android_pad_screen=0\u0026openudid=0123456789abcdef\u0026ts=1795440816\u0026_rticket=1795440816133",
+      "headers": {
+        "Accept": "application/json; charset=utf-8,application/x-protobuf",
+        "Content-Type": "application/json; charset=UTF-8",
+        "passport-sdk-version": "50561",
+        "sdk-version": "2",
+        "x-argus": "sEAEaw==",
+        "x-gorgon": "840421430405bd4858f112ad1eaf16d6aef3ce3f902186f82b67",
+        "x-helios": "IUNlh4mRXztjBerEWOZR35akFS5zsVkv/yH6Y7PJRcIQdrry",
+        "x-khronos": "1795440816",
+        "x-ladon": "awRAsA==",
+        "x-medusa": "tUAEa50LS6H5NQkoj/WqR5ItyD3w3gABM4qJy+0LASkFGBnKEkjBjd+bF/6bS8VVNGc9n7JnJv0C+NCWDY+H91ULZu4ttmh/882bXWPTLiqJ6BwBBdV7gZrnw30HaJy9l8bnfVg9X/j1H+bocUJd2g2VSU4ijejgLyTdoxs9TjFD6BOl/+zJQnbBPM3zzCqLcf/+loF7rJ7ZGgFJUl356QdxX1R8aWZIuvadq4YbSsIrlHuZSJrY39dkYK31vHysfPwWjEcwGZDViitrIMiL/64SS7P728AcL+3JpMWWj5+U3BlLal7+ny/uExpgiKFKRELBV1/DTrZIT94eHRaCS/satK+Ptj+m6k9mUwD/YAmWOU45JdoVu1NVToO1rOPNkWSwLFsxeRdwW7VWOEJ3/WFM/0gTIwVxLjAdF4Tt8hpFHXvhSyHlPpuw6mSPG6ov+s1WhcTZjsGnbAKDLttynJH+kJnsosGCf4IYtVZTyw+N9ntnze2yzBjAoJIc3GHny+IafXfLlhUQKPGBBC1jKpmgTJq7k3zwMMTId4zNtkD/PvEKeN/hhLjX99vg0uq3HKTSld1h1QXr3Azj3Dsxw/qmbgW1yzs6GCfwllTapOEgkvLcaLp5j5h7bV34Hp3Al+5MI2tZHGCKM8kb5X4dkQt0xqfuRmSM5lrZK6kuv8KFH8UpRcctHIbV4vC/B6XqZy+LvTc7wdxWXy+Y/ZmVRC+0EBDr3f6mOThBHZBbNtMfYvQy8hot2VABJrhQS1bw9P1a8b4B9Lk3Qm3XqI14JOFRQpV1q+jv4Zb131ByFkX+vXLQpFgJIl6xos+UNsxhMZPq4jk1YQd5gQ+rbg+cvXG/NmARgpRHSOQPXMGIKg7mLRnnsoeD5ZByY5kD8wnBDxcTudRlydmPhOP7gIAACM28GNOyOEicvEzkM6C6waaXUfQlspPylk8TJnXXVbLGaNxUNAebuyAjxFn1NP4wwW1GvprKT3H9ynGjNffSi6oCwVxAAZwrH/wO7ELEwfYq5hTAcxSZTsREebk/8pDxN2X9GhxB5tYSWGTtMPV6gR/mfhVKOYY39uRW/4TO7zEOzj4XIgZLuY/kXP/6H1z//xu8Gg==",
+        "x-ss-req-ticket": "1795440816133",
+        "x-ss-stub": "3602159DB9F4F2FFD26AB9CFA009B2EA",
+        "x-tt-dt": "",
+        "x-tt-request-tag": "t=0;n=0",
+        "x-vc-bdturing-sdk-version": "3.7.2.cn",
+        "x-xs-from-web": "0"
+      }
+    },
+    {
+      "kind": "playbackPost",
+      "path": "/novel/player/video_model/v1/",
+      "pairs": [
+        [
+          "iid",
+          "7123456789012345679"
+        ],
+        [
+          "device_id",
+          "7123456789012345678"
+        ],
+        [
+          "ac",
+          "wifi"
+        ],
+        [
+          "channel",
+          "xiaomi_8662_64"
+        ],
+        [
+          "aid",
+          "8662"
+        ],
+        [
+          "app_name",
+          "novelread"
+        ],
+        [
+          "cdid",
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        [
+          "version_code",
+          "73932"
+        ],
+        [
+          "version_name",
+          "7.3.9.32"
+        ],
+        [
+          "device_platform",
+          "android"
+        ],
+        [
+          "os",
+          "android"
+        ],
+        [
+          "ssmix",
+          "a"
+        ],
+        [
+          "device_type",
+          "23127PN0CC"
+        ],
+        [
+          "device_brand",
+          "Xiaomi"
+        ],
+        [
+          "language",
+          "zh"
+        ],
+        [
+          "os_api",
+          "34"
+        ],
+        [
+          "os_version",
+          "14"
+        ],
+        [
+          "manifest_version_code",
+          "73932"
+        ],
+        [
+          "resolution",
+          "1200*2670"
+        ],
+        [
+          "dpi",
+          "460"
+        ],
+        [
+          "update_version_code",
+          "73932"
+        ],
+        [
+          "host_abi",
+          "arm64-v8a"
+        ],
+        [
+          "dragon_device_type",
+          "phone"
+        ],
+        [
+          "pv_player",
+          "73932"
+        ],
+        [
+          "compliance_status",
+          "0"
+        ],
+        [
+          "need_personal_recommend",
+          "1"
+        ],
+        [
+          "player_so_load",
+          "1"
+        ],
+        [
+          "is_android_pad_screen",
+          "0"
+        ],
+        [
+          "openudid",
+          "0123456789abcdef"
+        ]
+      ],
+      "nowMillis": 1795440816123,
+      "deviceId": "7123456789012345678",
+      "versionName": "7.3.9.32",
+      "bodyHex": "7b2262697a5f706172616d223a7b226e6565645f616c6c5f766964656f5f646566696e6974696f6e223a747275652c22766964656f5f69645f74797065223a302c22766964656f5f706c6174666f726d223a337d2c22766964656f5f6964223a2237363930323631333034343937343538323031227d",
+      "hasBody": true,
+      "entropy": {
+        "EnvLaunch": 107,
+        "EnvPID": 10432,
+        "NowSecs": 0,
+        "MessageRandom": 305419896,
+        "Random": 2596069104,
+        "PackedRandom": 267242409,
+        "GorgonRandom": 17185,
+        "HeliosRandom": 2271560481
+      },
+      "pid": 12345,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 59,
+      "argusNonce": 195948557,
+      "ladonNonce": 12648430,
+      "query": "iid=7123456789012345679\u0026device_id=7123456789012345678\u0026ac=wifi\u0026channel=xiaomi_8662_64\u0026aid=8662\u0026app_name=novelread\u0026cdid=11111111-1111-4111-8111-111111111111\u0026version_code=73932\u0026version_name=7.3.9.32\u0026device_platform=android\u0026os=android\u0026ssmix=a\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026language=zh\u0026os_api=34\u0026os_version=14\u0026manifest_version_code=73932\u0026resolution=1200*2670\u0026dpi=460\u0026update_version_code=73932\u0026host_abi=arm64-v8a\u0026dragon_device_type=phone\u0026pv_player=73932\u0026compliance_status=0\u0026need_personal_recommend=1\u0026player_so_load=1\u0026is_android_pad_screen=0\u0026openudid=0123456789abcdef\u0026ts=1795440816\u0026_rticket=1795440816125",
+      "headers": {
+        "Accept": "application/json; charset=utf-8,application/x-protobuf",
+        "Content-Type": "application/json; charset=UTF-8",
+        "passport-sdk-version": "50561",
+        "sdk-version": "2",
+        "x-argus": "8oH/md5Ww1h62dIQeNxXWSCnFbn+VVrzc9/h+z2vi2DJjkOAzam3DSQPIuCpjA3B/z1uvPJR4H/cqpIljmB46Wq6yozliO8gH04ao7DBkJEiSxu2roYsP3lGENANSWzsOFTBO5vPIIeBqvdGnAwodedl8Zt7VzomzDbE/1FB05Gb5zo7s6XuV6ndY8x2UncwHNzszFyYwe8HZ8eUuw0EDWjs4vLNnqfWuw8p2oglVKwr5uwGyUVfRPp+Ov0JTabYvotxofE0p3kyUF0XabyGJE0MtArmHt5wi5lTCNeqRhnWu6ZvJDNDhMftHM5QxraoOj8=",
+        "x-gorgon": "8404214304059d8a900dccd56ebd16d6aef3ce3f902186f82b63",
+        "x-helios": "IUNlh4mRXztjBerEWOZR35akFS5zsVkv/yH6Y7PJRcIQdrry",
+        "x-khronos": "1795440816",
+        "x-ladon": "7v/AACZN2uV6XqSPPRbo63A3VnINl+1O5KbTXKCPuSm8zrBz",
+        "x-medusa": "tUAEa50LS6H5NQkoj/WqR5ItyD3w3gABp4qpw/0PAfIIWDbF9XDHVZ/RpajLk2OivHAs6R54ujQhINRXj9RrJyYKekBUgz7iJUhnTycPLGLI0g/jB+doK1u3AVvk1YTQRXt/LYLfLhNrwpLs7RrrQ9+klA5nZ5C7DQLyNOLxs5RbicBTTUuWXdr3UOju9UbHtx0nvu9kFlZpBzsgf55JiySC0XWEkiYIPPIPPM10CPmhEVr7YSgX1dYkYK3luHyuffw2jFcwGZDUigtjIMyL/69SS7P730AeLu3JpNWWj5+V3DlDal5+nS7uMxJgiKFKRALhV1/HTrRJD/4eHRYCS/satK+ftr+m6g9GUxD7YAuWOU45JdoVu1NVToO1rOPNkWSwLFsxeRdwW7VWOEJ3/WFM/0gTIwVxLjAdF4Tt8hpFHXvhSyHlPpuw6mSPG6ov+s1WhcTZjsGnbAKDLttynJH+kJnsosGCf4IYtVZTyw+N9ntnze2yzBjAoJIc3GHny+IafXfLlhUQKPGBBC1jKpmgTJq7k3zwMMTId4zNtkD/PvEKeN/hhLjX99vg0uq3HKTSld1h1QXr3Azj3Dsxw/qmbgW1yzs6GCfwllTapOEgkvLcaLp5j5h7bV34Hp3Al+5MI2tZHGCKM8kb5X4dkQt0xqfuRmSM5lrZK6kuv8KFH8UpRcctHIbV4vC/B6XqZy+LvTc7wdxWXy+Y/ZmVRC+0EBDr3f6mOThBHZBbNtMfYvQy8hot2VABJrhQS1bw9P1a8b4B9Lk3Qm3XqI14JOFRQpV1q+jv4Zb131ByFkX+vXLQpFgJIl6xos+UNsxhMZPq4jk1YQd5gQ+rbg+cvXG/NmARgpRHSOQPXMGIKg7mLRnnsoeD5ZByY5kD8wnBDxcTudRlydmPhOP7gIAACM28GNOyOEicvEzkM6C6waaXUfQlspPylk8TJnXXVbLGaNxUNAebuyAjxFn1NP4wwW1GvprKT3H9ynGjNffSi6oCwVxAAZwrH/wO7ELEwfYq5hTAcxSZTsREebk/8pDxN2X9GhxB5tYSWGTtMPV6gR/mfhVKOYY39uRW/4TO7zEOzj4XIgZLuY91XP/6H1z//xu8Gg==",
+        "x-ss-req-ticket": "1795440816125",
+        "x-ss-stub": "3769BD199152850DD7245DC64F90649B",
+        "x-tt-dt": "",
+        "x-tt-request-tag": "t=0;n=0",
+        "x-vc-bdturing-sdk-version": "3.7.2.cn",
+        "x-xs-from-web": "0"
+      }
+    },
+    {
+      "kind": "playbackV5",
+      "path": "",
+      "pairs": [
+        [
+          "device_platform",
+          "android"
+        ],
+        [
+          "os",
+          "android"
+        ],
+        [
+          "ssmix",
+          "a"
+        ],
+        [
+          "_rticket",
+          ""
+        ],
+        [
+          "cdid",
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        [
+          "channel",
+          "xiaomi_8662_64"
+        ],
+        [
+          "aid",
+          "8662"
+        ],
+        [
+          "app_name",
+          "novelread"
+        ],
+        [
+          "version_code",
+          "74332"
+        ],
+        [
+          "version_name",
+          "7.4.3.32"
+        ],
+        [
+          "manifest_version_code",
+          "74332"
+        ],
+        [
+          "update_version_code",
+          "74332"
+        ],
+        [
+          "resolution",
+          "1200*2670"
+        ],
+        [
+          "dpi",
+          "460"
+        ],
+        [
+          "device_type",
+          "23127PN0CC"
+        ],
+        [
+          "device_brand",
+          "Xiaomi"
+        ],
+        [
+          "language",
+          "zh"
+        ],
+        [
+          "os_api",
+          "34"
+        ],
+        [
+          "os_version",
+          "14"
+        ],
+        [
+          "ac",
+          "wifi"
+        ],
+        [
+          "host_abi",
+          "arm64-v8a"
+        ],
+        [
+          "dragon_device_type",
+          "phone"
+        ],
+        [
+          "pv_player",
+          "74332"
+        ],
+        [
+          "compliance_status",
+          "0"
+        ],
+        [
+          "need_personal_recommend",
+          "1"
+        ],
+        [
+          "player_so_load",
+          "1"
+        ],
+        [
+          "is_android_pad_screen",
+          "0"
+        ],
+        [
+          "iid",
+          "7123456789012345679"
+        ],
+        [
+          "device_id",
+          "7123456789012345678"
+        ]
+      ],
+      "nowMillis": 1795440816123,
+      "deviceId": "7123456789012345678",
+      "versionName": "7.3.9.32",
+      "bodyHex": "1f8b08000000000000ff5490d14ec3300c45ffc5cf7d484bd8587e0521cb5d6e2b8b348992ac02a6fe3b024a11afd7c7c7d6bdd3a81f9ca5c842ee4e1e4d34709619bca2544d919ce9c863d52b38604520d777e4b5ca18c05ee7996b93466e9250f13759d523714190061e537a3d880878961076c463d2a8edfb542bb75f60c99625e81c8fbd5b05a7ca39c83bcabfb4a2ac28ec633de21f770ed2a6541672bd19ecd6912f5caf882047bba7a345dfe0f767d4f322f9ab8ade184bee99cea78b194efd83b1f672b68f4f83e9e965db3e0700c1d3b8a539010000",
+      "hasBody": true,
+      "entropy": {
+        "EnvLaunch": 107,
+        "EnvPID": 10432,
+        "NowSecs": 0,
+        "MessageRandom": 305419896,
+        "Random": 2596069104,
+        "PackedRandom": 267242409,
+        "GorgonRandom": 17185,
+        "HeliosRandom": 2271560481
+      },
+      "pid": 12345,
+      "ppid": 678,
+      "launchMillis": 1795440000000,
+      "counter": 60,
+      "query": "device_platform=android\u0026os=android\u0026ssmix=a\u0026_rticket=1795440816131\u0026cdid=11111111-1111-4111-8111-111111111111\u0026channel=xiaomi_8662_64\u0026aid=8662\u0026app_name=novelread\u0026version_code=74332\u0026version_name=7.4.3.32\u0026manifest_version_code=74332\u0026update_version_code=74332\u0026resolution=1200*2670\u0026dpi=460\u0026device_type=23127PN0CC\u0026device_brand=Xiaomi\u0026language=zh\u0026os_api=34\u0026os_version=14\u0026ac=wifi\u0026host_abi=arm64-v8a\u0026dragon_device_type=phone\u0026pv_player=74332\u0026compliance_status=0\u0026need_personal_recommend=1\u0026player_so_load=1\u0026is_android_pad_screen=0\u0026iid=7123456789012345679\u0026device_id=7123456789012345678",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "x-helios": "IUNlh4mRXztjBerEWOZR35akFS5zsVkv/yH6Y7PJRcIQdrry",
+        "x-khronos": "1795440816",
+        "x-medusa": "tUAEa50LS6H5NQkoj/WqR5ItyD3w3gABMIqJy+0PgVsMGF+MU4i2crfzblTVHzHG3dHid1AcuxzmvuQwJKDFxAOC+ZUVQvfthUZU0SBNZejGUg4jQoG8aQwFhKzobJ27t4PMKA0mTAvYZRsE87bUQsBTCtt/iueVh7qxprfR/YCR0chTdYYQpAvGaiDOtGzT/V1/NXvN37WtwDl2fvT5aYGCO3rfpRzR0W6w6k7++Pw5IUOBXdToEFhRjRadBIHB/eFeqK4jWKEMA50O2apxgu/FFtODOBdDHVm/w7S6TZlnSaMEpnsT2ZiXZchYs9A4FqCk0/5Co1xDNSWuoWdNIuzBGBMG5jQOkaR9X3+EaILTbDh96WAEeXIedQNowq1tTjoHp9ikWvv2Wz8CAHfWg3V+enJH316vf0RtyCpDGTNl9wzMU8TCLHbBfjGxxbp5WCavc6qgIyMrao7tyQIZ7Hv5xigrbX4CJNjtvDFxwUHlc//EVIJGhjbL2l68FY9LnPT7WH+spSWCzEQAp7EinO+56oTVnn6XCZBVR4JNpFBNW0yCm0iyj7GIdIzXMDS/ksgLP88HmE1sqCD+yIYgvgJsALzu1hoEyGeCxVCVIhhpESHB753Jb0/lUALhOZ39fuyHe2KpkiQyKpme+RMalCRyz/Fn+BapfaWdOu39fQfV2hsYdk94PuxkCXwAfu9zZYbEWEEjy6Sr6Aed/ZmVRC+0EBDr3f6mOThBHZBbNtMfYvQy8hot2VABJrhQS1bw9P1a8b4B9Lk3Qm3XqI14JOFRQpV1q+jv4Zb131ByFkX+vXLQpFgJIl6xos+UNsxhMZPq4jk1YQd5gQ+rbg+cvXG/NmARgpRHSOQPXMGIKg7mLRnnsoeD5ZByY5kD8wnBDxcTudRlydmPhOP7gIAACM28GNOyOEicvEzkM6C6waaXUfQlspPylk8TJnXXVbLGaNxUNAebuyAjxFn1NP4wwW1GvprKT3H9ynGjNffSi6oCwVxAAZwrH/wO7ELEwfYq5hTAcxSZTsREebk/8pDxN2X9GhxB5tYSWGTtMPV6gR/mfhVKOYY39uRW/4TO7zEOzj4XIgZLuY8OXP/6H1z//xu8Gg==",
+        "x-ss-stub": "9C1D21FD9FF4085BEF4E3278A9F54180"
+      }
+    }
+  ],
+  "cursors": [
+    {
+      "kind": "feed",
+      "fields": {
+        "CellID": "7000000000000000123",
+        "SessionID": "sess-1",
+        "ClientTemplate": "2",
+        "ShowType": "4",
+        "TabType": "16",
+        "Offset": "12"
+      },
+      "token": "d1.eyJjZWxsIjoiNzAwMDAwMDAwMDAwMDAwMDEyMyIsInNlc3Npb24iOiJzZXNzLTEiLCJ0ZW1wbGF0ZSI6IjIiLCJzaG93IjoiNCIsInRhYiI6IjE2Iiwib2Zmc2V0IjoxMn0"
+    },
+    {
+      "kind": "short",
+      "fields": {
+        "o": 36,
+        "x": "sess-2",
+        "q": {
+          "genre": [
+            "comic_series"
+          ],
+          "sort": [
+            "hot_score"
+          ]
+        }
+      },
+      "token": "s1.eyJvIjozNiwieCI6InNlc3MtMiIsInEiOnsiZ2VucmUiOlsiY29taWNfc2VyaWVzIl0sInNvcnQiOlsiaG90X3Njb3JlIl19fQ"
+    },
+    {
+      "kind": "short",
+      "fields": {
+        "o": 20,
+        "s": [
+          "7100000000000101",
+          "7709414179219721278"
+        ],
+        "x": "sess-3",
+        "c": "all",
+        "b": "hot"
+      },
+      "token": "s1.eyJvIjoyMCwicyI6WyI3MTAwMDAwMDAwMDAwMTAxIiwiNzcwOTQxNDE3OTIxOTcyMTI3OCJdLCJ4Ijoic2Vzcy0zIiwiYyI6ImFsbCIsImIiOiJob3QifQ"
+    },
+    {
+      "kind": "short",
+      "fields": {
+        "o": 15,
+        "x": "sess-4",
+        "d": "20261127"
+      },
+      "token": "s1.eyJvIjoxNSwieCI6InNlc3MtNCIsImQiOiIyMDI2MTEyNyJ9"
+    },
+    {
+      "kind": "works",
+      "fields": {
+        "u": "2672259108714884",
+        "n": "cur-1",
+        "w": {
+          "t": 8,
+          "s": 100
+        }
+      },
+      "token": "w1.eyJ1IjoiMjY3MjI1OTEwODcxNDg4NCIsIm4iOiJjdXItMSIsInciOnsidCI6OCwicyI6MTAwfX0"
+    },
+    {
+      "kind": "danmaku",
+      "fields": {
+        "e": "7690261304497458201",
+        "d": 135000,
+        "t": 30000,
+        "n": "n-1"
+      },
+      "token": "m1.eyJlIjoiNzY5MDI2MTMwNDQ5NzQ1ODIwMSIsImQiOjEzNTAwMCwidCI6MzAwMDAsIm4iOiJuLTEifQ"
+    }
+  ],
+  "parse": {
+    "cell_change": {
+      "Items": [
+        {
+          "id": "7701230871629548568",
+          "title": "神校校长",
+          "description": "林立才穿越来到办学处境艰难的高中，意外觉醒听劝系统，愿意认真倾听每一位学生的心声，学生提出合理诉求，他便努力一一落实，改善食堂伙食，加装宿舍教室空调，翻新生活设施，开设丰富兴趣课堂，尊重少年们的爱好与想法，引导大家树立正向的学习态度，原本不被看好的校园，慢慢焕发蓬勃生机，一群曾经被贴上负面标签的少年，一步步打破外界固有偏见，收获成长与自信，书写属于自己的青春篇章。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/c8f3d9c57b940ea8e16e8d92e8475a22~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971247\u0026x-signature=PQVJ%2FTsVnGoAI5VStXDTclWE4Yk%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 427
+        },
+        {
+          "id": "7679411071647484953",
+          "title": "废物垫底皇子，反倒成为千古一帝",
+          "description": "打工人李承泽穿成大汉最不受宠的七皇子靖安王，意外绑定不怕死系统，只要合理死亡便能重返现代成为世界首富，为了完成任务他彻底放飞自我，强闯府衙抢卷宗、暴打世家权贵、怒怼父皇，痛揍皇兄，别人争权夺势步步算计，他却一路作死疯狂破局，从人人眼中的废物皇子，到让满朝文武忌惮的靖安王，最终掀起一场席卷大汉的权力风暴。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/ce7e8c6aef9e39af93f2caf0082c3bf4~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971247\u0026x-signature=d9eIwY0vsz8C8OovzfrV8dVywlU%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 528
+        },
+        {
+          "id": "7709729615958248510",
+          "title": "根本没有这种副本第一季",
+          "description": "国运恐怖游戏十连败，大夏接连沦陷，亿万性命悬于一线！传统恐怖、僵尸全被敌对势力研究透彻，再无底牌。临危抽中的路人林夜，弃用保底方案，祭出邪异副本——皮嫁骨。其他玩家嗤笑老套路，却不知已踏入无解中式死局。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/18d971e372fa40ba7789205b3fd4bff8~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971247\u0026x-signature=zaFBTQUpm%2FGJZ%2BWf%2F5lUwjoelDg%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 152
+        },
+        {
+          "id": "7691938290202577944",
+          "title": "公路求生榜一说他要走到公路尽头",
+          "description": "末路求生世界正在降临，倒计时5，4，3，2，1这里是强者的天堂，弱者的地狱，上辈子苟活八年终成炮灰，这一世他不再低调。抢物资、选三轮车、一刀秒杀嚣张保安，更拿下全区首杀，响彻频道，这一次，他要走到最后！",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/d65566a8b4d3c5fa91fb3c64c5c10beb~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971247\u0026x-signature=kQrPt5fsItFEzf42Ni05%2B04SJpg%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 132
+        }
+      ],
+      "HasMore": true,
+      "NextOffset": 12,
+      "SessionID": "2026112721472185475EF7F978B9D1EA9B"
+    },
+    "danmaku": {
+      "Items": [],
+      "Start": 0,
+      "End": 30000,
+      "Total": 666,
+      "HasMore": true,
+      "Next": 30000,
+      "Cursor": "{\"start_offset_time\":0,\"end_offset_time\":30000,\"danmaku_window_count\":{\"210000\":15,\"180000\":47,\"0\":204,\"30000\":106,\"120000\":53,\"90000\":95,\"150000\":45,\"240000\":8,\"60000\":94},\"danmaku_count\":666,\"session_id\":\"2026112721473985475EF7F978B9D201EC\"}"
+    },
+    "discover": {
+      "Items": [
+        {
+          "id": "7703519230892723224",
+          "title": "横扫一切下山即巅峰神级未婚妻藏不住了",
+          "description": "自幼在昆仑山修习武学与奇门异术的庞天冲，为突破修行瓶颈、完成红尘练心的历练，遵师命下山回归故土。初入都市的他因缘际会入职戴康集团成为保安。师父“为师让你下山去红尘练心，怎么招惹了那么多的红粉佳人，待你突破之日，怎么办？”庞天冲“爱我的虽多，我爱的只有一个。”师父“到时候，你是成仙？还是成婚？”",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/c3f3160d1aba4368873296cd312a535d~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971243\u0026x-signature=bArB13vawrFKreGsK6cC4R0Wxc4%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 1000
+        },
+        {
+          "id": "7708746364141718552",
+          "title": "根本没有这种副本",
+          "description": "诡异游戏降临，输掉对决的部落将被怪谈吞没。林九所在的地方遭遇十连败，传统怪谈被其它部落研究透了，设计师也已经枯竭，上亿人的产粮区危在旦夕。就在此时，穿越而来的林夜被随机抽中，成了最后的设计师。他放弃被用烂的老套路，反手搬出一套更狠的中式诡异，把其他玩家吓得魂飞魄散，也让濒临绝境的部落一路翻盘。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/c34da9671f97f3359ddc08a11caa1cb4~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971243\u0026x-signature=ZtUFiNl9bXs42UnKRJwobuAKloU%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 166
+        },
+        {
+          "id": "7691182205371960345",
+          "title": "卿本红尘却相宜",
+          "description": "宣和七年，清北历史系高材生傅卿尘坠井穿越，魂附成了受尽白眼的魏国公府废物纨绔赘婿。辽国覆灭，金军压境，汴京却依旧醉生梦死。唯有他知道——一年后，靖康之耻将至，北宋将亡。从受尽白眼的赘婿起步，他凭千年历史记忆，算人心、破迷局、聚势力，在朝堂权谋的刀锋上游走，于暗处铸就抗金根基。身后是将士，身旁是从“不相宜”到生死相托的妻子相宜。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/784df858eabd00e0315f13ec08fdfe96~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971243\u0026x-signature=CWGREkRigQCnedmzaj6I7yGrUkY%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 103
+        }
+      ],
+      "HasMore": false,
+      "NextOffset": 0,
+      "SessionID": ""
+    },
+    "hot_search": {
+      "guesses": [
+        {
+          "position": 1,
+          "series_id": "7671966197985856536",
+          "title": "持械入宋：第一季",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/3edbd9c6ab15ebff3fd0853ec74a4f27~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=IYI8jLraDjIA1g3i1yyBbnCl2eA%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 100,
+          "content_type": 1004,
+          "heat": "5593万热度",
+          "tag": "爆剧"
+        },
+        {
+          "position": 2,
+          "series_id": "7676706788724460568",
+          "title": "持械入宋：第二季",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/3c22a827be5fb45119ea57e5c9b3d1e7~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=41HGvV86pApo2NFy4qRZdUjvDQI%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 100,
+          "content_type": 1004,
+          "heat": "5295万热度"
+        },
+        {
+          "position": 3,
+          "series_id": "7686430794469887001",
+          "title": "持械入宋：第六季",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/1cf03e6fc10807ff073942ee6b697414~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=roZRwfmcqsKHZlB8ufUqiD4G8Hk%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 100,
+          "content_type": 1004,
+          "heat": "4983万热度"
+        }
+      ],
+      "boards": [
+        {
+          "name": "热搜榜",
+          "items": [
+            {
+              "position": 1,
+              "series_id": "7709153171259542553",
+              "title": "重生高三，请停止你的魅力输出",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/759ec9343b04bd306005778d81cf94bb~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=juSc%2FIwby2NEKYdcvYRk1DLgnrU%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 150,
+              "content_type": 1004,
+              "search_score": "932万热搜值·第1季",
+              "heat": "7091万热度",
+              "tag": "新剧"
+            },
+            {
+              "position": 2,
+              "series_id": "7709356409338481726",
+              "title": "七零满仓过寒冬",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/f0420f7269d812964331cdaa754253c4~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=bbAJPvPPFQEibtrMTUwHv4zg680%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 95,
+              "content_type": 1004,
+              "search_score": "617万热搜值·第1季",
+              "heat": "5645万热度",
+              "tag": "新剧"
+            },
+            {
+              "position": 3,
+              "series_id": "7710082607840496665",
+              "title": "女儿出嫁，全村大佬来撑腰",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/672d112236edd7c8a8be1e010e626beb~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=1b%2FdeVygV5LltFPFj%2BSpZPsmSiM%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 140,
+              "content_type": 1004,
+              "search_score": "587万热搜值",
+              "heat": "5422万热度",
+              "tag": "新剧"
+            },
+            {
+              "position": 4,
+              "series_id": "7705472484295855128",
+              "title": "莞城人生",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/670a331208214460ca2c15205e7f2179~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=f%2B2iATewBEVcH1T1pM0i7kjv52w%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 137,
+              "content_type": 1004,
+              "search_score": "508万热搜值·第1季",
+              "heat": "6176万热度"
+            },
+            {
+              "position": 5,
+              "series_id": "7707679178736290878",
+              "title": "五十岁宠夫，反骨仔排队喊我妈",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/a6739bcdfe82b1ded37d034196325024~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=p5cE94LLQeuCxoLLqUSnNA%2BvASA%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 89,
+              "content_type": 1004,
+              "search_score": "467万热搜值",
+              "heat": "4854万热度",
+              "tag": "新剧"
+            },
+            {
+              "position": 6,
+              "series_id": "7710503618658454553",
+              "title": "温夜潮湿",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/ce1ba982ebfa2b4db2a684a1dbccec75~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=NeDnC9x22BYtf5GZzXc%2FwwsAptg%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "episode_count": 78,
+              "content_type": 1,
+              "search_score": "443万热搜值·第1季",
+              "heat": "6485万热度",
+              "tag": "新剧"
+            }
+          ]
+        },
+        {
+          "name": "热点话题榜",
+          "topics": [
+            {
+              "id": "7710204787119309321",
+              "title": "末世冒险剧普通人照样杀出活路",
+              "query": "末世冒险剧普通人照样杀出活路",
+              "heat": "5.9万热度"
+            },
+            {
+              "id": "7710204804182163978",
+              "title": "甜宠剧傲娇少爷就要呆萌女孩来哄",
+              "query": "甜宠剧傲娇少爷就要呆萌女孩来哄",
+              "heat": "5.2万热度"
+            },
+            {
+              "id": "7710204883903693339",
+              "title": "权谋剧全员互相算计出手就是杀招",
+              "query": "权谋剧全员互相算计出手就是杀招",
+              "heat": "4.7万热度"
+            },
+            {
+              "id": "7710204724976976393",
+              "title": "古言剧假夫妻联手查案越查越悬乎",
+              "query": "古言剧假夫妻联手查案越查越悬乎",
+              "heat": "4.5万热度"
+            },
+            {
+              "id": "7710204766152344102",
+              "title": "规则怪谈剧敢违规才有活路",
+              "query": "规则怪谈剧敢违规才有活路",
+              "heat": "4.4万热度"
+            },
+            {
+              "id": "7710204802361557555",
+              "title": "女团群像剧为舞台拼命好热血",
+              "query": "女团群像剧为舞台拼命好热血",
+              "heat": "3.8万热度"
+            },
+            {
+              "id": "7710204760972558899",
+              "title": "航空剧在天上谈恋爱玩的就是心跳",
+              "query": "航空剧在天上谈恋爱玩的就是心跳",
+              "heat": "3.1万热度"
+            },
+            {
+              "id": "7710204730374718002",
+              "title": "一家软骨头全靠苏念颠勺逆天改命",
+              "query": "一家软骨头全靠苏念颠勺逆天改命",
+              "heat": "2.5万热度"
+            }
+          ]
+        },
+        {
+          "name": "预约榜",
+          "items": [
+            {
+              "position": 1,
+              "series_id": "7708627749404953624",
+              "title": "持械入宋：第十二季",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/a5d187947e5fa027a5366a7193887971~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=5dAjF2Y5YUVcME%2FOVv53ToESWmg%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            },
+            {
+              "position": 2,
+              "series_id": "7710451889589996568",
+              "title": "谁让这个文盲修仙的第八季",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/b86e81ff48c0edb66590b5284ad05286~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=sE5d3mqigJ%2FxC1FzKEuoAdmoLPs%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            },
+            {
+              "position": 3,
+              "series_id": "7704633300471516185",
+              "title": "他欺我身后无人",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/d2dbd86d5302ad3b0f727f7c2119d5c7~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=ZLr0sdFAq04DSonu%2BoFkWtfAXAo%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            },
+            {
+              "position": 4,
+              "series_id": "7710935274452175896",
+              "title": "退役归来，这个保镖不好惹第四季",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/c06e0b2d19941c1b8a81b80cc3ce136d~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=UjoC4GCE4cmZTnIo9Zz%2FAkPezBY%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            },
+            {
+              "position": 5,
+              "series_id": "7709465177204214808",
+              "title": "废土黑作坊：从造一级弹开始第二季",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/ffa8ac31261de899f02ca171a34d8ed4~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=WoN%2FQneFzKo3jO05jrJKH8ko%2F10%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            },
+            {
+              "position": 6,
+              "series_id": "7710935274435398680",
+              "title": "重生高三，请停止你的魅力输出第二季",
+              "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/3fd8dfd4336006a6602e3404f32dc94a~tplv-s85hriknmn-jpeg-v1:600:0.heic?lk3s=ae45642e\u0026x-expires=1800971253\u0026x-signature=gE7tc6G%2FBq5Piy5CbJhNIIgnoSA%3D",
+              "cover_expires_at": "2027-01-26T21:47:33+08:00",
+              "content_type": 1007,
+              "tag": "预告"
+            }
+          ]
+        }
+      ]
+    },
+    "new_releases": {
+      "date": "20261127",
+      "dates": [
+        "20261120",
+        "20261121",
+        "20261122",
+        "20261123"
+      ],
+      "items": [
+        {
+          "series_id": "7710598194043833368",
+          "title": "无敌铁拳妈妈，强力护崽",
+          "description": "高云婷遭同学恶意哄骗参加生日宴，于KTV被恶霸赵天宝强行灌酒。母亲陈琳及时赶来救下女儿，冲突中将赵天宝打成重伤。赵天宝之父赵乾坤手握女儿遭非礼的视频以此要挟，逼迫陈琳认罪。为保护女儿，陈琳含冤入狱三年。狱中她结识同样被赵乾坤迫害的秦娜，约定出狱联手复仇。三年后陈琳出狱，恰逢撞见高云婷遭赵天赐欺辱，她挺身而出护女。陈琳向女儿坦白过往，母女携手，依靠法律以正当防卫维权，让赵家一众恶人受到惩处。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/dd97038acf44a24d11c976cd32481521~tplv-81nmtwyey9-superreso-aifit:600:0.heic?lk3s=8ed66eb1\u0026x-expires=1803563257\u0026x-signature=V5iQyH%2FvZNWQXUQF7Y74OfScXhI%3D",
+          "cover_expires_at": "2027-02-25T21:47:37+08:00",
+          "episode_count": 80,
+          "online": true,
+          "publish_at": "2026-11-26T16:25:07Z",
+          "categories": [
+            "都市",
+            "逆袭翻身",
+            "大女主"
+          ],
+          "heat": "310万热度"
+        },
+        {
+          "series_id": "7711730519121071128",
+          "title": "她和闺蜜爱骑行，我放手她却慌了",
+          "description": "张弛在妻子叶诗曼的骑行车上装了定位，一次提示将他引向酒店，也引向一辆陌生的男式单车与一个说不清的“女闺蜜”。车座暗格里的东西，让三年的婚姻裂开一道缝。结婚纪念日，她执意赴公主岭露营，他则悄悄带上岳母梁玉芬、小舅子叶奎和一众亲戚，循着夜色围向那顶帐篷。暴雨封路，众人困在山下酒店，而叶诗曼与孙瑾之间说不清的关系，正在暗处悄然浮出水面。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/0d5ff22a708319ca81dab86d2a6152f4~tplv-81nmtwyey9-superreso-aifit:600:0.heic?lk3s=8ed66eb1\u0026x-expires=1803563257\u0026x-signature=0bHNMS9%2Fddfv3XywNqao7YHlxmA%3D",
+          "cover_expires_at": "2027-02-25T21:47:37+08:00",
+          "episode_count": 52,
+          "online": true,
+          "publish_at": "2026-11-27T01:58:16Z",
+          "categories": [
+            "都市",
+            "都市日常",
+            "虐渣"
+          ],
+          "heat": "318万热度"
+        },
+        {
+          "series_id": "7710439968648203326",
+          "title": "全能兵王",
+          "description": "陈诺，代号“天狼”，世界战力榜连续三年第一的传奇兵王，阴差阳错成了女总裁贴身保镖。林欣然是林氏集团女总裁，冷傲强势，对陈诺百般嫌弃，却在一次次危机中被他所救。陈诺一边保护“天煞孤星”命格的林欣然，一边解决商战阴谋、地下势力，更因黑玉手链引来欧洲地下女王凯瑟琳黛拉的疯狂追求。都市暗流中，杀破狼命格与天煞孤星的宿命交织，武道高手、雇佣兵、黑暗势力轮番登场。陈诺一路碾压强敌，守护这座城市的暗面秩序。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/cd714b1910d583f96c292d3eb196aec8~tplv-81nmtwyey9-superreso-aifit:600:0.heic?lk3s=8ed66eb1\u0026x-expires=1803563257\u0026x-signature=SHeLTPNjXey%2BVXq32dOUpxie2K0%3D",
+          "cover_expires_at": "2027-02-25T21:47:37+08:00",
+          "episode_count": 60,
+          "online": true,
+          "publish_at": "2026-11-26T16:04:27Z",
+          "categories": [
+            "逆袭",
+            "超凡逆袭",
+            "打脸反派"
+          ],
+          "heat": "301万热度"
+        },
+        {
+          "series_id": "7711201209448680473",
+          "title": "我才不会对太子妃言听计从",
+          "description": "国际特警林恒樾意外穿成大雍朝末代太子妃，唯有改写历史，把纨绔太子萧景渊改造成一代明君，才能改变自己必死的结局。看似废柴的萧景渊，实则心性纯良，在林恒樾的魔鬼训练下一点点脱胎换骨，长出担当与锋芒。最终，内乱肃清、外敌击退，萧景渊登基后与林恒樾并肩治国，开创大雍中兴盛世",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/b9fc72c6c16fec201184a1c043577d49~tplv-81nmtwyey9-superreso-aifit:600:0.heic?lk3s=8ed66eb1\u0026x-expires=1803563257\u0026x-signature=HSLUZHv8ntHsxOAgGwQWby9IsuY%3D",
+          "cover_expires_at": "2027-02-25T21:47:37+08:00",
+          "episode_count": 66,
+          "online": true,
+          "publish_at": "2026-11-26T16:04:43Z",
+          "categories": [
+            "爱情",
+            "古风爱情",
+            "穿越"
+          ],
+          "heat": "358万热度"
+        }
+      ],
+      "has_more": true,
+      "NextOffset": 15,
+      "SessionID": "20261127214736A2AE6730D93421DAB375"
+    },
+    "plan_recommend": [
+      {
+        "ShowType": 401,
+        "CellID": "7324259824294707262",
+        "CellName": "更多好剧",
+        "SessionID": "",
+        "Items": [
+          {
+            "id": "7503439031443655704",
+            "title": "厂花大小姐玩转90年",
+            "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/40941e9fcc46f627a3ef32b722824a1d~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=64477e16\u0026x-expires=1800971258\u0026x-signature=jQMJ13p%2BTLXEQ3893OTJxmFtUSA%3D",
+            "cover_expires_at": "2027-01-26T21:47:38+08:00",
+            "episode_count": 34
+          },
+          {
+            "id": "7221751199282760708",
+            "title": "三公主",
+            "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/42c89042df3aa728ac1dde1b254baeb2~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=64477e16\u0026x-expires=1800971258\u0026x-signature=qau22WKxSx31IFgVDJZCTx8SHHc%3D",
+            "cover_expires_at": "2027-01-26T21:47:38+08:00",
+            "episode_count": 30
+          },
+          {
+            "id": "7219273487402142732",
+            "title": "逐梦",
+            "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/af8c3fa19ed26e84e500d64ea182a008~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=64477e16\u0026x-expires=1800971258\u0026x-signature=lIHhtRMIdivYnrvUXo1mr1GXqJo%3D",
+            "cover_expires_at": "2027-01-26T21:47:38+08:00",
+            "episode_count": 41
+          },
+          {
+            "id": "7296031515048152100",
+            "title": "萌娃助攻：笨蛋老爸快追妻！",
+            "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/1a7b56d40f34828094c6600a01688df6~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=64477e16\u0026x-expires=1800971258\u0026x-signature=LtDEeAzFJ22kY4KMqxLJiVUiYpY%3D",
+            "cover_expires_at": "2027-01-26T21:47:38+08:00",
+            "episode_count": 85
+          }
+        ]
+      }
+    ],
+    "profile": {
+      "user_id": "2672259108714884",
+      "name": "代高政",
+      "description": "代高政，毕业于中央戏剧学院。代表作《千金丫鬟》《盲心千金》《雨爱千金》《做自己的光》等。",
+      "avatar_url": "http://p3-reading-sign.fqnovelpic.com/novel-pic/00934fee48bc4cb5a7e2668f0817d671~tplv-s85hriknmn-jpeg-v1:144:0.heic?lk3s=9b9bd2b1\u0026x-expires=1798308595\u0026x-signature=xj0gB%2FogBre7KTAthai1DtAPnRI%3D",
+      "tags": [
+        "男演员"
+      ],
+      "followers": 325220,
+      "likes": 14388189
+    },
+    "search": {
+      "Items": [
+        {
+          "id": "7481108346636864536",
+          "title": "家里家外",
+          "description": "1981年，蔡晓艳和陈海清两人闪婚，各自带着孩子组成了新的家庭。蔡晓艳性格泼辣，陈海清却偏爱她。相处中，蔡晓艳温暖了陈海清的女儿陈爽，陈海清也赢得了蔡晓艳儿子邵一帆的信任，一家四口相互支持，日子越过越美好。",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 79
+        },
+        {
+          "id": "7577339455728520217",
+          "title": "家里家外2",
+          "description": "1986年，艳艳家电行开张，同一天，泼辣能干的蔡晓艳生下一个孩子，她和耙耳朵丈夫陈海清给孩子取名陈三轮，陈一帆和陈爽迎来了他们的弟弟。不久后，这个重组家庭又来了一位从北京来的小客人，周大为。时代变迁，不变的是温暖和爱。",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 111
+        },
+        {
+          "id": "7576470929471982617",
+          "title": "家里家外",
+          "description": "《家里家外》以四川北部小镇为背景，借“我”的回忆串起表孃母女十余年的聚散。坝坝宴、桑叶、铁轨见证家庭烟火与时代变迁：表孃从被拐到归来，金金表妹从伴读到远嫁，写尽告别与重逢、失落与成长。故事用温润方言记录普通人喜怒哀乐，离合悲欢皆是生活本色。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/0bfbb4125f4e94b7a6ebcf83cbdc61ee~tplv-81nmtwyey9-superreso-aifit:600:0.heic?lk3s=64477e16\u0026x-expires=1800971255\u0026x-signature=OlGKraGUe4E7sd7TPDwmZNwNgjQ%3D",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "episode_count": 26
+        }
+      ],
+      "HasMore": true,
+      "NextOffset": 6,
+      "SessionID": ""
+    },
+    "seasons": [
+      {
+        "series_id": "7481108346636864536",
+        "title": "家里家外",
+        "index": 1,
+        "cover_url": "https://p6-novel.byteimg.com/novel-pic/d0138a43a5669c110aa7f8daf12b1b99~tplv-shrink:640:0.image",
+        "episode_count": 79
+      },
+      {
+        "series_id": "7577339455728520217",
+        "title": "家里家外2",
+        "index": 2,
+        "cover_url": "https://p6-novel.byteimg.com/novel-pic/aeeb74662c4c02ad8c55c1c1d149a124~tplv-shrink:640:0.image",
+        "episode_count": 111
+      },
+      {
+        "series_id": "7580194086003428376",
+        "title": "家里家外3",
+        "index": 3,
+        "cover_url": "https://p6-novel.byteimg.com/novel-pic/6cfcf0d32788ebf0ff6029f7edf24567~tplv-shrink:640:0.image"
+      }
+    ],
+    "series": {
+      "Episodes": [
+        {
+          "id": "7481128004467297304",
+          "series_id": "7481108346636864536",
+          "number": 1,
+          "title": "蔡晓艳冒死救嫂硬刚领导，陈海清霸气取消评选！",
+          "playable": true,
+          "vertical": true,
+          "cover_url": "https://p3-novel.byteimg.com/novel-pic/8d0e2384de9f18859ff8ba408e4e6a03~tplv-shrink:640:0.image",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "content_type": 1,
+          "comment_count": 33421,
+          "digg_count": 1236591
+        },
+        {
+          "id": "7481128004194683928",
+          "series_id": "7481108346636864536",
+          "number": 2,
+          "title": "蔡晓艳为儿怒怼逼婚，竟与陈海清闪婚？",
+          "playable": true,
+          "vertical": true,
+          "cover_url": "https://p6-novel.byteimg.com/novel-pic/2e0ff6e972eb1834114a21c50acb61df~tplv-shrink:640:0.image",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "content_type": 1,
+          "comment_count": 45590,
+          "digg_count": 960674
+        },
+        {
+          "id": "7481128004265970712",
+          "series_id": "7481108346636864536",
+          "number": 3,
+          "title": "陈海清竟当众宣布工资上交蔡晓艳！",
+          "playable": true,
+          "vertical": true,
+          "cover_url": "https://p6-novel.byteimg.com/novel-pic/652e9eb094152d9ded88ba4d2c55f6d0~tplv-shrink:640:0.image",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "content_type": 1,
+          "comment_count": 17969,
+          "digg_count": 367251
+        },
+        {
+          "id": "7481128004551183384",
+          "series_id": "7481108346636864536",
+          "number": 4,
+          "title": "陈爽拒认后妈蔡晓艳，赌气不食继母面。",
+          "playable": true,
+          "vertical": true,
+          "cover_url": "https://p6-novel.byteimg.com/novel-pic/f245a9814729e160e77678f636b76746~tplv-shrink:640:0.image",
+          "cover_expires_at": "0001-01-01T00:00:00Z",
+          "content_type": 1,
+          "comment_count": 20937,
+          "digg_count": 355077
+        }
+      ],
+      "Series": {
+        "id": "7481108346636864536",
+        "title": "家里家外",
+        "description": "1981年，蔡晓艳和陈海清两人闪婚，各自带着孩子组成了新的家庭。蔡晓艳性格泼辣，陈海清却偏爱她。相处中，蔡晓艳温暖了陈海清的女儿陈爽，陈海清也赢得了蔡晓艳儿子邵一帆的信任，一家四口相互支持，日子越过越美好。",
+        "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/d0138a43a5669c110aa7f8daf12b1b99~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=253f70db\u0026x-expires=1800968434\u0026x-signature=LvFEcYnv0aLv2WhRTh6KJ4%2B9r0c%3D",
+        "cover_expires_at": "2027-01-26T21:00:34+08:00",
+        "episode_count": 79,
+        "status": 1,
+        "content_type": 1,
+        "platform": 3,
+        "heat": 42259546,
+        "play_count": 2119350,
+        "follow_count": 10967999,
+        "created_at": "2025-03-13T10:01:11+08:00",
+        "right_text": "全79集",
+        "subtitles": [
+          "全79集",
+          "红果热度值4225万"
+        ],
+        "is_multi_season": true,
+        "season_index": 1,
+        "related_album_id": "7546522984664550462",
+        "rows": [
+          {
+            "kind": 4,
+            "text": "9.9分"
+          },
+          {
+            "kind": 43,
+            "text": "第1季"
+          },
+          {
+            "kind": 3,
+            "text": "年代",
+            "schema": "dragon8662://search?directQueryWord=%E5%B9%B4%E4%BB%A3\u0026directSearchSourceId=clks_tag%231795787256DD084349%235021%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227481108346636864536%22%7D"
+          },
+          {
+            "kind": 3,
+            "text": "治愈",
+            "schema": "dragon8662://search?directQueryWord=%E6%B2%BB%E6%84%88\u0026directSearchSourceId=clks_tag%231795787256DD084349%235116%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227481108346636864536%22%7D"
+          }
+        ]
+      }
+    },
+    "series_batch": {
+      "7481108346636864536": {
+        "series": {
+          "id": "7481108346636864536",
+          "title": "家里家外",
+          "description": "1981年，蔡晓艳和陈海清两人闪婚，各自带着孩子组成了新的家庭。蔡晓艳性格泼辣，陈海清却偏爱她。相处中，蔡晓艳温暖了陈海清的女儿陈爽，陈海清也赢得了蔡晓艳儿子邵一帆的信任，一家四口相互支持，日子越过越美好。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/d0138a43a5669c110aa7f8daf12b1b99~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=253f70db\u0026x-expires=1800971258\u0026x-signature=z0sWHbT2gmM%2Bjtj7Pxbn3DE8m%2BE%3D",
+          "cover_expires_at": "2027-01-26T21:47:38+08:00",
+          "episode_count": 79,
+          "status": 1,
+          "content_type": 1,
+          "platform": 3,
+          "heat": 42259546,
+          "play_count": 2119350,
+          "follow_count": 10967999,
+          "created_at": "2025-03-13T10:01:11+08:00",
+          "right_text": "全79集",
+          "subtitles": [
+            "全79集",
+            "红果热度值4225万"
+          ],
+          "is_multi_season": true,
+          "season_index": 1,
+          "related_album_id": "7546522984664550462",
+          "rows": [
+            {
+              "kind": 4,
+              "text": "9.9分"
+            },
+            {
+              "kind": 43,
+              "text": "第1季"
+            },
+            {
+              "kind": 3,
+              "text": "年代",
+              "schema": "dragon8662://search?directQueryWord=%E5%B9%B4%E4%BB%A3\u0026directSearchSourceId=clks_tag%231795787258B9D1FFF7%235021%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227481108346636864536%22%7D"
+            },
+            {
+              "kind": 3,
+              "text": "治愈",
+              "schema": "dragon8662://search?directQueryWord=%E6%B2%BB%E6%84%88\u0026directSearchSourceId=clks_tag%231795787258B9D1FFF7%235116%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227481108346636864536%22%7D"
+            }
+          ]
+        },
+        "episodes": [
+          {
+            "id": "7481128004467297304",
+            "series_id": "7481108346636864536",
+            "number": 1,
+            "title": "蔡晓艳冒死救嫂硬刚领导，陈海清霸气取消评选！",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p6-novel.byteimg.com/novel-pic/8d0e2384de9f18859ff8ba408e4e6a03~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 33421,
+            "digg_count": 1236591
+          },
+          {
+            "id": "7481128004194683928",
+            "series_id": "7481108346636864536",
+            "number": 2,
+            "title": "蔡晓艳为儿怒怼逼婚，竟与陈海清闪婚？",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p6-novel.byteimg.com/novel-pic/2e0ff6e972eb1834114a21c50acb61df~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 45590,
+            "digg_count": 960674
+          },
+          {
+            "id": "7481128004265970712",
+            "series_id": "7481108346636864536",
+            "number": 3,
+            "title": "陈海清竟当众宣布工资上交蔡晓艳！",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p6-novel.byteimg.com/novel-pic/652e9eb094152d9ded88ba4d2c55f6d0~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 17969,
+            "digg_count": 367251
+          },
+          {
+            "id": "7481128004551183384",
+            "series_id": "7481108346636864536",
+            "number": 4,
+            "title": "陈爽拒认后妈蔡晓艳，赌气不食继母面。",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p6-novel.byteimg.com/novel-pic/f245a9814729e160e77678f636b76746~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 20937,
+            "digg_count": 355077
+          }
+        ]
+      },
+      "7577339455728520217": {
+        "series": {
+          "id": "7577339455728520217",
+          "title": "家里家外2",
+          "description": "1986年，艳艳家电行开张，同一天，泼辣能干的蔡晓艳生下一个孩子，她和耙耳朵丈夫陈海清给孩子取名陈三轮，陈一帆和陈爽迎来了他们的弟弟。不久后，这个重组家庭又来了一位从北京来的小客人，周大为。时代变迁，不变的是温暖和爱。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/aeeb74662c4c02ad8c55c1c1d149a124~tplv-81nmtwyey9-superreso-aifit:1200:0.heic?lk3s=253f70db\u0026x-expires=1800971251\u0026x-signature=2zwylFJRydBmxJECphETJk7y3eI%3D",
+          "cover_expires_at": "2027-01-26T21:47:31+08:00",
+          "episode_count": 111,
+          "status": 1,
+          "content_type": 1,
+          "platform": 3,
+          "heat": 42498085,
+          "play_count": 1612847,
+          "follow_count": 7918806,
+          "created_at": "2025-11-27T17:47:02+08:00",
+          "right_text": "全111集",
+          "subtitles": [
+            "全111集",
+            "红果热度值4249万"
+          ],
+          "is_multi_season": true,
+          "season_index": 2,
+          "related_album_id": "7546522984664550462",
+          "rows": [
+            {
+              "kind": 4,
+              "text": "9.7分"
+            },
+            {
+              "kind": 43,
+              "text": "第2季"
+            },
+            {
+              "kind": 3,
+              "text": "家庭",
+              "schema": "dragon8662://search?directQueryWord=%E5%AE%B6%E5%BA%AD\u0026directSearchSourceId=clks_tag%231795787258B9D1FFF7%235001%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227577339455728520217%22%7D"
+            },
+            {
+              "kind": 3,
+              "text": "治愈",
+              "schema": "dragon8662://search?directQueryWord=%E6%B2%BB%E6%84%88\u0026directSearchSourceId=clks_tag%231795787258B9D1FFF7%235116%23%23\u0026client_extra=%7B%22last_feed_bookid%22%3A%227577339455728520217%22%7D"
+            }
+          ]
+        },
+        "episodes": [
+          {
+            "id": "7577341425084288062",
+            "series_id": "7577339455728520217",
+            "number": 1,
+            "title": "第1集",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p3-novel.byteimg.com/novel-pic/0fe43b38819d03206d36da81c6ad1048~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 43428,
+            "digg_count": 1002077
+          },
+          {
+            "id": "7577341448224263230",
+            "series_id": "7577339455728520217",
+            "number": 2,
+            "title": "第2集",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p6-novel.byteimg.com/novel-pic/eb5190a46b7a143d03f292ef5b6db0a0~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 22644,
+            "digg_count": 576241
+          },
+          {
+            "id": "7577341604843752510",
+            "series_id": "7577339455728520217",
+            "number": 3,
+            "title": "第3集",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p3-novel.byteimg.com/novel-pic/da110a6acd9b1da9917f92af97b0ac09~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 12990,
+            "digg_count": 312319
+          },
+          {
+            "id": "7577341557796260926",
+            "series_id": "7577339455728520217",
+            "number": 4,
+            "title": "第4集",
+            "playable": true,
+            "vertical": true,
+            "cover_url": "https://p3-novel.byteimg.com/novel-pic/e35ac0c1a68f87c43f942ab2135f22d0~tplv-shrink:640:0.image",
+            "cover_expires_at": "0001-01-01T00:00:00Z",
+            "content_type": 1,
+            "comment_count": 6994,
+            "digg_count": 302169
+          }
+        ]
+      }
+    },
+    "short_filter": {
+      "Rows": null,
+      "Items": [
+        {
+          "id": "7566112865115966489",
+          "title": "为了百姓弃私欲",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/ed499015148d7e1cd1ed9de456331761~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=i5qp6HpHsCF%2F8fN2ox%2B0HBNj%2Ftg%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 76
+        },
+        {
+          "id": "7703596559572667454",
+          "title": "灵葫仙缘：凡夫问道",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/db7268a8e4f5fa63152334ae651b373b~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=J2jNHwdIX8NL1bLVGkFGziqP59I%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 1000
+        },
+        {
+          "id": "7710822671759461438",
+          "title": "觉醒伪神：神明弃我我自为神9",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/fc5e5d558aea5b9a6eaa04f8135fb4d9~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=to5gzbVjnSTMYi3fv5jYJuafBsc%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 193
+        },
+        {
+          "id": "7710965858712964120",
+          "title": "魔神人生：弃子问天第四季",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/d7b6d531b3ada60884af3e3f56ccc433~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=64477e16\u0026x-expires=1800971253\u0026x-signature=iFy9gHkGs8pLnGjcy2G7z0Z6Vck%3D",
+          "cover_expires_at": "2027-01-26T21:47:33+08:00",
+          "episode_count": 408
+        }
+      ],
+      "NextOffset": 18,
+      "HasMore": true,
+      "SessionID": "2026112721473285475EF7F978B9D1F828"
+    },
+    "short_filter_panel": {
+      "Rows": [
+        {
+          "key": "genre",
+          "name": "全部体裁",
+          "options": [
+            {
+              "name": "真人剧",
+              "value": "short_play"
+            },
+            {
+              "name": "漫剧",
+              "value": "comic_series"
+            },
+            {
+              "name": "AI剧",
+              "value": "ai_series"
+            }
+          ]
+        },
+        {
+          "key": "category_dim_theme",
+          "name": "全部主题",
+          "options": [
+            {
+              "name": "动作",
+              "value": "cate_9281"
+            },
+            {
+              "name": "综艺",
+              "value": "cate_9280"
+            },
+            {
+              "name": "爱情",
+              "value": "cate_5876"
+            },
+            {
+              "name": "年代",
+              "value": "cate_5891"
+            }
+          ]
+        },
+        {
+          "key": "category_dim_role",
+          "name": "全部设定",
+          "options": [
+            {
+              "name": "大女主",
+              "value": "cate_6171"
+            },
+            {
+              "name": "女强",
+              "value": "cate_6172"
+            },
+            {
+              "name": "神女",
+              "value": "cate_6173"
+            },
+            {
+              "name": "大男主",
+              "value": "cate_6174"
+            }
+          ]
+        },
+        {
+          "key": "category_dim_epoch",
+          "name": "全部背景",
+          "options": [
+            {
+              "name": "现代",
+              "value": "cate_6274"
+            },
+            {
+              "name": "古代",
+              "value": "cate_6275"
+            },
+            {
+              "name": "民国",
+              "value": "cate_6276"
+            },
+            {
+              "name": "未来",
+              "value": "cate_6278"
+            }
+          ]
+        }
+      ],
+      "Items": [],
+      "NextOffset": 0,
+      "HasMore": false,
+      "SessionID": "2026112721473285475EF7F978B9D1F7D6"
+    },
+    "short_rank": {
+      "Contents": [
+        {
+          "id": "all",
+          "name": "全部",
+          "selected": true,
+          "boards": [
+            {
+              "id": "ranklist_hot_sc",
+              "name": "推荐榜",
+              "selected": true
+            },
+            {
+              "id": "ranklist_hot_play_sc",
+              "name": "热播榜"
+            },
+            {
+              "id": "ranklist_prestige",
+              "name": "臻果榜"
+            },
+            {
+              "id": "ranklist_subscribe",
+              "name": "预约榜"
+            }
+          ]
+        },
+        {
+          "id": "series_album",
+          "name": "系列剧",
+          "boards": [
+            {
+              "id": "series_album_hot_sc",
+              "name": "推荐榜"
+            },
+            {
+              "id": "series_album_new_rank",
+              "name": "新季榜"
+            }
+          ]
+        },
+        {
+          "id": "comic_series_rank",
+          "name": "漫剧",
+          "boards": [
+            {
+              "id": "comic_series_hot_rank",
+              "name": "推荐榜"
+            },
+            {
+              "id": "comic_series_hot_play",
+              "name": "热播榜"
+            },
+            {
+              "id": "comic_series_new_rank",
+              "name": "新剧榜"
+            },
+            {
+              "id": "comic_series_subscribe",
+              "name": "预约榜"
+            }
+          ]
+        },
+        {
+          "id": "human",
+          "name": "真人剧",
+          "boards": [
+            {
+              "id": "human_hot_sc",
+              "name": "推荐榜"
+            },
+            {
+              "id": "human_hot_play",
+              "name": "热播榜"
+            },
+            {
+              "id": "human_new_rank",
+              "name": "新剧榜"
+            },
+            {
+              "id": "human_subscribe",
+              "name": "预约榜"
+            }
+          ]
+        }
+      ],
+      "Items": [
+        {
+          "rank": 1,
+          "series_id": "7705341153675070489",
+          "title": "归国千金不好惹",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/860587e8798ff8367aa1f864cf8d3abe~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=ae45642e\u0026x-expires=1800971248\u0026x-signature=RhOe4o5El9risFKClHd7m7bQwqI%3D",
+          "score": "993万推荐",
+          "episode_count": 89,
+          "position": 1
+        },
+        {
+          "rank": 2,
+          "series_id": "7706908220253555737",
+          "title": "得了一种只能说真话的病",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/4427f6d48c56e3b0f854b67f434064f5~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=ae45642e\u0026x-expires=1800971248\u0026x-signature=H%2Bmk7Hln%2BfJqqzRsKoFtPlynaE8%3D",
+          "score": "986万推荐",
+          "episode_count": 71,
+          "position": 2
+        },
+        {
+          "rank": 3,
+          "series_id": "7709790572130618393",
+          "title": "我大专毕业当柜姐，亮出实力后他们慌了",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/fdc8a9721122d7e79434139240f0bc1c~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=ae45642e\u0026x-expires=1800971248\u0026x-signature=4kY%2B18ET%2FIesadS25TdSyNqQJbs%3D",
+          "score": "974万推荐",
+          "episode_count": 96,
+          "position": 3
+        },
+        {
+          "rank": 4,
+          "series_id": "7705623080567065625",
+          "title": "千金难买你开心，那我选择仅退款",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/4f1c56b84a5c855c94922ec07f2af535~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=ae45642e\u0026x-expires=1800971248\u0026x-signature=o1SPFF4CJ22J%2FqfczTe1KbZ64Bo%3D",
+          "score": "966万推荐",
+          "episode_count": 60,
+          "position": 4
+        }
+      ],
+      "NextOffset": 10,
+      "HasMore": true,
+      "SessionID": "20261127214728448DD21F7D62FDC4BAC5",
+      "Version": ""
+    },
+    "short_rank_actor": {
+      "Contents": [
+        {
+          "id": "ranklist_celebrity",
+          "name": "演员",
+          "selected": true,
+          "boards": [
+            {
+              "id": "ranklist_series_actor",
+              "name": "剧星榜",
+              "selected": true
+            },
+            {
+              "id": "ranklist_actor_fans",
+              "name": "星光榜"
+            }
+          ]
+        }
+      ],
+      "Items": [
+        {
+          "actor": "代高政",
+          "score": "864万人气",
+          "position": 1,
+          "actor_id": "7457097932345464126",
+          "user_id": "2672259108714884",
+          "avatar_url": "http://p3-reading-sign.fqnovelpic.com/novel-pic/00934fee48bc4cb5a7e2668f0817d671~tplv-s85hriknmn-jpeg-v1:144:0.jpeg?lk3s=9b9bd2b1\u0026x-expires=1798308595\u0026x-signature=xYfQTmvle%2F9sJv5599hjAYQcjzA%3D",
+          "intro": "《母凭子贵后被皇家宠上天3》《春山不眠》《她那么骄》《今天有朵云爱我》《休个假，顺便成了老板娘》",
+          "details": [
+            "12部作品",
+            "双周追剧218万人"
+          ],
+          "change": {
+            "kind": 1,
+            "places": 1
+          }
+        },
+        {
+          "actor": "陈杨婷丹",
+          "score": "864万人气",
+          "position": 2,
+          "actor_id": "7521654909997962558",
+          "user_id": "3414422309317783",
+          "avatar_url": "http://p3-reading-sign.fqnovelpic.com/novel-pic/fde62d75e7d6480ebb590c5b3d561ab9~tplv-s85hriknmn-jpeg-v1:144:0.jpeg?lk3s=9b9bd2b1\u0026x-expires=1798307275\u0026x-signature=V%2F8jgHBjDAwe3Ha1KP6dGSTcsqE%3D",
+          "intro": "《母凭子贵后被皇家宠上天3》《暗夜错轨》《母凭子贵后被皇家宠上天第二季》《母凭子贵后被皇家宠上天》《夫人别盼死首辅还能活百年》",
+          "details": [
+            "32部作品",
+            "双周追剧168万人"
+          ],
+          "change": {
+            "kind": 2,
+            "places": 1
+          }
+        },
+        {
+          "actor": "林秋奈",
+          "score": "839万人气",
+          "position": 3,
+          "actor_id": "7517600322387187006",
+          "user_id": "2552402625962200",
+          "avatar_url": "http://p3-reading-sign.fqnovelpic.com/novel-pic/256024703fb29da5a475d1e05b5a98ea~tplv-s85hriknmn-jpeg-v1:144:0.jpeg?lk3s=9b9bd2b1\u0026x-expires=1798307246\u0026x-signature=UKqbNeWBFzrS%2FBcXYlPPgP3z7Jg%3D",
+          "intro": "《将门有朵刺骨花》《春山不眠》《夺风华》《她的备用联系人》《娇藏京枝》",
+          "details": [
+            "23部作品",
+            "双周追剧122万人"
+          ],
+          "change": {
+            "kind": 1,
+            "places": 10
+          }
+        },
+        {
+          "actor": "张庭睿",
+          "score": "788万人气",
+          "position": 4,
+          "actor_id": "7498329160738166078",
+          "user_id": "564466113059371",
+          "avatar_url": "http://p3-reading-sign.fqnovelpic.com/novel-pic/3ab0006bfce8fbe4c971c0a2dea9c1aa~tplv-s85hriknmn-jpeg-v1:144:0.jpeg?lk3s=9b9bd2b1\u0026x-expires=1798304393\u0026x-signature=szeYR%2BkVhL%2FetKjJQ6G3xjqWn3E%3D",
+          "intro": "《将门有朵刺骨花》《帝后也疯狂》《多情应笑我》《帝后也疯狂第二季》《这个家我罩了》",
+          "details": [
+            "29部作品",
+            "双周追剧78万人"
+          ],
+          "change": {
+            "kind": 1,
+            "places": 10
+          }
+        }
+      ],
+      "NextOffset": 15,
+      "HasMore": true,
+      "SessionID": "20261127214730A2AE6730D93421DAAA91",
+      "Version": ""
+    },
+    "suggest": [
+      {
+        "text": "家里家外",
+        "keyword": "7481108346636864536",
+        "kind": 2
+      },
+      {
+        "text": "家里家外2",
+        "keyword": "7577339455728520217",
+        "kind": 2
+      },
+      {
+        "text": "家里家外3",
+        "keyword": "7580194086003428376",
+        "kind": 2
+      },
+      {
+        "text": "家里家外之小巷人家大合集",
+        "keyword": "7628622520890952728",
+        "kind": 2
+      }
+    ],
+    "user_works": {
+      "Items": [
+        {
+          "series_id": "7711254808669211673",
+          "title": "春山不眠",
+          "description": "唐柠17岁这年，被爸爸的朋友洛青瑶接到盛家寄居，唐柠在盛家感受到了温暖，唯有盛琮冷漠。但随着了解深入，盛琮渐渐接受了她。唐柠的梦想是完成爸爸的遗愿，推广昆曲，所以她努力学习。但也在这过程中喜欢上了盛琮。在鼓足勇气告白后，却换来盛琮的远离，她搬离盛园。盛琮在唐柠离开后，骤然发现，他对她早不知何时动了情。他暗着引导明着维护，一步一步将唐柠诱到身边。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/b9a2e435de5f0b39effc9c3fc64e492c~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=253f70db\u0026x-expires=1800971208\u0026x-signature=gx8xvlEw6vC3Tmaj54wHEZqZihI%3D",
+          "cover_expires_at": "2027-01-26T21:46:48+08:00",
+          "episode_count": 70,
+          "tags": [
+            "爱情",
+            "70集"
+          ],
+          "heat": 56208741,
+          "plays": 2780202
+        },
+        {
+          "series_id": "7704577081954274328",
+          "title": "母凭子贵后被皇家宠上天3",
+          "description": "黛蜜梨被未婚夫退婚，还被他逼着做妾，走投无路之下参加镇北王选妃。萧戡身中奇毒、双腿残疾，自责连累百姓，甚至想提剑自尽。黛蜜梨以命挡剑，救下他后，告诉他百姓需要他，她也需要他。后来，萧戡选她为妃。婚后，黛蜜梨一点点陪着萧戡走出阴霾，阴差阳错还帮他解了毒；而萧戡也处处护着她，让她再也没人敢欺负。她让他觉得人间值得再活，他让她从绝境中重生。两人互相救赎，最终过上了幸福的日子。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/6685b29a3b1cbd5a3d6f7238f79ff61e~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=253f70db\u0026x-expires=1800968368\u0026x-signature=GBcCoe4jDW5UZb7BIdGY6ARzqFU%3D",
+          "cover_expires_at": "2027-01-26T20:59:28+08:00",
+          "episode_count": 71,
+          "tags": [
+            "爱情",
+            "71集"
+          ],
+          "heat": 61982589,
+          "plays": 38244025
+        },
+        {
+          "series_id": "7701652979782257689",
+          "title": "她那么骄",
+          "description": "傅承彦和温越被迫定下婚约，不堪压抑的温越远赴山区支教。后，傅承彦强行将温越带回城中，心死的温越一心等待契约到期解脱。但别扭的占有欲让傅承彦内心动摇，渐渐转化为爱意。他彻底摒弃契约，决心与温越相守一生。温越意外怀有身孕，满心期待未来。但傅承彦母亲始终不认可她，刻意挑拨离间，温越中计，悄然斩断所有踪迹，独自远赴国外生子重生。傅承彦得知真相后跨越山海寻妻，故事迎来终极对峙与未完结局。",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/5d7a3a970abd4e936df4f59b3d9e2664~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=253f70db\u0026x-expires=1800968764\u0026x-signature=2KhjnOKkShB%2FBBekGhpwzNKbsM8%3D",
+          "cover_expires_at": "2027-01-26T21:06:04+08:00",
+          "episode_count": 71,
+          "tags": [
+            "爱情",
+            "71集"
+          ],
+          "heat": 47604967,
+          "plays": 16511853
+        },
+        {
+          "series_id": "7689322645132692542",
+          "title": "今天有朵云爱我",
+          "description": "27岁生日这晚，被初恋男友劈腿分手还背上一身债务的顾悦己在崩溃之下，和送来生日蛋糕的外卖员任江野定下契约搭伙过日子。她是服装主播，他是伪装成外卖小哥的包工头。二人彼此动心，却各有顾虑，在相处中吵了又和，俨然一对情侣。任江野打算等她还清债务，再坦白真实身份。不料顾悦己先行识破谎言，她不贪钱财也不愿再接受他，果断分手搬家，甚至开始相亲。任江野慌了，他认错，他认输，他拼了命要回到顾悦己身边",
+          "cover_url": "https://p3-reading-sign.fqnovelpic.com/novel-pic/b912e2e1c0de6fbf2d8a89c256ebe357~tplv-81nmtwyey9-superreso-aifit:400:0.heic?lk3s=253f70db\u0026x-expires=1800968657\u0026x-signature=EqJBJzRYHVRaRTMoo2EFs%2BGuLjg%3D",
+          "cover_expires_at": "2027-01-26T21:04:17+08:00",
+          "episode_count": 66,
+          "tags": [
+            "爱情",
+            "66集"
+          ],
+          "heat": 44511582,
+          "plays": 10815330
+        }
+      ],
+      "HasMore": false,
+      "Cursor": "{\"next_cursor\":[{\"id\":0,\"tab\":22,\"sub_tab\":null,\"cursor\":12,\"has_more\":false,\"min_cursor\":0,\"max_cursor\":0,\"prev_cursor\":0,\"prev_has_more\":false}],\"has_more\":false,\"prev_has_more\":false}"
+    },
+    "works_tabs": {
+      "OK": true,
+      "Tab": {
+        "t": 23,
+        "s": 22
+      }
+    }
   }
 }

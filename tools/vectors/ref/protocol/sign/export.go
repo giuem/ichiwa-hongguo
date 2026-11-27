@@ -1,6 +1,9 @@
 package sign
 
-import "encoding/hex"
+import (
+	"encoding/hex"
+	"strconv"
+)
 
 // Exported wrappers for vector generation.
 
@@ -58,3 +61,34 @@ func DeviceFlags() []byte   { return medusaDeviceFlags }
 func EmulatorFlags() []byte { return medusaEmulatorFlags }
 func EmulatorStatus() int64 { return medusaEmulatorStatus }
 func DeviceStatus() int64   { return medusaDeviceStatus }
+
+// PinProcess fixes the process environment and the next Medusa counter, so a
+// whole signed request comes out the same on every run.
+func PinProcess(env MedusaEnv, counter int64) {
+	medusaEnvOnce.Do(func() {})
+	medusaEnv = env
+	medusaCounterOnce.Do(func() {})
+	medusaCounter.Store(counter - 1)
+}
+
+// SignRequestFixed is signRequest with the given entropy.
+func SignRequestFixed(path string, pairs [][2]string, nowMillis int64, deviceID, versionName string, body []byte, ent Entropy) (string, map[string]string) {
+	return signRequest(path, pairs, nowMillis, deviceID, versionName, body, &ent)
+}
+
+// SignPlaybackPOSTFixed is SignPlaybackPOST with fixed Argus and Ladon nonces.
+// It keeps x-medusa: the port sends it on legacy playback, since the service
+// answers an empty body without it (openhongguo#25).
+func SignPlaybackPOSTFixed(path string, pairs [][2]string, nowMillis int64, deviceID, versionName string, body []byte, ent Entropy, argusNonce, ladonNonce uint32) (string, map[string]string) {
+	query, headers := signRequest(path, pairs, nowMillis, deviceID, versionName, body, &ent)
+	khronos, _ := strconv.ParseUint(headers["x-khronos"], 10, 64)
+	ts := uint32(khronos)
+	bodyMD5 := [16]byte{}
+	if len(body) > 0 {
+		bodyMD5 = md5Raw(body)
+	}
+	aid := playbackAID(query)
+	headers["x-argus"] = argusHeader(query, bodyMD5, ts, argusNonce, aid, queryValue(query, "device_id"), queryValue(query, "iid"))
+	headers["x-ladon"] = ladonHeader(ts, ladonNonce, aid)
+	return query, headers
+}

@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"vectors/ref/drm"
@@ -38,6 +40,37 @@ type Vectors struct {
 	EncodeQuery    []EncodeQueryVec     `json:"encodeQuery"`
 	RequestBodies  RequestBodiesVec     `json:"requestBodies"`
 	RegisterPlain  RegisterPlainVec     `json:"registerPlaintext"`
+	Signed         []SignedVec          `json:"signed"`
+	Cursors        []CursorVec          `json:"cursors"`
+	Parse          map[string]any       `json:"parse"`
+}
+
+// SignedVec is one whole signed request: the query and every header.
+type SignedVec struct {
+	Kind        string            `json:"kind"` // get, post, playbackPost, playbackV5
+	Path        string            `json:"path"`
+	Pairs       [][2]string       `json:"pairs"`
+	NowMillis   int64             `json:"nowMillis"`
+	DeviceID    string            `json:"deviceId"`
+	VersionName string            `json:"versionName"`
+	BodyHex     string            `json:"bodyHex"`
+	HasBody     bool              `json:"hasBody"`
+	Entropy     sign.Entropy      `json:"entropy"`
+	PID         int64             `json:"pid"`
+	PPID        int64             `json:"ppid"`
+	Launch      int64             `json:"launchMillis"`
+	Counter     int64             `json:"counter"`
+	ArgusNonce  uint32            `json:"argusNonce,omitempty"`
+	LadonNonce  uint32            `json:"ladonNonce,omitempty"`
+	Query       string            `json:"query"`
+	Headers     map[string]string `json:"headers"`
+}
+
+// CursorVec is a cursor the Go SDK encodes from the given fields.
+type CursorVec struct {
+	Kind   string `json:"kind"` // feed, short, works, danmaku
+	Fields any    `json:"fields"`
+	Token  string `json:"token"`
 }
 
 type HashVec struct {
@@ -604,9 +637,153 @@ func main() {
 		Plaintext:     string(plainReg),
 	}
 
+
+	// 17. Whole signed requests: query and every header.
+	ident := protocol.SearchIdentity{
+		DeviceID:  "7123456789012345678",
+		InstallID: "7123456789012345679",
+		CDID:      "11111111-1111-4111-8111-111111111111",
+		OpenUDID:  "0123456789abcdef",
+		Device:    model.DefaultDevice,
+	}
+	ent := sign.Entropy{
+		EnvLaunch: 107, EnvPID: 10432, MessageRandom: 0x12345678, Random: 0x9abcdef0,
+		PackedRandom: 0x0fedcba9, GorgonRandom: 0x4321, HeliosRandom: 0x87654321,
+	}
+	procEnv := sign.DefaultMedusaEnv(1795440000000)
+	procEnv.PID, procEnv.PPID = 12345, 678
+	const signNow = int64(1795440816123)
+	seriesBody, _ := protocol.SeriesBody("7690184933037329432")
+	playBody, _ := protocol.PlaybackBody("7690261304497458201")
+	v5Body, err := protocol.PlaybackV5Body("7690261304497458201")
+	if err != nil {
+		panic(err)
+	}
+	for i, tc := range []struct {
+		kind, path string
+		pairs      [][2]string
+		body       []byte
+	}{
+		{"get", "", protocol.SignedSuggestPairs(ident, "家里家外"), nil},
+		{"post", protocol.PathSeries, protocol.DeviceQueryPairs(ident), seriesBody},
+		{"playbackPost", protocol.PathPlayback, protocol.DeviceQueryPairs(ident), playBody},
+		{"playbackV5", "", protocol.PlaybackV5Pairs(ident), v5Body},
+	} {
+		counter := int64(57 + i)
+		sign.PinProcess(procEnv, counter)
+		vec := SignedVec{
+			Kind: tc.kind, Path: tc.path, Pairs: tc.pairs, NowMillis: signNow,
+			DeviceID: ident.DeviceID, VersionName: protocol.VersionName,
+			BodyHex: hex.EncodeToString(tc.body), HasBody: tc.body != nil,
+			Entropy: ent, PID: procEnv.PID, PPID: procEnv.PPID, Launch: procEnv.LaunchMillis,
+			Counter: counter,
+		}
+		switch tc.kind {
+		case "get":
+			vec.Query, vec.Headers = sign.SignRequestFixed("/reading/bookapi/search/tab/v", tc.pairs, signNow, ident.DeviceID, protocol.VersionName, nil, ent)
+		case "post":
+			vec.Query, vec.Headers = sign.SignRequestFixed(tc.path, tc.pairs, signNow, ident.DeviceID, protocol.VersionName, tc.body, ent)
+		case "playbackPost":
+			vec.ArgusNonce, vec.LadonNonce = 0x0badf00d, 0x00c0ffee
+			vec.Query, vec.Headers = sign.SignPlaybackPOSTFixed(tc.path, tc.pairs, signNow, ident.DeviceID, protocol.VersionName, tc.body, ent, vec.ArgusNonce, vec.LadonNonce)
+		case "playbackV5":
+			e := ent
+			vec.Query, vec.Headers, err = sign.NewPlaybackV5Signer(signNow).Sign(tc.pairs, signNow, tc.body, &e)
+			if err != nil {
+				panic(err)
+			}
+		}
+		v.Signed = append(v.Signed, vec)
+	}
+
+	// 18. Cursors.
+	must := func(s string, err error) string {
+		if err != nil {
+			panic(err)
+		}
+		return s
+	}
+	feed := protocol.FeedContinuation{CellID: "7000000000000000123", SessionID: "sess-1", ClientTemplate: "2", ShowType: "4", TabType: "16", Offset: "12"}
+	short := protocol.ShortCursor{Offset: 36, Session: "sess-2", Selections: map[string][]string{"sort": {"hot_score"}, "genre": {"comic_series"}}}
+	rank := protocol.ShortCursor{Offset: 20, Session: "sess-3", Content: "all", Board: "hot", Seen: []string{"7100000000000101", "7709414179219721278"}}
+	day := protocol.ShortCursor{Offset: 15, Session: "sess-4", Date: "20261127"}
+	works := protocol.WorksCursor{UserID: "2672259108714884", Next: "cur-1", Tab: &protocol.WorksTab{Tab: 8, Sub: 100}}
+	dm := protocol.DanmakuCursor{EpisodeID: "7690261304497458201", Duration: 135000, Start: 30000, Next: "n-1"}
+	v.Cursors = []CursorVec{
+		{"feed", feed, must(protocol.EncodeFeedCursor(feed))},
+		{"short", short, must(protocol.EncodeShortCursor(short))},
+		{"short", rank, must(protocol.EncodeShortCursor(rank))},
+		{"short", day, must(protocol.EncodeShortCursor(day))},
+		{"works", works, must(protocol.EncodeWorksCursor(works))},
+		{"danmaku", dm, must(protocol.EncodeDanmakuCursor(dm))},
+	}
+
+	// 19. Response parsing: live responses (arrays cut to four items) read
+	// by the Go parsers.
+	v.Parse = map[string]any{}
+	files, _ := filepath.Glob("../../test/vectors/responses/*.json")
+	for _, f := range files {
+		var fx struct {
+			Response string `json:"response"`
+		}
+		raw, err := os.ReadFile(f)
+		if err != nil {
+			panic(err)
+		}
+		if err := json.Unmarshal(raw, &fx); err != nil {
+			panic(err)
+		}
+		name := strings.TrimSuffix(filepath.Base(f), ".json")
+		out, err := parseFixture(name, []byte(fx.Response))
+		if err != nil {
+			panic(fmt.Sprintf("%s: %v", name, err))
+		}
+		v.Parse[name] = out
+	}
+
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(v); err != nil {
 		panic(err)
 	}
+}
+
+func parseFixture(name string, raw []byte) (any, error) {
+	switch name {
+	case "discover":
+		return protocol.ParseDiscoverTab(raw, 16)
+	case "cell_change":
+		return protocol.ParseCellChange(raw)
+	case "search":
+		return protocol.ParseSearchTab(raw, 11)
+	case "suggest":
+		return protocol.ParseSuggest(raw)
+	case "hot_search":
+		return protocol.ParseHotSearch(raw)
+	case "series":
+		s, eps, err := protocol.ParseSeries(raw)
+		return map[string]any{"Series": s, "Episodes": eps}, err
+	case "series_batch":
+		return protocol.ParseSeriesBatch(raw)
+	case "seasons":
+		return protocol.ParseSeasons(raw)
+	case "plan_recommend":
+		return protocol.ParsePlanCell(raw)
+	case "new_releases":
+		return protocol.ParseNewReleases(raw)
+	case "profile":
+		return protocol.ParseProfile(raw)
+	case "works_tabs":
+		tab, ok, err := protocol.ParseWorksTab(raw)
+		return map[string]any{"Tab": tab, "OK": ok}, err
+	case "user_works":
+		return protocol.ParseUserWorks(raw)
+	case "short_filter", "short_filter_panel":
+		return protocol.ParseShortFilter(raw)
+	case "short_rank", "short_rank_actor":
+		return protocol.ParseShortRank(raw)
+	case "danmaku":
+		return protocol.ParseDanmaku(raw)
+	}
+	return nil, fmt.Errorf("no parser for fixture %s", name)
 }

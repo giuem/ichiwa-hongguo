@@ -44,7 +44,21 @@ import {
   xmxor,
 } from "../src/sign/medusa.js";
 import { argusHeader, ladonHeader } from "../src/sign/playback.js";
-import { encodeQuery } from "../src/sign/request.js";
+import { encodeQuery, signPlaybackPOST, signPlaybackV5, signRequest } from "../src/sign/request.js";
+import {
+  deviceQueryPairs,
+  playbackV5Pairs as buildPlaybackV5Pairs,
+  signedSuggestPairs,
+} from "../src/protocol/request.js";
+import {
+  encodeDanmakuCursor,
+  encodeFeedCursor,
+  encodeShortCursor,
+  encodeWorksCursor,
+} from "../src/protocol/cursor.js";
+import * as parsers from "../src/protocol/parse.js";
+import { parseJSONSafe } from "../src/protocol/json.js";
+import { DEFAULT_DEVICE } from "../src/protocol/app.js";
 
 installHost();
 
@@ -265,4 +279,177 @@ test("Register plaintext and gzip round-trip match openhongguo", () => {
     fromUtf8(host.encoding.gunzip(pbGz)),
     fromUtf8(playbackV5PlainBody("7690261304497458201"))
   );
+});
+
+const SIGN_IDENTITY = {
+  deviceId: "7123456789012345678",
+  installId: "7123456789012345679",
+  cdid: "11111111-1111-4111-8111-111111111111",
+  openudid: "0123456789abcdef",
+  device: DEFAULT_DEVICE,
+};
+
+test("whole signed requests (query and every header) match openhongguo", () => {
+  const builders = {
+    get: () => signedSuggestPairs(SIGN_IDENTITY, "家里家外"),
+    post: () => deviceQueryPairs(SIGN_IDENTITY),
+    playbackPost: () => deviceQueryPairs(SIGN_IDENTITY),
+    playbackV5: () => buildPlaybackV5Pairs(SIGN_IDENTITY),
+  };
+  assert.equal(vectors.signed.length, 4);
+  for (const tc of vectors.signed) {
+    // The pair builders agree with Go, too.
+    assert.deepEqual(builders[tc.kind](), tc.pairs, `${tc.kind} pairs`);
+    const e = tc.entropy;
+    const entropy = {
+      envLaunch: e.EnvLaunch,
+      envPID: e.EnvPID,
+      nowSecs: e.NowSecs,
+      messageRandom: e.MessageRandom,
+      random: e.Random,
+      packedRandom: e.PackedRandom,
+      gorgonRandom: e.GorgonRandom,
+      heliosRandom: e.HeliosRandom,
+    };
+    const env = defaultMedusaEnv(tc.launchMillis);
+    env.pid = tc.pid;
+    env.ppid = tc.ppid;
+    env.counter = tc.counter;
+    // As in production, the device layout comes from the signed query.
+    delete env.device;
+    const body = tc.hasBody ? hexDecode(tc.bodyHex) : null;
+    let got;
+    switch (tc.kind) {
+      case "get":
+        got = signRequest("/reading/bookapi/search/tab/v", tc.pairs, tc.nowMillis, tc.deviceId, tc.versionName, null, entropy, env);
+        break;
+      case "post":
+        got = signRequest(tc.path, tc.pairs, tc.nowMillis, tc.deviceId, tc.versionName, body, entropy, env);
+        break;
+      case "playbackPost":
+        got = signPlaybackPOST(tc.path, tc.pairs, tc.nowMillis, tc.deviceId, tc.versionName, body, entropy, env, {
+          argus: tc.argusNonce,
+          ladon: tc.ladonNonce,
+        });
+        break;
+      case "playbackV5":
+        got = signPlaybackV5(tc.pairs, tc.nowMillis, body, entropy, env);
+        break;
+    }
+    assert.equal(got.query, tc.query, `${tc.kind} query`);
+    assert.deepEqual(got.headers, tc.headers, `${tc.kind} headers`);
+  }
+});
+
+test("cursor encoding matches openhongguo byte-for-byte", () => {
+  for (const tc of vectors.cursors) {
+    const f = tc.fields;
+    let got;
+    switch (tc.kind) {
+      case "feed":
+        got = encodeFeedCursor({
+          cellId: f.CellID,
+          sessionId: f.SessionID,
+          clientTemplate: f.ClientTemplate,
+          showType: f.ShowType,
+          tabType: f.TabType,
+          offset: f.Offset,
+        });
+        break;
+      case "short":
+        got = encodeShortCursor({
+          offset: f.o,
+          seen: f.s,
+          session: f.x,
+          selections: f.q,
+          content: f.c,
+          board: f.b,
+          date: f.d,
+        });
+        break;
+      case "works":
+        got = encodeWorksCursor({ userId: f.u, next: f.n, tab: f.w ? { tab: f.w.t, sub: f.w.s } : null });
+        break;
+      case "danmaku":
+        got = encodeDanmakuCursor({ episodeId: f.e, duration: f.d, start: f.t, next: f.n });
+        break;
+    }
+    assert.equal(got, tc.token, tc.kind);
+  }
+});
+
+// Fields the Go parsers fill that the port leaves out on purpose: nothing in
+// the plugin reads them.
+const UNPARSED_FIELDS = new Set([
+  "coverExpiresAt", // signed cover URLs are used as given
+  "rows", // series info rows (Series.Rows); the plugin shows its own meta
+  "change", // a ranking row's move since last time
+]);
+
+const camel = (k) =>
+  k.includes("_")
+    ? k.split("_").map((p, i) => (i ? p[0].toUpperCase() + p.slice(1) : p)).join("")
+    : k.replace(/ID/g, "Id").replace(/URL/g, "Url").replace(/^[A-Z]/, (c) => c.toLowerCase());
+
+// sameAsGo checks every field of the Go result against the JS result: keys
+// are matched in camelCase, Go times compare as Unix seconds, and Go zero
+// values match an absent JS field.
+function sameAsGo(where, goVal, jsVal) {
+  if (goVal === null && (jsVal === undefined || (Array.isArray(jsVal) && jsVal.length === 0))) return;
+  if (typeof goVal === "string" && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(Z|[+-]\d\d:\d\d)$/.test(goVal)) {
+    const secs = Date.parse(goVal) / 1000;
+    if (secs <= 0) assert.ok(!jsVal, where);
+    else assert.equal(jsVal, secs, where);
+    return;
+  }
+  if (goVal === null || typeof goVal !== "object") {
+    if (jsVal === undefined && (goVal === "" || goVal === 0 || goVal === false)) return;
+    assert.equal(jsVal, goVal, where);
+    return;
+  }
+  if (Array.isArray(goVal)) {
+    assert.ok(Array.isArray(jsVal), `${where} is an array`);
+    assert.equal(jsVal.length, goVal.length, `${where} length`);
+    goVal.forEach((x, i) => sameAsGo(`${where}[${i}]`, x, jsVal[i]));
+    return;
+  }
+  assert.ok(jsVal && typeof jsVal === "object", `${where} is an object`);
+  for (const [k, v] of Object.entries(goVal)) {
+    const key = camel(k);
+    if (UNPARSED_FIELDS.has(key)) continue;
+    sameAsGo(`${where}.${key}`, v, jsVal[key]);
+  }
+}
+
+test("response parsing matches openhongguo on live responses", () => {
+  const read = {
+    discover: (e) => parsers.parseDiscoverTab(e, 16),
+    cell_change: parsers.parseCellChange,
+    search: (e) => parsers.parseSearchTab(e, 11),
+    suggest: parsers.parseSuggest,
+    hot_search: parsers.parseHotSearch,
+    series: parsers.parseSeries,
+    series_batch: parsers.parseSeriesBatch,
+    seasons: parsers.parseSeasons,
+    plan_recommend: parsers.parsePlanCells,
+    new_releases: parsers.parseNewReleases,
+    profile: parsers.parseProfile,
+    // Go returns (tab, ok); its WorksTab marshals as {t, s}.
+    works_tabs: (e) => {
+      const tab = parsers.parseWorksTab(e);
+      return { oK: Boolean(tab), tab: tab ? { t: tab.tab, s: tab.sub } : null };
+    },
+    user_works: parsers.parseUserWorks,
+    short_filter: parsers.parseShortFilter,
+    short_filter_panel: parsers.parseShortFilter,
+    short_rank: parsers.parseShortRank,
+    short_rank_actor: parsers.parseShortRank,
+    danmaku: parsers.parseDanmaku,
+  };
+  const names = Object.keys(vectors.parse).sort();
+  assert.deepEqual(names, Object.keys(read).sort(), "every fixture has a parser");
+  for (const name of names) {
+    const fx = JSON.parse(fs.readFileSync(path.join(__dirname, "vectors", "responses", `${name}.json`), "utf8"));
+    sameAsGo(name, vectors.parse[name], read[name](parseJSONSafe(fx.response)));
+  }
 });
