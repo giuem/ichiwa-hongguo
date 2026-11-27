@@ -658,10 +658,9 @@ func main() {
 	const signNow = int64(1795440816123)
 	seriesBody, _ := protocol.SeriesBody("7690184933037329432")
 	playBody, _ := protocol.PlaybackBody("7690261304497458201")
-	v5Body, err := protocol.PlaybackV5Body("7690261304497458201")
-	if err != nil {
-		panic(err)
-	}
+	// The V5 body is gzip output, which differs between Go releases; sign
+	// fixed bytes (PlaybackV5Body("7690261304497458201") from Go 1.27).
+	v5Body := sign.MustHex("1f8b08000000000000ff5490d14ec3300c45ffc5cf7d484bd8587e0521cb5d6e2b8b348992ac02a6fe3b024a11afd7c7c7d6bdd3a81f9ca5c842ee4e1e4d34709619bca2544d919ce9c863d52b38604520d777e4b5ca18c05ee7996b93466e9250f13759d523714190061e537a3d880878961076c463d2a8edfb542bb75f60c99625e81c8fbd5b05a7ca39c83bcabfb4a2ac28ec633de21f770ed2a6541672bd19ecd6912f5caf882047bba7a345dfe0f767d4f322f9ab8ade184bee99cea78b194efd83b1f672b68f4f83e9e965db3e0700c1d3b8a539010000")
 	for i, tc := range []struct {
 		kind, path string
 		pairs      [][2]string
