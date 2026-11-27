@@ -15,12 +15,7 @@
       "log5-applog-lq.fqnovel.com",
       "*.fqnovelpic.com",
       "*.byteimg.com",
-      "*.douyinpic.com",
-      "*.qznovelvod.com",
-      "*.fqnovelvod.com",
-      "*.toutiaovod.com",
-      "*.365yg.com",
-      "*.zjcdn.com"
+      "*.qznovelvod.com"
     ]
   },
   "capabilities": [

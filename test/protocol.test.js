@@ -278,8 +278,8 @@ test("plugin exports adhere to protocol with mocked fetch and host.storage", asy
                 url_expire: 1800000000,
                 video_list: {
                   video_1: {
-                    main_url: Buffer.from("https://v3-default.365yg.com/720.mp4").toString("base64"),
-                    backup_url_1: Buffer.from("https://v9-default.365yg.com/720.mp4").toString("base64"),
+                    main_url: Buffer.from("https://v5-se-bjtc-reading-video.qznovelvod.com/720.mp4").toString("base64"),
+                    backup_url_1: Buffer.from("https://v9-reading-video.qznovelvod.com/720.mp4").toString("base64"),
                     video_meta: { codec_type: "bytevc1", vwidth: 720, vheight: 1280, bitrate: 1500000 },
                     encrypt_info: {
                       encrypt: true,
@@ -287,7 +287,7 @@ test("plugin exports adhere to protocol with mocked fetch and host.storage", asy
                     },
                   },
                   video_2: {
-                    main_url: Buffer.from("https://v3-default.365yg.com/1080.mp4").toString("base64"),
+                    main_url: Buffer.from("https://v5-se-bjtc-reading-video.qznovelvod.com/1080.mp4").toString("base64"),
                     video_meta: { codec_type: "h264", vwidth: 1080, vheight: 1920, bitrate: 2500000 },
                     encrypt_info: {
                       encrypt: true,
@@ -359,7 +359,7 @@ test("plugin exports adhere to protocol with mocked fetch and host.storage", asy
     assert.equal(pb.streams[0].width, 1080);
     assert.equal(pb.streams[0].codec, "h264");
     assert.equal(pb.streams[1].codec, "hevc");
-    assert.deepEqual(pb.streams[1].backupUrls, ["https://v9-default.365yg.com/720.mp4"]);
+    assert.deepEqual(pb.streams[1].backupUrls, ["https://v9-reading-video.qznovelvod.com/720.mp4"]);
     assert.deepEqual(pb.streams[0].encryption, {
       scheme: "cenc",
       key: "1be760855c48a8c86000eeb8c5bb1010",
