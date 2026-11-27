@@ -106,6 +106,12 @@ export function createHost(options = {}) {
           cacheMap.delete(oldest);
         }
       },
+      add(key, value, ttlSeconds) {
+        pruneCache();
+        if (cacheMap.has(String(key))) return false;
+        host.cache.set(key, value, ttlSeconds);
+        return true;
+      },
       delete(key) {
         cacheMap.delete(String(key));
       },
@@ -247,6 +253,8 @@ export function createHost(options = {}) {
     },
   };
 
+  // An older runtime has no host.cache.add.
+  if (options.cacheAdd === false) delete host.cache.add;
   return host;
 }
 

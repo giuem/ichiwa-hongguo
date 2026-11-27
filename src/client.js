@@ -111,8 +111,14 @@ const SEEN_CACHE_PREFIX = "hongguo_seen:";
 const SEEN_CACHE_TTL_SEC = 1800;
 const MAX_CACHED_SEEN = 4000;
 const DEVICE_ROTATE_LOCK_KEY = "hongguo_device_rotating";
-const DEVICE_ROTATE_LOCK_TTL_SEC = 5;
-const DEVICE_ROTATE_WAIT_MS = 3000;
+// The lock lapses this long after it was last renewed: a call cancelled
+// while it holds the lock runs no finally, so the lock must lapse by itself.
+const DEVICE_ROTATE_LOCK_TTL_SEC = 2;
+const DEVICE_ROTATE_RENEW_MS = 500;
+// Without host.cache.add, a call writes the lock, waits this long and reads
+// it back: of the calls that wrote at once, the last writer holds it.
+const DEVICE_ROTATE_SETTLE_MS = 30;
+const DEVICE_ROTATE_WAIT_MS = 12000;
 const DEVICE_ROTATE_POLL_MS = 40;
 const SERIES_BATCH_SIZE = 10;
 const MAX_RETRY_WAIT_MS = 2000;
@@ -155,6 +161,71 @@ function sleep(ms, signal) {
       signal.addEventListener("abort", onAbort, { once: true });
     }
   });
+}
+
+function readRotateLock() {
+  try {
+    const raw = host.cache.get(DEVICE_ROTATE_LOCK_KEY);
+    if (!raw) return null;
+    const lock = JSON.parse(raw);
+    if (!lock || typeof lock.token !== "string") return null;
+    // host.cache drops the lock when it lapses; this guards a host that keeps
+    // it a little longer.
+    if (Date.now() - (Number(lock.at) || 0) > DEVICE_ROTATE_LOCK_TTL_SEC * 1000) return null;
+    return lock;
+  } catch {
+    return null;
+  }
+}
+
+// acquireRotateLock takes the device lock shared by every call of the
+// plugin, or returns null while another call holds it. The lock is renewed
+// every DEVICE_ROTATE_RENEW_MS until released, and lapses within
+// DEVICE_ROTATE_LOCK_TTL_SEC once its holder stops renewing it. With
+// host.cache.add the lock is taken atomically; without it, a call writes the
+// lock, waits DEVICE_ROTATE_SETTLE_MS and holds it only if the lock it reads
+// back is still its own.
+async function acquireRotateLock() {
+  const token = hexEncode(host.crypto.randomBytes(8));
+  const value = () => JSON.stringify({ token, at: Date.now() });
+  try {
+    if (typeof host.cache.add === "function") {
+      if (!host.cache.add(DEVICE_ROTATE_LOCK_KEY, value(), DEVICE_ROTATE_LOCK_TTL_SEC)) return null;
+    } else {
+      if (readRotateLock()) return null;
+      host.cache.set(DEVICE_ROTATE_LOCK_KEY, value(), DEVICE_ROTATE_LOCK_TTL_SEC);
+      await sleep(DEVICE_ROTATE_SETTLE_MS);
+      if (readRotateLock()?.token !== token) return null;
+    }
+  } catch {
+    // Without a working cache there is nothing to coordinate with.
+  }
+  let released = false;
+  let timer = null;
+  const renew = () => {
+    if (released) return;
+    try {
+      if (readRotateLock()?.token === token) {
+        host.cache.set(DEVICE_ROTATE_LOCK_KEY, value(), DEVICE_ROTATE_LOCK_TTL_SEC);
+      }
+    } catch {
+      // Ignore cache errors.
+    }
+    timer = setTimeout(renew, DEVICE_ROTATE_RENEW_MS);
+  };
+  timer = setTimeout(renew, DEVICE_ROTATE_RENEW_MS);
+  return {
+    token,
+    release() {
+      released = true;
+      if (typeof clearTimeout === "function") clearTimeout(timer);
+      try {
+        if (readRotateLock()?.token === token) host.cache.delete(DEVICE_ROTATE_LOCK_KEY);
+      } catch {
+        // Ignore cache errors.
+      }
+    },
+  };
 }
 
 function validID(id) {
@@ -484,40 +555,6 @@ export class HongguoClient {
     }
   }
 
-  _readRotateLock() {
-    try {
-      const raw = host.cache.get(DEVICE_ROTATE_LOCK_KEY);
-      if (!raw) return null;
-      const obj = JSON.parse(raw);
-      if (!obj || typeof obj.token !== "string") return null;
-      if (Date.now() - (Number(obj.startedAt) || 0) > DEVICE_ROTATE_LOCK_TTL_SEC * 1000) {
-        return null;
-      }
-      return obj;
-    } catch {
-      return null;
-    }
-  }
-
-  _writeRotateLock(lock) {
-    try {
-      host.cache.set(DEVICE_ROTATE_LOCK_KEY, JSON.stringify(lock), DEVICE_ROTATE_LOCK_TTL_SEC);
-    } catch {
-      // Ignore cache quota error.
-    }
-  }
-
-  _clearRotateLock(token) {
-    try {
-      const cur = this._readRotateLock();
-      if (cur && cur.token === token) {
-        host.cache.delete(DEVICE_ROTATE_LOCK_KEY);
-      }
-    } catch {
-      // Ignore cache error.
-    }
-  }
-
   _profileSatisfies(p, failedDeviceId, needTicket) {
     if (!guestReady(p)) return false;
     if (needTicket && !p.ttreq) return false;
@@ -525,24 +562,10 @@ export class HongguoClient {
     return true;
   }
 
-  async _waitForRotatedDevice(failedDeviceId, needTicket) {
-    const deadline = Date.now() + DEVICE_ROTATE_WAIT_MS;
-    while (Date.now() < deadline) {
-      const cur = this._loadProfile();
-      if (this._profileSatisfies(cur, failedDeviceId, needTicket)) {
-        return cur;
-      }
-      const lock = this._readRotateLock();
-      if (!lock || (failedDeviceId && lock.failedId && lock.failedId !== failedDeviceId)) {
-        const after = this._loadProfile();
-        return this._profileSatisfies(after, failedDeviceId, needTicket) ? after : null;
-      }
-      await sleep(DEVICE_ROTATE_POLL_MS);
-    }
-    const finalProfile = this._loadProfile();
-    return this._profileSatisfies(finalProfile, failedDeviceId, needTicket) ? finalProfile : null;
-  }
-
+  // _registerFreshProfile registers a new device unless a usable one is
+  // already stored. Calls of the plugin run at once, each in a runtime of its
+  // own, so registering is guarded by a lock in host.cache shared by all of
+  // them: one call registers and the others wait for its device.
   async _registerFreshProfile(failedDeviceId, needTicket) {
     const existing = this._loadProfile();
     if (this._profileSatisfies(existing, failedDeviceId, needTicket)) {
@@ -554,87 +577,43 @@ export class HongguoClient {
       return existing;
     }
 
+    // Nested calls inside this runtime share one registration.
     if (this._inflightRegister) {
-      const shared = await this._inflightRegister;
+      const shared = await this._inflightRegister.catch(() => null);
       if (this._profileSatisfies(shared, failedDeviceId, needTicket)) {
         return shared;
       }
     }
 
-    const activeLock = this._readRotateLock();
-    if (activeLock && (!failedDeviceId || !activeLock.failedId || activeLock.failedId === failedDeviceId)) {
-      const waited = await this._waitForRotatedDevice(failedDeviceId, needTicket);
-      if (waited) {
-        console.log(
-          `[hongguo] reused device=${waited.device_id_str} rotated by concurrent call`
-        );
-        return waited;
+    const deadline = Date.now() + DEVICE_ROTATE_WAIT_MS;
+    let lock = null;
+    let waited = false;
+    for (;;) {
+      const cur = this._loadProfile();
+      if (this._profileSatisfies(cur, failedDeviceId, needTicket)) {
+        if (waited) console.log(`[hongguo] reused device=${cur.device_id_str} registered by a concurrent call`);
+        return cur;
       }
+      lock = await acquireRotateLock();
+      if (lock) break;
+      if (Date.now() >= deadline) {
+        console.log(`[hongguo] waited ${DEVICE_ROTATE_WAIT_MS}ms for a concurrent registration; registering anyway`);
+        break;
+      }
+      waited = true;
+      await sleep(DEVICE_ROTATE_POLL_MS);
     }
-
-    // Re-check storage right before acquiring the lock.
-    const beforeLock = this._loadProfile();
-    if (this._profileSatisfies(beforeLock, failedDeviceId, needTicket)) {
-      return beforeLock;
-    }
-
-    const token = hexEncode(host.crypto.randomBytes(6));
-    this._writeRotateLock({
-      failedId: failedDeviceId || "",
-      token,
-      startedAt: Date.now(),
-    });
 
     const task = (async () => {
       try {
-        const nowMs = this.clock();
-        const p = newAnonymousProfile(this.device, nowMs);
-        const body = buildRegisterBody(p, nowMs);
-        const qs = new URLSearchParams({ req_id: p.req_id, tt_data: "a" }).toString();
-        const headers = {
-          "User-Agent": userAgent(p.device),
-          "Content-Type": "application/octet-stream;tt-data=a",
-          "log-encode-type": "gzip",
-          "sdk-version": "2",
-          "passport-sdk-version": "5051452",
-          "x-vc-bdturing-sdk-version": "4.0.3.cn",
-          "x-ss-dp": AID,
-          "X-SS-STUB": contentMD5(body),
-          Cookie: "",
-        };
-        const { json, cookies } = await this._doRaw(
-          "POST",
-          `${this.registerOrigin}${PATH_REGISTER}?${qs}`,
-          headers,
-          body
-        );
-        const reg = parseRegister(json);
-        p.device_id_str = reg.deviceId;
-        p.install_id_str = reg.installId;
-        if (cookies.ttreq) p.ttreq = cookies.ttreq;
-        if (cookies["store-region"]) p.store_region = cookies["store-region"];
-        if (cookies["store-region-src"]) p.store_region_src = cookies["store-region-src"];
-        if (needTicket && Object.keys(cookies).length > 0 && !p.ttreq) {
-          throw new HongguoError(ErrCode.AnonymousLimited, "guest ticket missing");
-        }
-        // Do not overwrite a newer device already saved by another concurrent call.
+        // The lock may have come free because another call just finished.
         const latest = this._loadProfile();
-        if (this._profileSatisfies(latest, failedDeviceId, needTicket)) {
-          console.log(
-            `[hongguo] keeping concurrently registered device=${latest.device_id_str}`
-          );
-          return latest;
-        }
-        this._saveProfile(p);
-        console.log(
-          `[hongguo] registered anonymous device=${p.device_id_str}${failedDeviceId ? ` (replaced ${failedDeviceId})` : ""}`
-        );
-        return p;
+        if (this._profileSatisfies(latest, failedDeviceId, needTicket)) return latest;
+        return await this._register(failedDeviceId, needTicket);
       } finally {
-        this._clearRotateLock(token);
+        lock?.release();
       }
     })();
-
     this._inflightRegister = task;
     try {
       return await task;
@@ -643,6 +622,51 @@ export class HongguoClient {
         this._inflightRegister = null;
       }
     }
+  }
+
+  async _register(failedDeviceId, needTicket) {
+    const nowMs = this.clock();
+    const p = newAnonymousProfile(this.device, nowMs);
+    const body = buildRegisterBody(p, nowMs);
+    const qs = new URLSearchParams({ req_id: p.req_id, tt_data: "a" }).toString();
+    const headers = {
+      "User-Agent": userAgent(p.device),
+      "Content-Type": "application/octet-stream;tt-data=a",
+      "log-encode-type": "gzip",
+      "sdk-version": "2",
+      "passport-sdk-version": "5051452",
+      "x-vc-bdturing-sdk-version": "4.0.3.cn",
+      "x-ss-dp": AID,
+      "X-SS-STUB": contentMD5(body),
+      Cookie: "",
+    };
+    const { json, cookies } = await this._doRaw(
+      "POST",
+      `${this.registerOrigin}${PATH_REGISTER}?${qs}`,
+      headers,
+      body
+    );
+    const reg = parseRegister(json);
+    p.device_id_str = reg.deviceId;
+    p.install_id_str = reg.installId;
+    if (cookies.ttreq) p.ttreq = cookies.ttreq;
+    if (cookies["store-region"]) p.store_region = cookies["store-region"];
+    if (cookies["store-region-src"]) p.store_region_src = cookies["store-region-src"];
+    if (needTicket && Object.keys(cookies).length > 0 && !p.ttreq) {
+      throw new HongguoError(ErrCode.AnonymousLimited, "guest ticket missing");
+    }
+    // Do not overwrite a newer device saved by a call that went ahead
+    // without the lock.
+    const latest = this._loadProfile();
+    if (this._profileSatisfies(latest, failedDeviceId, needTicket)) {
+      console.log(`[hongguo] keeping concurrently registered device=${latest.device_id_str}`);
+      return latest;
+    }
+    this._saveProfile(p);
+    console.log(
+      `[hongguo] registered anonymous device=${p.device_id_str}${failedDeviceId ? ` (replaced ${failedDeviceId})` : ""}`
+    );
+    return p;
   }
 
   async ensureGuest(needTicket = true, ctx = null) {
