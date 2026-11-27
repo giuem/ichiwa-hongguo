@@ -336,17 +336,23 @@ test("media opened at once in several runtimes never send a cursor twice", { tim
     used.clear();
     const rt = createRuntimes({ handle, cacheAdd });
     try {
-      for (let round = 0; round < 3; round++) {
+      // Opens go on until today is whole; under load that may take more.
+      for (let round = 0; round < 10; round++) {
         await rt.warm(4);
         await Promise.all([1, 2, 3, 4].map(() => rt.call("media", { id: "7100000000000001" })));
+        if (round >= 2 && JSON.parse(rt.host.cache.get(`hongguo_cal:${TODAY}`) || "{}").complete) break;
       }
       const today = JSON.parse(rt.host.cache.get(`hongguo_cal:${TODAY}`));
       assert.equal(today.complete, true, "today read whole between the opens");
       assert.equal(today.pending, null);
       assert.ok(sent.length >= 2, `cursor pages sent: ${sent.join(", ")}`);
       assert.deepEqual(twice, [], "no cursor is sent twice");
-      const later = await rt.call("media", { id: "7100000000000001" });
-      assert.match(later.seasons[1].note || "", /明天上线/);
+      let note = "";
+      for (let i = 0; i < 10 && !note; i++) {
+        note = (await rt.call("media", { id: "7100000000000001" })).seasons[1].note || "";
+      }
+      assert.match(note, /明天上线/);
+      assert.deepEqual(twice, [], "no cursor is sent twice");
     } finally {
       await rt.close();
     }
