@@ -847,7 +847,7 @@ test("shortFilter pagination across 20 pages keeps cursor well under 4096 bytes 
   }
 });
 
-test("announceSeasons enforces time budget, reads days concurrently, and caches only complete days", async () => {
+test("announceSeasons enforces time budget, reads days concurrently, and starts a day over after a lost cursor page", async () => {
   const host = installHost();
   const normalized = seasonsOf([
     { seriesId: "100", title: "多季剧 第一季", index: 1, episodeCount: 60 },
@@ -892,10 +892,11 @@ test("announceSeasons enforces time budget, reads days concurrently, and caches 
             dates: ["20261125", "20261126", "20261127"],
             items: [],
             hasMore: true,
-            cursor: "cur-20261125-p2",
+            // Each first page starts a session of its own.
+            cursor: `cur-20261125-p2-${fetchedDays.length}`,
           };
         }
-        if (cursor === "cur-20261125-p2") {
+        if (cursor?.startsWith("cur-20261125-p2")) {
           fetchedDays.push("20261125:p2");
           await new Promise((resolve, reject) => {
             const t = setTimeout(resolve, 500);
@@ -942,16 +943,23 @@ test("announceSeasons enforces time budget, reads days concurrently, and caches 
   assert.ok(elapsed < 400, `announceSeasons exceeded budget: ${elapsed}ms`);
   assert.ok(maxConcurrent >= 2, `days should be fetched concurrently, saw maxConcurrent=${maxConcurrent}`);
   assert.equal(slowPage2Aborted, true, "in-flight request should be aborted on budget timeout");
-  assert.ok(host.cache.get("hongguo_cal:today"), "complete today should be cached");
-  assert.ok(host.cache.get("hongguo_cal:20261126"), "complete day 20261126 should be cached");
-  assert.equal(host.cache.get("hongguo_cal:20261125"), undefined, "incomplete day 20261125 must NOT be cached");
+  assert.ok(host.cache.get("hongguo_cal:today"), "today's date is cached");
+  assert.equal(JSON.parse(host.cache.get("hongguo_cal:20261127")).complete, true, "today is whole");
+  assert.equal(JSON.parse(host.cache.get("hongguo_cal:20261126")).complete, true, "20261126 is whole");
+  const cut = JSON.parse(host.cache.get("hongguo_cal:20261125"));
+  assert.equal(cut.complete, false, "20261125 is not whole");
+  assert.equal(cut.pages, 1, "its first page is kept");
+  assert.equal(cut.next, "", "the cut-off cursor is not offered again");
+  assert.equal(cut.pending, null);
 
-  // Second run: cached days are not refetched; 20261125 completes within generous budget and gets cached.
+  // Second run: whole days are not read again; 20261125 starts a new
+  // session from its first page and is read whole.
   fetchedDays.length = 0;
   const second = await announceSeasons(fakeClient, normalized, { budgetMs: 1500 });
   assert.equal(fetchedDays.includes("20261126"), false, "cached day 20261126 should not be refetched");
+  assert.deepEqual(fetchedDays, ["20261125:p1", "20261125:p2"]);
   assert.equal(second[1].note, "11月25日上新");
-  assert.ok(host.cache.get("hongguo_cal:20261125"), "completed day 20261125 should now be cached");
+  assert.equal(JSON.parse(host.cache.get("hongguo_cal:20261125")).complete, true);
 });
 
 test("media populates seasons name and image fields", async () => {
