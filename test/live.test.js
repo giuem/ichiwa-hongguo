@@ -6,6 +6,7 @@ import { installHost } from "./host.js";
 import * as plugin from "../index.js";
 
 const LIVE = process.env.HONGGUO_LIVE === "1";
+const DOWNLOAD_TIMEOUT_MS = 20_000;
 
 test("live smoke test: browse, rank, filter, search, detail, danmaku, play, and CENC decrypt MP4", { skip: !LIVE, timeout: 120_000 }, async () => {
   installHost();
@@ -127,7 +128,8 @@ test("live smoke test: browse, rank, filter, search, detail, danmaku, play, and 
   for (const stream of mp4Streams) {
     for (const u of [stream.url, ...(stream.backupUrls || [])]) {
       try {
-        const resp = await fetch(u);
+        // One slow CDN node must not eat the whole test's time.
+        const resp = await fetch(u, { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) });
         if (resp.ok) {
           data = Buffer.from(await resp.arrayBuffer());
           chosen = stream;

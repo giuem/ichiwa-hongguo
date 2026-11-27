@@ -113,6 +113,10 @@ test("concurrent plays on a refused device register one new device between them"
     for (const pb of results) {
       assert.equal(pb.streams[0].url, "https://v3-reading.qznovelvod.com/720.mp4");
     }
+    assert.ok(
+      logs.lines.some((l) => l.includes("play episode=7690261304497458201: 1 stream(s) from v3-reading.qznovelvod.com")),
+      "play logs the stream hosts"
+    );
     assert.equal(state.regs, 2, "four concurrent calls replace the refused device once");
     const stored = JSON.parse(host.storage.get("hongguo_device_profile"));
     assert.equal(stored.device_id_str, "710000000000000002");

@@ -790,6 +790,20 @@ export async function play(req) {
     const prefer = req?.prefer || {};
     streams.sort((a, b) => rankStreamScore(b, prefer) - rankStreamScore(a, prefer));
 
+    // The hosts the streams come from, so a CDN outside permissions.network
+    // shows up in the plugin's log.
+    const hosts = new Set();
+    for (const s of streams) {
+      for (const u of [s.url, ...(s.backupUrls || [])]) {
+        try {
+          hosts.add(new URL(u).hostname);
+        } catch {
+          // Ignore a malformed URL.
+        }
+      }
+    }
+    console.log(`[hongguo] play episode=${episodeId}: ${streams.length} stream(s) from ${[...hosts].join(", ")}`);
+
     const out = { streams };
     if (pb.expiresAt > 0) out.expiresAt = pb.expiresAt;
     return out;
