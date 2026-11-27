@@ -362,6 +362,8 @@ export class HongguoClient {
     this.clock = options.clock || (() => Date.now());
     this.fetchFn = options.fetch || ((url, init) => fetch(url, init));
     this._inflightRegister = null;
+    // signal, when given, cuts off every request of this client.
+    this.signal = options.signal || null;
   }
 
   _loadProfile() {
@@ -407,6 +409,7 @@ export class HongguoClient {
   }
 
   async _doOnce(method, rawURL, headers, body, signal = null) {
+    signal = signal || this.signal;
     if (signal?.aborted) {
       throw makeAbortError();
     }
@@ -515,6 +518,7 @@ export class HongguoClient {
   }
 
   async _doRaw(method, rawURL, headers, body = null, signal = null) {
+    signal = signal || this.signal;
     for (let attempt = 0; ; attempt++) {
       try {
         return await this._doOnce(method, rawURL, headers, body, signal);
@@ -902,8 +906,15 @@ export class HongguoClient {
     });
   }
 
+  // newReleases reads a page of the 上新 calendar. A page asked for by a
+  // cursor is sent once only, with no retry and no device rotation: the
+  // server keeps a session per cursor and answers a cursor sent again with
+  // the page after. q.deviceId is the device the cursor was issued to; on
+  // any other device the cursor would start the day over, so it is not sent.
+  // The page carries the deviceId it was read with.
   async newReleases(q = {}) {
-    return this._withFreshDevice(false, async (ctx) => {
+    const once = Boolean(q.cursor);
+    const read = async (ctx) => {
       const cur = decodeShortCursor(q.cursor || "");
       let date = q.date || "";
       if (date && !validDate(date)) {
@@ -916,6 +927,9 @@ export class HongguoClient {
         date = cur.date;
       }
       const p = await this.ensureGuest(true, ctx);
+      if (once && q.deviceId && p.device_id_str !== q.deviceId) {
+        throw new Error("calendar cursor belongs to another device");
+      }
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedNewReleasePairs(this._identity(p), date, cur),
@@ -923,13 +937,11 @@ export class HongguoClient {
         p.device_id_str,
         VERSION_NAME
       );
-      const { json } = await this._doRaw(
-        "GET",
-        `${this.apiOrigin}${PATH_SUBSCRIBE_LIST}?${query}`,
-        this._anonymousHeaders(p, ticket, headers),
-        null,
-        q.signal || null
-      );
+      const url = `${this.apiOrigin}${PATH_SUBSCRIBE_LIST}?${query}`;
+      const hdrs = this._anonymousHeaders(p, ticket, headers);
+      const { json } = once
+        ? await this._doOnce("GET", url, hdrs, null, q.signal || null)
+        : await this._doRaw("GET", url, hdrs, null, q.signal || null);
       const res = parseNewReleases(json);
       const pageDate = res.date || date;
       let cursor = "";
@@ -946,8 +958,15 @@ export class HongguoClient {
         items: res.items,
         hasMore: res.hasMore,
         cursor,
+        deviceId: p.device_id_str,
       };
-    });
+    };
+    return once ? read({ deviceId: "" }) : this._withFreshDevice(false, read);
+  }
+
+  // currentDeviceId is the device stored for the plugin, or "".
+  currentDeviceId() {
+    return this._loadProfile()?.device_id_str || "";
   }
 
   _cacheEpisodeDurations(episodes) {

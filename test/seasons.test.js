@@ -62,6 +62,7 @@ test("media reads the details and the season list at once and caches the list bu
   const counts = { detail: 0, plan: 0, calendar: 0 };
   let detailDone = 0;
   let planStarted = 0;
+  let calendarStarted = 0;
   const origFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {
     const u = new URL(url);
@@ -114,6 +115,7 @@ test("media reads the details and the season list at once and caches the list bu
     }
     if (u.pathname.includes("/reading/user/subscribe/list/v1/")) {
       counts.calendar++;
+      if (!calendarStarted) calendarStarted = Date.now();
       const date = u.searchParams.get("target_date") || "20261127";
       await delay(20);
       const items =
@@ -143,6 +145,7 @@ test("media reads the details and the season list at once and caches the list bu
   try {
     const first = await plugin.media({ id: "7100000000000001" });
     assert.ok(planStarted > 0 && planStarted < detailDone, "the season list is requested before the details are in");
+    assert.ok(calendarStarted > 0 && calendarStarted < detailDone, "today's calendar is requested before the details are in");
     assert.equal(first.seasons.length, 2);
     assert.equal(first.seasons[1].name, "家里家外2");
     assert.equal(first.seasons[1].image, "https://p3-reading-sign.fqnovelpic.com/s2.jpg");
@@ -190,4 +193,71 @@ test("calendar pages that cannot finish before the deadline are not started", as
   // With 1000ms, the next pages fit and are read.
   const more = await run(1000);
   assert.ok(more.length > 1, `read ${more.join(",")}`);
+});
+
+test("media waits at most a second for the season list once the details are in", async () => {
+  const restoreLogs = quietLogs();
+  const origFetch = globalThis.fetch;
+  const hang = (init, what) =>
+    new Promise((_, reject) => {
+      init.signal?.addEventListener("abort", () => {
+        aborted.push(what);
+        reject(Object.assign(new Error("aborted"), { name: "AbortError" }));
+      });
+    });
+  let aborted = [];
+  let mode = "plan";
+  globalThis.fetch = async (url, init) => {
+    const u = new URL(url);
+    if (u.pathname.includes("/service/2/device_register/")) {
+      return mockResponse(
+        { device_id_str: "7123456789012345678", install_id_str: "7123456789012345679", new_user: 1 },
+        { setCookies: ["ttreq=1$mock; Path=/"] }
+      );
+    }
+    if (u.pathname.includes("/novel/player/video_detail/v1/")) {
+      return mockResponse({
+        code: 0,
+        data: {
+          video_data: {
+            series_id_str: "7100000000000001",
+            series_title: "家里家外 第一季",
+            episode_cnt: 1,
+            is_multi_season: true,
+            related_album_id: "7200000000000001",
+            season_index: 1,
+            video_list: [{ vid: "7100000000001001", vid_index: 1, duration: 90 }],
+          },
+        },
+      });
+    }
+    if (u.pathname.includes("/reading/bookapi/plan/v1/")) {
+      // The list hangs, or comes back empty so the album is tried next.
+      if (mode === "plan") return hang(init, "plan");
+      return mockResponse({ code: 0, data: [] });
+    }
+    if (u.pathname.includes("/novel/player/album_detail/v1/")) return hang(init, "album");
+    if (u.pathname.includes("/reading/user/subscribe/list/v1/")) {
+      return mockResponse({ code: 0, data: { calendar_schema: { default_date: "20261127", date_list: DAYS }, has_more: false } });
+    }
+    throw new Error(`unexpected fetch: ${url}`);
+  };
+  try {
+    for (mode of ["plan", "album"]) {
+      installHost();
+      aborted = [];
+      const t0 = Date.now();
+      const m = await plugin.media({ id: "7100000000000001" });
+      const took = Date.now() - t0;
+      assert.ok(took >= 950 && took < 1500, `${mode}: media took ${took}ms`);
+      assert.equal(m.seasons, undefined, `${mode}: no seasons`);
+      assert.equal(m.episodes.length, 1);
+      assert.equal(globalThis.host.cache.get("hongguo_seasons:7100000000000001"), undefined, `${mode}: nothing cached`);
+      await delay(1);
+      assert.deepEqual(aborted, [mode], `${mode}: the request is cut off`);
+    }
+  } finally {
+    globalThis.fetch = origFetch;
+    restoreLogs();
+  }
 });

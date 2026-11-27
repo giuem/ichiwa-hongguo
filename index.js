@@ -21,6 +21,9 @@ const RANK_CONTENTS_FALLBACK = [
 ];
 const META_CACHE_TTL_SEC = 600;
 const PROFILE_WAIT_MS = 1000;
+// How long media waits for the season list once the details are in, as the
+// Go source does.
+const SEASON_LIST_WAIT_MS = 1000;
 
 const CHANNEL_MAP = {
   recommend: { channel: "推荐", title: "推荐" },
@@ -28,8 +31,8 @@ const CHANNEL_MAP = {
   comic: { channel: "漫剧", title: "漫剧" },
 };
 
-function makeClient() {
-  return new HongguoClient({ retryAttempts: 3, deviceResets: 3 });
+function makeClient(options = {}) {
+  return new HongguoClient({ retryAttempts: 3, deviceResets: 3, ...options });
 }
 
 function formatHeat(n) {
@@ -620,35 +623,50 @@ export async function media(req) {
   const client = makeClient();
   try {
     // The details and the season list are read at once; the list is part of
-    // the answer. The calendar notes on the seasons get at most
-    // CALENDAR_BUDGET_MS once both are in, and are not cached themselves: the
-    // calendar keeps its whole days in host.cache, so they are put together
-    // again on every open.
-    // Each calendar page takes the server about a second, so today's page is
-    // asked for at once, unless the show is known to have a single season.
+    // the answer. Once the details are in, the list gets at most
+    // SEASON_LIST_WAIT_MS more: a list that is late, along with whatever
+    // fallback it is trying, is cut off and the page goes without seasons.
+    // The calendar notes on the seasons then get at most CALENDAR_BUDGET_MS
+    // and are not cached themselves: the calendar keeps its pages in
+    // host.cache, so they are put together again on every open.
+    // Each calendar page takes the server about a second, so today's
+    // calendar is asked for at once, unless the show is known to have a
+    // single season.
     const knownList = cachedSeasonList(id);
     const calendar = knownList && knownList.length < 2 ? null : startCalendar(client);
     const detailP = client.getSeriesDetail(id);
-    const listP = seasonList(client, id, detailP).catch((err) => {
-      console.log(`[hongguo] seasons of ${id} failed: ${err?.message || err}`);
+    const listAbort = new AbortController();
+    const listP = seasonList(makeClient({ signal: listAbort.signal }), id, detailP).catch((err) => {
+      if (!listAbort.signal.aborted) console.log(`[hongguo] seasons of ${id} failed: ${err?.message || err}`);
       return null;
     });
     let detail;
     try {
       detail = await detailP;
     } catch (err) {
+      listAbort.abort();
       calendar?.stop();
       throw err;
     }
     const { series, episodes } = detail;
     if (episodes.length === 0) {
+      listAbort.abort();
       calendar?.stop();
       throw host.error("unavailable", "这部剧暂时没有可看的剧集");
     }
 
     let seasons;
-    const entries = await listP;
-    if (entries && entries.length >= 2) {
+    let timer = null;
+    const late = new Promise((resolve) => {
+      timer = setTimeout(() => resolve("late"), SEASON_LIST_WAIT_MS);
+    });
+    const entries = await Promise.race([listP, late]);
+    clearTimeout(timer);
+    if (entries === "late") {
+      listAbort.abort();
+      console.log(`[hongguo] seasons of ${id} are late; showing the details without them`);
+    }
+    if (Array.isArray(entries) && entries.length >= 2) {
       let annotated = entries;
       try {
         annotated = await announceSeasons(client, entries, {
