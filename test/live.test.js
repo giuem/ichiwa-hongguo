@@ -38,21 +38,23 @@ test("live smoke test: browse, rank, filter, search, detail, danmaku, play, and 
   console.log(`[live] rank: ${rank.items.length} items, filters=${rank.filters.map((f) => f.key).join(",")}`);
 
   const actorContent = rank.filters[0].options.find((o) => o.value === "ranklist_celebrity");
-  if (actorContent) {
-    const actorRank = await plugin.collection({
-      id: "rank",
-      filters: { content: actorContent.value },
-    });
-    assert.ok(actorRank.items.length > 0, "actor rank should return actors");
-    const firstActor = actorRank.items.find((it) => it.kind === "collection" && it.id.startsWith("person:"));
-    assert.ok(firstActor, "actor rank item should be a person collection card");
-    recordUrl(firstActor.image);
-    const personPage = await plugin.collection({ id: firstActor.id });
-    assert.ok(personPage.header?.title, "person page should have header");
-    recordUrl(personPage.header?.image);
-    for (const it of personPage.items || []) recordUrl(it.image);
-    console.log(`[live] person("${personPage.header.title}"): ${personPage.items.length} works`);
-  }
+  assert.ok(actorContent, "rank should always offer the actor ranking");
+  const actorRank = await plugin.collection({
+    id: "rank",
+    filters: { content: actorContent.value },
+  });
+  assert.ok(actorRank.items.length > 0, "actor rank should return actors");
+  const firstActor = actorRank.items.find((it) => it.kind === "collection" && it.id.startsWith("person:"));
+  assert.ok(firstActor, "actor rank item should be a person collection card");
+  recordUrl(firstActor.image);
+  console.log(`[live] actor rank: ${actorRank.items.length} actors, first="${firstActor.title}" (${firstActor.id})`);
+  const personPage = await plugin.collection({ id: firstActor.id });
+  assert.ok(personPage.items.length > 0, "person page should list works");
+  recordUrl(personPage.header?.image);
+  for (const it of personPage.items || []) recordUrl(it.image);
+  console.log(
+    `[live] person("${personPage.header?.title || "(no header)"}"): ${personPage.items.length} works`
+  );
 
   // 4. Filter collection
   const filtered = await plugin.collection({ id: "filter" });

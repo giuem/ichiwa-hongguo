@@ -7,6 +7,7 @@ import { announceSeasons, seasonsOf } from "./src/seasons.js";
 
 const FILTER_PANEL_CACHE_PREFIX = "hongguo_filter_panel:";
 const RANK_CONTENTS_CACHE_KEY = "hongguo_rank_contents";
+const RANK_CELEBRITY = "ranklist_celebrity";
 const META_CACHE_TTL_SEC = 600;
 const PROFILE_WAIT_MS = 1000;
 
@@ -253,6 +254,8 @@ async function handleRankCollection(client, req) {
   let content = String(reqFilters.content || "").trim();
   let board = String(reqFilters.board || "").trim();
 
+  // The actor ranking has no boards.
+  if (content === RANK_CELEBRITY) board = "";
   // If the user switched content, clear a stale board ID from the previous content.
   if (!req.cursor && content && board) {
     try {
@@ -284,7 +287,7 @@ async function handleRankCollection(client, req) {
     }
   }
 
-  if (r.contents.length > 0) {
+  if (r.contents.length > 0 && r.content !== RANK_CELEBRITY) {
     try {
       host.cache.set(RANK_CONTENTS_CACHE_KEY, JSON.stringify(r.contents), META_CACHE_TTL_SEC);
     } catch {
@@ -322,27 +325,44 @@ async function handleRankCollection(client, req) {
   if (r.hasMore && r.cursor) {
     page.cursor = r.cursor;
   }
-  if (!req.cursor && r.contents.length > 0) {
-    const filterRows = [
-      {
-        key: "content",
-        title: "类别",
-        options: r.contents.map((c) => ({ value: c.id, title: c.name })),
-        value: r.content,
-      },
-    ];
-    const active = r.contents.find((c) => c.id === r.content);
-    if (active && active.boards.length > 0) {
-      filterRows.push({
-        key: "board",
-        title: "榜单",
-        options: active.boards.map((b) => ({ value: b.id, title: b.name })),
-        value: r.board || active.boards[0].id,
-      });
-    }
-    page.filters = filterRows;
+  if (!req.cursor) {
+    page.filters = rankFilters(r);
   }
   return page;
+}
+
+// rankFilters is the 类别 row, which always offers the actor ranking even
+// though the server no longer lists it, and the 榜单 row of the chosen 类别.
+// The actor ranking's own answer may list only itself, so the 类别 last seen
+// on another ranking come first.
+function rankFilters(r) {
+  let cached = [];
+  try {
+    cached = JSON.parse(host.cache.get(RANK_CONTENTS_CACHE_KEY) || "[]");
+  } catch {
+    // Ignore cache errors.
+  }
+  const contents = [];
+  const add = (c) => {
+    if (c?.id && !contents.some((x) => x.id === c.id)) contents.push(c);
+  };
+  if (r.content === RANK_CELEBRITY || r.contents.length === 0) cached.forEach(add);
+  r.contents.forEach(add);
+  const options = contents.map((c) => ({ value: c.id, title: c.name }));
+  if (!options.some((o) => o.value === RANK_CELEBRITY)) {
+    options.push({ value: RANK_CELEBRITY, title: "演员榜" });
+  }
+  const rows = [{ key: "content", title: "类别", options, value: r.content }];
+  const active = contents.find((c) => c.id === r.content);
+  if (active && active.boards?.length > 0) {
+    rows.push({
+      key: "board",
+      title: "榜单",
+      options: active.boards.map((b) => ({ value: b.id, title: b.name })),
+      value: r.board || active.boards[0].id,
+    });
+  }
+  return rows;
 }
 
 const FILTER_GENRE_KEY = "genre";
