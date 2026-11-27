@@ -144,7 +144,7 @@ test("a device replaced by another call is reused instead of registering again",
   }
 });
 
-test("calls inside one plugin call share a rotation and nested calls do not retry on their own", async () => {
+test("the profile and the works of a person page replace the device once between them", async () => {
   installHost();
   let profileCalls = 0;
   const { state, fetchFn } = fakeServer((u, init, deviceId) => {
@@ -383,5 +383,99 @@ test("every request carries the plugin's own Cookie header", async () => {
     }
   } finally {
     restore();
+  }
+});
+
+const REFUSED = { BaseResp: { StatusCode: 263175 } };
+
+test("nested calls leave device rotation to the outer call", async () => {
+  installHost();
+  // Every device is refused: only the outer call may rotate, deviceResets
+  // (3) times, so 1 + 3 devices are registered in all.
+  const { state, fetchFn } = fakeServer(() => mockResponse(REFUSED), { regDelayMs: 1 });
+  const restore = withFetch(fetchFn);
+  const logs = captureLogs();
+  try {
+    // danmaku reads the episode's length through the details, nested.
+    await assert.rejects(plugin.danmaku({ mediaId: "7100000000000001", episodeId: "7100000000001001" }));
+    assert.equal(state.regs, 4, "danmaku");
+
+    // The season list may fall back to the album, search and batch reads,
+    // all nested.
+    installHost();
+    state.regs = 0;
+    const client = new HongguoClient({ fetch: fetchFn, retryAttempts: 1, deviceResets: 3 });
+    await assert.rejects(client.seasons("7100000000000001"));
+    assert.equal(state.regs, 4, "seasons");
+  } finally {
+    logs.restore();
+    restore();
+  }
+});
+
+test("a device without a ticket sends an empty Cookie, not an empty ttreq", async () => {
+  installHost();
+  const { state, fetchFn } = fakeServer(() => mockResponse({ code: 0, data: { query_result: ["甲"] } }));
+  // The registration sets no cookies at all.
+  const noCookies = async (url, init) => {
+    const r = await fetchFn(url, init);
+    if (new URL(url).pathname.includes("device_register")) {
+      r.headers.getSetCookie = () => [];
+      r.headers.get = () => null;
+    }
+    return r;
+  };
+  const restore = withFetch(noCookies);
+  const logs = captureLogs();
+  try {
+    await plugin.suggest({ query: "甲" });
+    const sent = state.requests.filter(({ url }) => !url.pathname.includes("device_register"));
+    assert.ok(sent.length > 0);
+    for (const { init } of sent) assert.equal(init.headers.Cookie, "");
+  } finally {
+    logs.restore();
+    restore();
+  }
+});
+
+test("big integers in a response keep every digit", async () => {
+  installHost();
+  const { fetchFn } = fakeServer((u) => {
+    if (u.pathname.includes("/novel/player/video_detail/v1/")) {
+      // Numbers, not strings: JSON.parse would round them.
+      return mockResponse(
+        '{"code":0,"data":{"video_data":{"series_id":7100000000000000123,"series_title":"剧","episode_cnt":1,' +
+          '"video_list":[{"vid":7100000000000001123,"vid_index":1,"duration":90}]}}}'
+      );
+    }
+    return mockResponse({ code: 0, data: {} });
+  });
+  const restore = withFetch(fetchFn);
+  const logs = captureLogs();
+  try {
+    const m = await plugin.media({ id: "7100000000000000123" });
+    assert.equal(m.id, "7100000000000000123");
+    assert.equal(m.episodes[0].id, "7100000000000001123");
+  } finally {
+    logs.restore();
+    restore();
+  }
+});
+
+test("the device lock keeps real time whatever the client's clock says", async () => {
+  // Without host.cache.add the lock is read back by its time; a client
+  // whose clock is far off must not see a live lock as lapsed.
+  installHost({ cacheAdd: false });
+  const { state, fetchFn } = fakeServer(() => mockResponse(""), { regDelayMs: 2500 });
+  const logs = captureLogs();
+  try {
+    const clock = () => 1_600_000_000_000;
+    await Promise.all([
+      new HongguoClient({ fetch: fetchFn, clock }).ensureGuest(true),
+      delay(100).then(() => new HongguoClient({ fetch: fetchFn, clock }).ensureGuest(true)),
+    ]);
+    assert.equal(state.regs, 1);
+  } finally {
+    logs.restore();
   }
 });
