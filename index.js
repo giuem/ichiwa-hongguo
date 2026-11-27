@@ -7,7 +7,18 @@ import { announceSeasons, seasonsOf, startCalendar } from "./src/seasons.js";
 
 const FILTER_PANEL_CACHE_PREFIX = "hongguo_filter_panel:";
 const RANK_CONTENTS_CACHE_KEY = "hongguo_rank_contents";
+const RANK_CONTENTS_STORAGE_KEY = "hongguo_rank_contents";
 const RANK_CELEBRITY = "ranklist_celebrity";
+const RANK_CELEBRITY_TITLE = "演员榜";
+// The 类别 the server listed when this was written, offered on the actor
+// ranking until a ranking of another 类别 has been read once.
+const RANK_CONTENTS_FALLBACK = [
+  { id: "all", name: "全部" },
+  { id: "series_album", name: "系列剧" },
+  { id: "comic_series_rank", name: "漫剧" },
+  { id: "human", name: "真人剧" },
+  { id: "ai_playlet", name: "AI剧" },
+];
 const META_CACHE_TTL_SEC = 600;
 const PROFILE_WAIT_MS = 1000;
 
@@ -255,17 +266,21 @@ export async function navigation() {
   };
 }
 
+// rankContentsCacheKey keeps the actor ranking's 类别 list, which lists
+// only itself, apart from the others' list.
+function rankContentsCacheKey(content) {
+  return content === RANK_CELEBRITY ? `${RANK_CONTENTS_CACHE_KEY}:${RANK_CELEBRITY}` : RANK_CONTENTS_CACHE_KEY;
+}
+
 async function handleRankCollection(client, req) {
   const reqFilters = req.filters || {};
   let content = String(reqFilters.content || "").trim();
   let board = String(reqFilters.board || "").trim();
 
-  // The actor ranking has no boards.
-  if (content === RANK_CELEBRITY) board = "";
   // If the user switched content, clear a stale board ID from the previous content.
   if (!req.cursor && content && board) {
     try {
-      const cached = host.cache.get(RANK_CONTENTS_CACHE_KEY);
+      const cached = host.cache.get(rankContentsCacheKey(content));
       if (cached) {
         const contents = JSON.parse(cached);
         const match = contents.find((c) => c.id === content);
@@ -293,12 +308,13 @@ async function handleRankCollection(client, req) {
     }
   }
 
-  if (r.contents.length > 0 && r.content !== RANK_CELEBRITY) {
+  if (r.contents.length > 0) {
     try {
-      host.cache.set(RANK_CONTENTS_CACHE_KEY, JSON.stringify(r.contents), META_CACHE_TTL_SEC);
+      host.cache.set(rankContentsCacheKey(r.content), JSON.stringify(r.contents), META_CACHE_TTL_SEC);
     } catch {
       // Ignore cache error.
     }
+    if (r.content !== RANK_CELEBRITY) saveRankContents(r.contents);
   }
 
   const items = [];
@@ -337,29 +353,51 @@ async function handleRankCollection(client, req) {
   return page;
 }
 
+// savedRankContents is the 类别 list (id and name only) last seen on a
+// ranking other than the actor ranking, kept in host.storage so it outlives
+// the cache and restarts, or the fallback list.
+function savedRankContents() {
+  try {
+    const list = JSON.parse(host.storage.get(RANK_CONTENTS_STORAGE_KEY) || "null");
+    if (Array.isArray(list) && list.some((c) => c?.id && c.id !== RANK_CELEBRITY)) return list;
+  } catch {
+    // Ignore storage errors.
+  }
+  return RANK_CONTENTS_FALLBACK;
+}
+
+function saveRankContents(contents) {
+  const list = contents
+    .filter((c) => c?.id && c.id !== RANK_CELEBRITY)
+    .map((c) => ({ id: String(c.id), name: String(c.name || "") }));
+  if (list.length === 0) return;
+  const raw = JSON.stringify(list);
+  try {
+    if (host.storage.get(RANK_CONTENTS_STORAGE_KEY) !== raw) host.storage.set(RANK_CONTENTS_STORAGE_KEY, raw);
+  } catch {
+    // Ignore storage quota errors.
+  }
+}
+
 // rankFilters is the 类别 row, which always offers the actor ranking even
 // though the server no longer lists it, and the 榜单 row of the chosen 类别.
-// The actor ranking's own answer may list only itself, so the 类别 last seen
-// on another ranking come first.
+// The actor ranking's own answer lists only itself, so there the other 类别
+// come from the last list seen, or the fallback list.
 function rankFilters(r) {
-  let cached = [];
-  try {
-    cached = JSON.parse(host.cache.get(RANK_CONTENTS_CACHE_KEY) || "[]");
-  } catch {
-    // Ignore cache errors.
-  }
   const contents = [];
   const add = (c) => {
     if (c?.id && !contents.some((x) => x.id === c.id)) contents.push(c);
   };
-  if (r.content === RANK_CELEBRITY || r.contents.length === 0) cached.forEach(add);
-  r.contents.forEach(add);
-  const options = contents.map((c) => ({ value: c.id, title: c.name }));
-  if (!options.some((o) => o.value === RANK_CELEBRITY)) {
-    options.push({ value: RANK_CELEBRITY, title: "演员榜" });
+  if (r.content === RANK_CELEBRITY || r.contents.every((c) => c.id === RANK_CELEBRITY)) {
+    savedRankContents().forEach(add);
   }
+  r.contents.forEach(add);
+  const options = contents
+    .filter((c) => c.id !== RANK_CELEBRITY)
+    .map((c) => ({ value: c.id, title: c.name }));
+  options.push({ value: RANK_CELEBRITY, title: RANK_CELEBRITY_TITLE });
   const rows = [{ key: "content", title: "类别", options, value: r.content }];
-  const active = contents.find((c) => c.id === r.content);
+  const active = r.contents.find((c) => c.id === r.content);
   if (active && active.boards?.length > 0) {
     rows.push({
       key: "board",
