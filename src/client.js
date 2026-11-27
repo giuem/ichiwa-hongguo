@@ -1225,8 +1225,13 @@ export class HongguoClient {
     }
   }
 
-  _saveSeen(existingKey, prevSeen, newIds) {
-    const key = existingKey || hexEncode(host.crypto.randomBytes(6));
+  // _saveSeen stores the IDs seen up to the next page under a key of its
+  // own and returns the key. Every page gets a new key, never the one its
+  // cursor came with: a cursor sent again, say after the host dropped a
+  // late answer, must find the same IDs and so get the same page. Old keys
+  // lapse with their TTL, or go first when the cache is full.
+  _saveSeen(prevSeen, newIds) {
+    const key = hexEncode(host.crypto.randomBytes(6));
     const merged = [];
     const uniq = new Set();
     for (const id of prevSeen) {
@@ -1284,7 +1289,7 @@ export class HongguoClient {
       const ids = res.items.map((it) => it.id);
       let cursor = "";
       if (res.hasMore && ids.length > 0 && res.nextOffset > cur.offset) {
-        const seenKey = this._saveSeen(cur.seenKey, seen, ids);
+        const seenKey = this._saveSeen(seen, ids);
         cursor = encodeShortCursor({
           offset: res.nextOffset,
           seenKey,
@@ -1345,7 +1350,7 @@ export class HongguoClient {
       const ids = res.items.map((it) => it.seriesId || it.actorId);
       let cursor = "";
       if (res.hasMore && ids.length > 0 && res.nextOffset > cur.offset) {
-        const seenKey = this._saveSeen(cur.seenKey, seen, ids);
+        const seenKey = this._saveSeen(seen, ids);
         cursor = encodeShortCursor({
           offset: res.nextOffset,
           seenKey,

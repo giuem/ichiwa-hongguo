@@ -140,3 +140,39 @@ test("filter rows come back with a page error when only the list fails", async (
     restore();
   }
 });
+
+test("a filter cursor sent twice gets the same page", async () => {
+  const { bodies, restore } = setup();
+  try {
+    const first = await plugin.collection({ id: "filter", filters: { genre: "short_play" } });
+    const second = await plugin.collection({ id: "filter", cursor: first.cursor });
+    const sentSecond = bodies.at(-1);
+    // Reading on from page 2 records page 2's IDs as seen.
+    const third = await plugin.collection({ id: "filter", cursor: second.cursor });
+    assert.ok(third.cursor);
+    // The host asks for page 2 again: the same offset and the same seen IDs.
+    await plugin.collection({ id: "filter", cursor: first.cursor });
+    const again = bodies.at(-1);
+    assert.equal(again.offset, sentSecond.offset);
+    assert.equal(again.filter_ids, sentSecond.filter_ids);
+    assert.equal(again.filter_ids, first.items.map((i) => i.id).join(","));
+  } finally {
+    restore();
+  }
+});
+
+test("filter cursors stay short however far the list is read", async () => {
+  const { restore } = setup();
+  try {
+    let page = await plugin.collection({ id: "filter", filters: { genre: "short_play" } });
+    const lengths = [];
+    for (let i = 0; i < 20 && page.cursor; i++) {
+      lengths.push(page.cursor.length);
+      page = await plugin.collection({ id: "filter", cursor: page.cursor });
+    }
+    assert.equal(lengths.length, 20);
+    assert.ok(Math.max(...lengths) <= 256, `cursor grew to ${Math.max(...lengths)} characters`);
+  } finally {
+    restore();
+  }
+});

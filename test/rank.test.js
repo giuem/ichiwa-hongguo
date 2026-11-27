@@ -215,3 +215,39 @@ test("the actor ranking keeps the other 类别 when the cache is cold", async ()
     restore();
   }
 });
+
+test("a ranking cursor sent twice gets the same page and the same places", async () => {
+  installHost();
+  const { requests, restore } = rankServer();
+  try {
+    const first = await plugin.collection({ id: "rank" });
+    const second = await plugin.collection({ id: "rank", cursor: first.cursor });
+    const sentSecond = requests.at(-1);
+    await plugin.collection({ id: "rank", cursor: second.cursor });
+    const again = await plugin.collection({ id: "rank", cursor: first.cursor });
+    const sentAgain = requests.at(-1);
+    assert.equal(sentAgain.get("offset"), sentSecond.get("offset"));
+    assert.equal(sentAgain.get("filter_ids"), sentSecond.get("filter_ids"));
+    assert.equal(sentAgain.get("filter_ids"), "7100000000000100");
+    assert.deepEqual(again.items, second.items);
+  } finally {
+    restore();
+  }
+});
+
+test("ranking cursors stay short however far the list is read", async () => {
+  installHost();
+  const { restore } = rankServer();
+  try {
+    let page = await plugin.collection({ id: "rank" });
+    const lengths = [];
+    for (let i = 0; i < 20 && page.cursor; i++) {
+      lengths.push(page.cursor.length);
+      page = await plugin.collection({ id: "rank", cursor: page.cursor });
+    }
+    assert.equal(lengths.length, 20);
+    assert.ok(Math.max(...lengths) <= 256, `cursor grew to ${Math.max(...lengths)} characters`);
+  } finally {
+    restore();
+  }
+});
