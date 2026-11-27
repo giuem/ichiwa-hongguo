@@ -130,51 +130,97 @@ function writeCachedDay(day, result) {
   }
 }
 
-async function fetchCalendarDay(client, day, signal) {
+const NO_PACER = { canStart: () => true, timed: (fn) => fn() };
+
+// newPacer keeps calendar reads that cannot finish in time from starting:
+// once a deadline is set, a page is only asked for while the time left is
+// at least as long as the slowest page so far. The server takes about a
+// second a page, so a read started too late would only be cut off.
+function newPacer() {
+  const pacer = {
+    deadlineAt: 0,
+    pageMs: 0,
+    canStart: () => !pacer.deadlineAt || pacer.deadlineAt - Date.now() >= pacer.pageMs,
+    timed: async (fn) => {
+      const t = Date.now();
+      const out = await fn();
+      pacer.pageMs = Math.max(pacer.pageMs, Date.now() - t);
+      return out;
+    },
+  };
+  return pacer;
+}
+
+// readDay reads one calendar day, up to CALENDAR_PAGES pages, handing each
+// page's items to onPage as it arrives so a caller out of time can still use
+// the pages already in. Only a day read whole is cached. It never throws.
+async function readDay(client, day, signal, onPage, pacer = NO_PACER) {
   const cached = readCachedDay(day);
   if (cached) {
-    return { result: cached, complete: true, fromCache: true };
+    onPage(cached.items, cached);
+    return { result: cached, complete: true };
   }
-  if (signal?.aborted) {
-    return { result: null, complete: false, fromCache: false };
-  }
+  if (signal?.aborted || !pacer.canStart()) return { result: null, complete: false };
 
   let page;
   try {
-    page = await client.newReleases({ date: day, signal });
+    page = await pacer.timed(() => client.newReleases({ date: day, signal }));
   } catch {
-    return { result: null, complete: false, fromCache: false };
+    return { result: null, complete: false };
   }
-
-  const result = {
-    date: page.date,
-    dates: page.dates,
-    items: [...page.items],
-  };
+  const result = { date: page.date, dates: page.dates, items: [...page.items] };
+  onPage(page.items, result);
 
   let complete = true;
   for (let i = 0; i < CALENDAR_PAGES - 1; i++) {
     if (!page.hasMore || !page.cursor) break;
-    if (signal?.aborted) {
+    if (signal?.aborted || !pacer.canStart()) {
       complete = false;
       break;
     }
     try {
-      page = await client.newReleases({ cursor: page.cursor, signal });
-      result.items.push(...page.items);
+      const cursor = page.cursor;
+      page = await pacer.timed(() => client.newReleases({ cursor, signal }));
     } catch {
       complete = false;
       break;
     }
+    result.items.push(...page.items);
+    onPage(page.items, result);
   }
-
-  // Only cache a day when all pages (up to CALENDAR_PAGES) completed cleanly.
-  if (complete && !signal?.aborted) {
+  if (complete) {
     writeCachedDay(day, result);
   }
-  return { result, complete, fromCache: false };
+  return { result, complete };
 }
 
+// startCalendar starts reading today's calendar at once, so that media can
+// have it under way while the details and the season list are read. The
+// pages land in items as they arrive; first settles with the day's dates
+// once its first page is in, or with null.
+export function startCalendar(client) {
+  const controller = new AbortController();
+  const cal = { controller, pacer: newPacer(), items: [], onItems: null, today: null };
+  let settleFirst;
+  cal.first = new Promise((resolve) => {
+    settleFirst = resolve;
+  });
+  cal.done = readDay(client, "", controller.signal, (items, result) => {
+    if (!cal.today) {
+      cal.today = result;
+      settleFirst(result);
+    }
+    cal.items.push(...items);
+    if (cal.onItems) cal.onItems(items);
+  }, cal.pacer).finally(() => settleFirst(cal.today));
+  cal.stop = () => controller.abort();
+  return cal;
+}
+
+// announceSeasons notes on the seasons that are not out yet, and on the
+// latest one, when the calendar has them, giving up after budgetMs with the
+// notes found so far. options.calendar is a calendar from startCalendar
+// already under way; without one, today's calendar is read here.
 export async function announceSeasons(client, seasons, options = {}) {
   const out = seasons.map((s) => ({ ...s }));
   let pending = [];
@@ -183,22 +229,25 @@ export async function announceSeasons(client, seasons, options = {}) {
       pending.push(i);
     }
   }
-  if (pending.length === 0) return out;
+  const cal = options.calendar || startCalendar(client);
+  if (pending.length === 0) {
+    cal.stop();
+    return out;
+  }
 
   const budgetMs =
     typeof options.budgetMs === "number" && options.budgetMs > 0
       ? options.budgetMs
       : CALENDAR_BUDGET_MS;
-
-  const controller = new AbortController();
-  const { signal } = controller;
+  const { signal } = cal.controller;
   let timedOut = false;
   let timer = null;
+  cal.pacer.deadlineAt = Date.now() + budgetMs;
   const deadline = new Promise((resolve) => {
     timer = setTimeout(() => {
       timedOut = true;
-      controller.abort();
-      resolve("timeout");
+      cal.stop();
+      resolve(null);
     }, budgetMs);
   });
 
@@ -211,80 +260,48 @@ export async function announceSeasons(client, seasons, options = {}) {
       }
       return true;
     });
+    if (pending.length === 0) cal.stop();
   };
   const waiting = (online) => pending.some((idx) => out[idx].online === online);
 
   try {
-    const todayRes = await Promise.race([
-      fetchCalendarDay(client, "", signal),
-      deadline.then(() => null),
-    ]);
-    if (!todayRes || !todayRes.result) {
-      if (timedOut) {
-        console.log(`[hongguo] season calendar timed out after ${budgetMs}ms`);
-      }
-      return out;
-    }
-    const today = todayRes.result;
-    look(today.items);
-    if (pending.length === 0 || signal.aborted) {
+    look(cal.items);
+    cal.onItems = look;
+    const today = await Promise.race([cal.first, deadline]);
+    if (!today || pending.length === 0 || signal.aborted) {
       return out;
     }
 
     const days = [];
-    const seenDays = new Set();
     for (const online of [false, true]) {
       if (!waiting(online)) continue;
       for (const day of calendarDates(today.dates, today.date, online)) {
-        if (!seenDays.has(day)) {
-          seenDays.add(day);
-          days.push(day);
-        }
+        if (!days.includes(day)) days.push(day);
       }
     }
 
-    const uncached = [];
-    for (const day of days) {
-      const cached = readCachedDay(day);
-      if (cached) {
-        look(cached.items);
-        if (pending.length === 0) return out;
-      } else {
-        uncached.push(day);
-      }
-    }
-
-    const toFetch = uncached.filter((day) => waiting(day < today.date));
-    if (toFetch.length === 0 || signal.aborted) {
-      return out;
-    }
-
-    // Read the days in order, at most CALENDAR_PARALLEL at once.
+    // Read the days in order, at most CALENDAR_PARALLEL at once, matching
+    // each page as it arrives.
     let next = 0;
     const worker = async () => {
-      while (next < toFetch.length && !signal.aborted && pending.length > 0) {
-        const day = toFetch[next++];
-        const res = await fetchCalendarDay(client, day, signal);
-        if (res?.result?.items?.length) {
-          look(res.result.items);
-          if (pending.length === 0 && !signal.aborted) {
-            controller.abort();
-          }
-        }
+      while (next < days.length && !signal.aborted && pending.length > 0) {
+        const day = days[next++];
+        if (!waiting(day < today.date)) continue;
+        await readDay(client, day, signal, (items) => look(items), cal.pacer);
       }
     };
-    const workers = [];
-    for (let i = 0; i < Math.min(CALENDAR_PARALLEL, toFetch.length); i++) {
+    const workers = [cal.done];
+    for (let i = 0; i < Math.min(CALENDAR_PARALLEL, days.length); i++) {
       workers.push(worker());
     }
     await Promise.race([Promise.allSettled(workers), deadline]);
-    if (timedOut) {
-      console.log(`[hongguo] season calendar budget (${budgetMs}ms) reached with ${pending.length} pending`);
-    }
     return out;
   } finally {
-    if (timer !== null && typeof clearTimeout === "function") {
-      clearTimeout(timer);
+    clearTimeout(timer);
+    if (timedOut && pending.length > 0) {
+      console.log(`[hongguo] season calendar: ${budgetMs}ms budget spent with ${pending.length} season(s) unmatched`);
     }
+    cal.onItems = null;
+    cal.stop();
   }
 }

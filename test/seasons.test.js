@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { installHost } from "./host.js";
 import * as plugin from "../index.js";
-import { announceSeasons, CALENDAR_PARALLEL, seasonsOf } from "../src/seasons.js";
+import { announceSeasons, CALENDAR_PARALLEL, seasonsOf, startCalendar } from "../src/seasons.js";
 
 function mockResponse(body, { setCookies = [] } = {}) {
   const bytes = Buffer.from(JSON.stringify(body), "utf8");
@@ -165,4 +165,29 @@ test("media reads the details and the season list at once and caches the list bu
     globalThis.fetch = origFetch;
     restoreLogs();
   }
+});
+
+test("calendar pages that cannot finish before the deadline are not started", async () => {
+  const seasons = seasonsOf([
+    { seriesId: "100", title: "剧 第一季", index: 1, episodeCount: 60 },
+    { seriesId: "200", title: "剧 第二季", index: 2, episodeCount: 60 },
+  ]);
+  const run = async (budgetMs) => {
+    installHost();
+    const calls = [];
+    const client = {
+      async newReleases({ date, cursor }) {
+        calls.push(date || cursor || "today");
+        await delay(300);
+        return { date: date || "20261127", dates: DAYS, items: [], hasMore: true, cursor: `${date || "t"}-p2` };
+      },
+    };
+    await announceSeasons(client, seasons, { budgetMs, calendar: startCalendar(client) });
+    return calls;
+  };
+  // A 300ms page leaves 200ms of a 500ms budget: nothing more is started.
+  assert.deepEqual(await run(500), ["today"]);
+  // With 1000ms, the next pages fit and are read.
+  const more = await run(1000);
+  assert.ok(more.length > 1, `read ${more.join(",")}`);
 });

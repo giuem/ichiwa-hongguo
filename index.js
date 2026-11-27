@@ -3,7 +3,7 @@
 import { HongguoClient } from "./src/client.js";
 import { emojify } from "./src/emoji.js";
 import { ErrCode, isErr, toHostError } from "./src/errors.js";
-import { announceSeasons, seasonsOf } from "./src/seasons.js";
+import { announceSeasons, seasonsOf, startCalendar } from "./src/seasons.js";
 
 const FILTER_PANEL_CACHE_PREFIX = "hongguo_filter_panel:";
 const RANK_CONTENTS_CACHE_KEY = "hongguo_rank_contents";
@@ -192,13 +192,19 @@ const SEASONS_CACHE_TTL_SEC = 600;
 
 // seasonList returns the normalized seasons of id, or [] for a show of a
 // single season, from host.cache when it was read in the last ten minutes.
-async function seasonList(client, id, detailP) {
+function cachedSeasonList(id) {
   try {
     const cached = host.cache.get(SEASONS_CACHE_PREFIX + id);
     if (cached) return JSON.parse(cached);
   } catch {
     // Ignore cache errors.
   }
+  return null;
+}
+
+async function seasonList(client, id, detailP) {
+  const cached = cachedSeasonList(id);
+  if (cached) return cached;
   const album = await client.seasons(
     id,
     detailP.then((d) => d.series)
@@ -580,14 +586,25 @@ export async function media(req) {
     // CALENDAR_BUDGET_MS once both are in, and are not cached themselves: the
     // calendar keeps its whole days in host.cache, so they are put together
     // again on every open.
+    // Each calendar page takes the server about a second, so today's page is
+    // asked for at once, unless the show is known to have a single season.
+    const knownList = cachedSeasonList(id);
+    const calendar = knownList && knownList.length < 2 ? null : startCalendar(client);
     const detailP = client.getSeriesDetail(id);
     const listP = seasonList(client, id, detailP).catch((err) => {
       console.log(`[hongguo] seasons of ${id} failed: ${err?.message || err}`);
       return null;
     });
-    const detail = await detailP;
+    let detail;
+    try {
+      detail = await detailP;
+    } catch (err) {
+      calendar?.stop();
+      throw err;
+    }
     const { series, episodes } = detail;
     if (episodes.length === 0) {
+      calendar?.stop();
       throw host.error("unavailable", "这部剧暂时没有可看的剧集");
     }
 
@@ -596,11 +613,15 @@ export async function media(req) {
     if (entries && entries.length >= 2) {
       let annotated = entries;
       try {
-        annotated = await announceSeasons(client, entries);
+        annotated = await announceSeasons(client, entries, {
+          calendar: calendar || startCalendar(client),
+        });
       } catch (err) {
         console.log(`[hongguo] season calendar of ${id} failed: ${err?.message || err}`);
       }
       seasons = annotated.map((s) => toProtocolSeason(s, s.id === series.id));
+    } else {
+      calendar?.stop();
     }
 
     const meta = [];
