@@ -6,6 +6,7 @@ const CALENDAR_PAGES = 3;
 const CALENDAR_CACHE_TTL_SEC = 600;
 const CALENDAR_CACHE_PREFIX = "hongguo_cal:";
 export const CALENDAR_BUDGET_MS = 1000;
+export const CALENDAR_PARALLEL = 4;
 
 export function seasonsOf(rawSeasons) {
   const seen = new Set();
@@ -258,17 +259,25 @@ export async function announceSeasons(client, seasons, options = {}) {
       return out;
     }
 
-    const tasks = toFetch.map((day) =>
-      fetchCalendarDay(client, day, signal).then((res) => {
+    // Read the days in order, at most CALENDAR_PARALLEL at once.
+    let next = 0;
+    const worker = async () => {
+      while (next < toFetch.length && !signal.aborted && pending.length > 0) {
+        const day = toFetch[next++];
+        const res = await fetchCalendarDay(client, day, signal);
         if (res?.result?.items?.length) {
           look(res.result.items);
           if (pending.length === 0 && !signal.aborted) {
             controller.abort();
           }
         }
-      })
-    );
-    await Promise.race([Promise.allSettled(tasks), deadline]);
+      }
+    };
+    const workers = [];
+    for (let i = 0; i < Math.min(CALENDAR_PARALLEL, toFetch.length); i++) {
+      workers.push(worker());
+    }
+    await Promise.race([Promise.allSettled(workers), deadline]);
     if (timedOut) {
       console.log(`[hongguo] season calendar budget (${budgetMs}ms) reached with ${pending.length} pending`);
     }

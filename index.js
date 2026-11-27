@@ -186,6 +186,56 @@ function rankStreamScore(s, prefer) {
   return score;
 }
 
+const SEASONS_CACHE_PREFIX = "hongguo_seasons:";
+const SEASONS_CACHE_TTL_SEC = 600;
+
+// seasonList returns the normalized seasons of id, or [] for a show of a
+// single season, from host.cache when it was read in the last ten minutes.
+async function seasonList(client, id, detailP) {
+  try {
+    const cached = host.cache.get(SEASONS_CACHE_PREFIX + id);
+    if (cached) return JSON.parse(cached);
+  } catch {
+    // Ignore cache errors.
+  }
+  const album = await client.seasons(
+    id,
+    detailP.then((d) => d.series)
+  );
+  let entries = seasonsOf(album.seasons);
+  if (entries.length < 2) entries = [];
+  const raw = JSON.stringify(entries);
+  for (const key of new Set([id, ...entries.map((e) => e.id)])) {
+    try {
+      host.cache.set(SEASONS_CACHE_PREFIX + key, raw, SEASONS_CACHE_TTL_SEC);
+    } catch {
+      // Ignore cache errors.
+    }
+  }
+  return entries;
+}
+
+function toProtocolSeason(s, current) {
+  const parts = [];
+  if (!s.online || s.isNew) {
+    if (s.note) parts.push(s.note);
+    else if (s.online) parts.push("新上线");
+    if (s.heat) parts.push(s.heat);
+  }
+  const item = {
+    id: s.id,
+    title: `第${s.index}季`,
+    current,
+    available: s.online,
+  };
+  const name = String(s.title || "").trim();
+  if (name) item.name = name;
+  const img = httpUrl(s.coverUrl);
+  if (img) item.image = img;
+  if (parts.length > 0) item.note = parts.join(" · ");
+  return item;
+}
+
 export async function navigation() {
   return {
     items: [
@@ -476,35 +526,32 @@ export async function media(req) {
   const id = String(req?.id || "").trim();
   const client = makeClient();
   try {
-    const detail = await client.getSeriesDetail(id);
+    // The details and the season list are read at once; the list is part of
+    // the answer. The calendar notes on the seasons get at most
+    // CALENDAR_BUDGET_MS once both are in, and are not cached themselves: the
+    // calendar keeps its whole days in host.cache, so they are put together
+    // again on every open.
+    const detailP = client.getSeriesDetail(id);
+    const listP = seasonList(client, id, detailP).catch((err) => {
+      console.log(`[hongguo] seasons of ${id} failed: ${err?.message || err}`);
+      return null;
+    });
+    const detail = await detailP;
     const { series, episodes } = detail;
     if (episodes.length === 0) {
       throw host.error("unavailable", "这部剧暂时没有可看的剧集");
     }
 
     let seasons;
-    try {
-      const album = await client.seasons(series.id, series);
-      const normalized = seasonsOf(album.seasons);
-      if (normalized.length >= 2) {
-        const annotated = await announceSeasons(client, normalized);
-        seasons = annotated.map((s) => {
-          const item = {
-            id: s.id,
-            title: `第${s.index}季`,
-            current: s.id === series.id,
-            available: s.online,
-          };
-          const name = String(s.title || "").trim();
-          if (name) item.name = name;
-          const img = httpUrl(s.coverUrl);
-          if (img) item.image = img;
-          if (s.note) item.note = s.note;
-          return item;
-        });
+    const entries = await listP;
+    if (entries && entries.length >= 2) {
+      let annotated = entries;
+      try {
+        annotated = await announceSeasons(client, entries);
+      } catch (err) {
+        console.log(`[hongguo] season calendar of ${id} failed: ${err?.message || err}`);
       }
-    } catch {
-      // Multi-season lookup is best-effort.
+      seasons = annotated.map((s) => toProtocolSeason(s, s.id === series.id));
     }
 
     const meta = [];

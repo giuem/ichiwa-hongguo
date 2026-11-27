@@ -1083,25 +1083,30 @@ export class HongguoClient {
     return parseSeasons(json);
   }
 
+  // seasons lists the seasons of seriesID. preloadedSeries is the series, or
+  // a promise of it, when the caller reads the details anyway; the season
+  // list is requested at once, alongside the details.
   async seasons(seriesID, preloadedSeries = null) {
     return this._withFreshDevice(false, async (ctx) => {
-      const series = preloadedSeries || (await this.getSeriesDetail(seriesID, ctx)).series;
-      try {
-        const list = await this._seriesSeasons(series.id, ctx);
-        if (list.length > 0) {
-          for (const s of list) {
-            if (s.seriesId === series.id) s.status = series.status;
-          }
-          sortSeasons(list);
-          return {
-            id: series.relatedAlbumId,
-            title: seasonBaseTitle(series.title),
-            seasonCount: list.length,
-            seasons: list,
-          };
+      const listP = this._seriesSeasons(seriesID, ctx).then(
+        (list) => ({ list }),
+        (err) => ({ list: [], err })
+      );
+      const series = await (preloadedSeries ||
+        this.getSeriesDetail(seriesID, ctx).then((d) => d.series));
+      const { list, err } = await listP;
+      if (err && isErr(err, ErrCode.DeviceRejected)) throw err;
+      if (list.length > 0) {
+        for (const s of list) {
+          if (s.seriesId === series.id) s.status = series.status;
         }
-      } catch {
-        // Fallback below.
+        sortSeasons(list);
+        return {
+          id: series.relatedAlbumId,
+          title: seasonBaseTitle(series.title),
+          seasonCount: list.length,
+          seasons: list,
+        };
       }
       if (series.relatedAlbumId) {
         try {
