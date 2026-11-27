@@ -253,6 +253,9 @@ test("JSON request bodies match openhongguo byte-for-byte", () => {
     fromUtf8(danmakuBody("7690184933037329432", "7690261304497458201", 30000, 135000, 90, "")),
     rb.danmaku
   );
+  // The V5 playback body is gzip; the JSON inside must match Go's.
+  assert.equal(fromUtf8(playbackV5PlainBody("7690261304497458201")), rb.playbackV5Plain);
+  assert.equal(fromUtf8(host.encoding.gunzip(playbackV5Body("7690261304497458201"))), rb.playbackV5Plain);
 });
 
 test("Register plaintext and gzip round-trip match openhongguo", () => {
@@ -379,12 +382,20 @@ test("cursor encoding matches openhongguo byte-for-byte", () => {
 });
 
 // Fields the Go parsers fill that the port leaves out on purpose: nothing in
-// the plugin reads them.
-const UNPARSED_FIELDS = new Set([
-  "coverExpiresAt", // signed cover URLs are used as given
-  "rows", // series info rows (Series.Rows); the plugin shows its own meta
-  "change", // a ranking row's move since last time
-]);
+// the plugin reads them. They are skipped by path, array indices written []
+// and map keys (IDs) written *, so a field of the same name elsewhere, such
+// as the filter panel's rows, is still compared.
+const UNPARSED_FIELDS = [
+  /\.coverExpiresAt$/, // signed cover URLs are used as given
+  /^series\.series\.rows$/, // series info rows (Series.Rows); the plugin shows its own meta
+  /^series_batch\.\*\.series\.rows$/,
+  /^short_rank(_actor)?\.items\[\]\.change$/, // a ranking row's move since last time
+];
+
+const unparsed = (where) => {
+  const path = where.replace(/\[\d+\]/g, "[]").replace(/\.\d+(?=\.|$)/g, ".*");
+  return UNPARSED_FIELDS.some((re) => re.test(path));
+};
 
 const camel = (k) =>
   k.includes("_")
@@ -416,7 +427,7 @@ function sameAsGo(where, goVal, jsVal) {
   assert.ok(jsVal && typeof jsVal === "object", `${where} is an object`);
   for (const [k, v] of Object.entries(goVal)) {
     const key = camel(k);
-    if (UNPARSED_FIELDS.has(key)) continue;
+    if (unparsed(`${where}.${key}`)) continue;
     sameAsGo(`${where}.${key}`, v, jsVal[key]);
   }
 }
@@ -452,4 +463,26 @@ test("response parsing matches openhongguo on live responses", () => {
     const fx = JSON.parse(fs.readFileSync(path.join(__dirname, "vectors", "responses", `${name}.json`), "utf8"));
     sameAsGo(name, vectors.parse[name], read[name](parseJSONSafe(fx.response)));
   }
+});
+
+test("the parse comparison reaches the filter panel's rows", () => {
+  const fx = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "vectors", "responses", "short_filter_panel.json"), "utf8")
+  );
+  const good = parsers.parseShortFilter(parseJSONSafe(fx.response));
+  assert.ok(good.rows.length > 0 && good.rows.every((r) => r.options.length > 0));
+  sameAsGo("short_filter_panel", vectors.parse.short_filter_panel, good);
+  // A panel parsed wrong must fail the comparison.
+  const broken = { ...good, rows: good.rows.map((r) => ({ ...r, name: "", options: [] })) };
+  assert.throws(() => sameAsGo("short_filter_panel", vectors.parse.short_filter_panel, broken));
+  const renamed = { ...good, rows: good.rows.map((r, i) => (i === 0 ? { ...r, name: `${r.name}x` } : r)) };
+  assert.throws(() => sameAsGo("short_filter_panel", vectors.parse.short_filter_panel, renamed));
+  // So must a series whose episodes lose their lengths.
+  const sx = JSON.parse(fs.readFileSync(path.join(__dirname, "vectors", "responses", "series.json"), "utf8"));
+  const series = parsers.parseSeries(parseJSONSafe(sx.response));
+  assert.deepEqual(
+    series.episodes.map((e) => e.durationSeconds),
+    vectors.episodeDurations.series,
+    "episode lengths match Go"
+  );
 });

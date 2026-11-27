@@ -3,12 +3,15 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,28 +24,31 @@ import (
 )
 
 type Vectors struct {
-	Upstream       string               `json:"upstream"`
-	SHA512         []HashVec            `json:"sha512"`
-	SM3            []HashVec            `json:"sm3"`
-	Spade          []SpadeVec           `json:"spade"`
-	TTEncrypt      []TTEncryptVec       `json:"ttEncrypt"`
-	PlaybackURL    []PlaybackURLVec     `json:"playbackUrl"`
-	KeyHash        []KeyHashVec         `json:"keyHash"`
-	Xmxor          []XmxorVec           `json:"xmxor"`
-	EncryptV5      []EncryptV5Vec       `json:"encryptPlaybackV5"`
-	F13V5          []F13V5Vec           `json:"f13V5"`
-	Gorgon         []GorgonVec          `json:"gorgon"`
-	Helios         []HeliosVec          `json:"helios"`
-	MedusaDevice   []MedusaDeviceVec    `json:"medusaDevice"`
-	MedusaV5       []MedusaV5Vec        `json:"medusaV5"`
-	Argus          []ArgusVec           `json:"argus"`
-	Ladon          []LadonVec           `json:"ladon"`
-	EncodeQuery    []EncodeQueryVec     `json:"encodeQuery"`
-	RequestBodies  RequestBodiesVec     `json:"requestBodies"`
-	RegisterPlain  RegisterPlainVec     `json:"registerPlaintext"`
-	Signed         []SignedVec          `json:"signed"`
-	Cursors        []CursorVec          `json:"cursors"`
-	Parse          map[string]any       `json:"parse"`
+	Upstream      string            `json:"upstream"`
+	SHA512        []HashVec         `json:"sha512"`
+	SM3           []HashVec         `json:"sm3"`
+	Spade         []SpadeVec        `json:"spade"`
+	TTEncrypt     []TTEncryptVec    `json:"ttEncrypt"`
+	PlaybackURL   []PlaybackURLVec  `json:"playbackUrl"`
+	KeyHash       []KeyHashVec      `json:"keyHash"`
+	Xmxor         []XmxorVec        `json:"xmxor"`
+	EncryptV5     []EncryptV5Vec    `json:"encryptPlaybackV5"`
+	F13V5         []F13V5Vec        `json:"f13V5"`
+	Gorgon        []GorgonVec       `json:"gorgon"`
+	Helios        []HeliosVec       `json:"helios"`
+	MedusaDevice  []MedusaDeviceVec `json:"medusaDevice"`
+	MedusaV5      []MedusaV5Vec     `json:"medusaV5"`
+	Argus         []ArgusVec        `json:"argus"`
+	Ladon         []LadonVec        `json:"ladon"`
+	EncodeQuery   []EncodeQueryVec  `json:"encodeQuery"`
+	RequestBodies RequestBodiesVec  `json:"requestBodies"`
+	RegisterPlain RegisterPlainVec  `json:"registerPlaintext"`
+	Signed        []SignedVec       `json:"signed"`
+	Cursors       []CursorVec       `json:"cursors"`
+	Parse         map[string]any    `json:"parse"`
+	// EpisodeDurations are the episode lengths, in seconds, of the parsed
+	// series fixtures: Episode.Duration is not marshalled.
+	EpisodeDurations map[string][]int64 `json:"episodeDurations"`
 }
 
 // SignedVec is one whole signed request: the query and every header.
@@ -203,6 +209,9 @@ type RequestBodiesVec struct {
 	UserWorksTabs    string `json:"userWorksTabs"`
 	UserWorks        string `json:"userWorks"`
 	Danmaku          string `json:"danmaku"`
+	// PlaybackV5Plain is PlaybackV5Body unzipped: the gzip bytes differ
+	// between Go releases, the JSON inside does not.
+	PlaybackV5Plain string `json:"playbackV5Plain"`
 }
 
 type RegisterPlainVec struct {
@@ -614,6 +623,7 @@ func main() {
 		UserWorksTabs:    mustStr(protocol.UserWorksTabsBody("12345678")),
 		UserWorks:        mustStr(protocol.UserWorksBody("12345678", "cur-1", protocol.WorksTab{Tab: 8, Sub: 100})),
 		Danmaku:          mustStr(protocol.DanmakuBody("7690184933037329432", "7690261304497458201", 30000, 135000, 90, "")),
+		PlaybackV5Plain:  gunzip(must2(protocol.PlaybackV5Body("7690261304497458201"))),
 	}
 
 	// 16. Register plaintext
@@ -639,7 +649,6 @@ func main() {
 		ReqID:         regID.ReqID,
 		Plaintext:     string(plainReg),
 	}
-
 
 	// 17. Whole signed requests: query and every header.
 	ident := protocol.SearchIdentity{
@@ -741,6 +750,10 @@ func main() {
 			panic(fmt.Sprintf("%s: %v", name, err))
 		}
 		v.Parse[name] = out
+		if name == "series" {
+			_, eps, _ := protocol.ParseSeries([]byte(fx.Response))
+			v.EpisodeDurations = map[string][]int64{"series": durations(eps)}
+		}
 	}
 
 	enc := json.NewEncoder(os.Stdout)
@@ -748,6 +761,33 @@ func main() {
 	if err := enc.Encode(v); err != nil {
 		panic(err)
 	}
+}
+
+func durations(eps []model.Episode) []int64 {
+	out := make([]int64, 0, len(eps))
+	for _, e := range eps {
+		out = append(out, int64(e.Duration/time.Second))
+	}
+	return out
+}
+
+func must2(b []byte, err error) []byte {
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
+
+func gunzip(b []byte) string {
+	r, err := gzip.NewReader(bytes.NewReader(b))
+	if err != nil {
+		panic(err)
+	}
+	out, err := io.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
+	return string(out)
 }
 
 func parseFixture(name string, raw []byte) (any, error) {

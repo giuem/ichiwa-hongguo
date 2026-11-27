@@ -20,6 +20,12 @@ jobs:
           go-version: "1.22"
           cache: false
 
+      - name: Check tools/vectors/ref is openhongguo at the UPSTREAM tag
+        run: |
+          git clone --quiet --depth 1 --branch "$(tr -d '[:space:]' < UPSTREAM)" \
+            https://github.com/beilunyang/openhongguo "$RUNNER_TEMP/openhongguo"
+          tools/vectors/check-ref.sh "$RUNNER_TEMP/openhongguo"
+
       - name: Regenerate the Go vectors and check they are unchanged
         run: |
           go -C tools/vectors run . > test/vectors/vectors.json
