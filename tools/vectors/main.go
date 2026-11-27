@@ -283,6 +283,9 @@ func makeSpadeA(hexKey, version, tag string) string {
 }
 
 func main() {
+	// Parsed times marshal in time.Local; pin it so every machine writes the
+	// same vectors.
+	time.Local = time.UTC
 	v := Vectors{Upstream: "v0.4.1"}
 
 	// 1. SHA-512
