@@ -8,6 +8,7 @@ import { announceSeasons, seasonsOf } from "./src/seasons.js";
 const FILTER_PANEL_CACHE_PREFIX = "hongguo_filter_panel:";
 const RANK_CONTENTS_CACHE_KEY = "hongguo_rank_contents";
 const META_CACHE_TTL_SEC = 600;
+const PROFILE_WAIT_MS = 1000;
 
 const CHANNEL_MAP = {
   recommend: { channel: "推荐", title: "推荐" },
@@ -365,11 +366,35 @@ async function handlePersonCollection(client, userID, req) {
     return page;
   }
 
-  const [info, works] = await Promise.all([
-    client.person(userID),
-    client.personWorks(userID, ""),
-  ]);
+  // The profile and the works are read at once. Without the works the page
+  // has nothing to show, so their failure fails the page; once they are in,
+  // the profile gets at most PROFILE_WAIT_MS more, and a profile that fails
+  // or is late only leaves the header out.
+  const profile = client.person(userID).then(
+    (info) => ({ info }),
+    (err) => {
+      console.log(`[hongguo] profile of person ${userID} failed: ${err?.message || err}`);
+      return { info: null };
+    }
+  );
+  const works = await client.personWorks(userID, "");
+  const items = works.items.filter((w) => w.seriesId).map(workToCard);
+  let timer = null;
+  const late = new Promise((resolve) => {
+    timer = setTimeout(() => resolve({ info: null, late: true }), PROFILE_WAIT_MS);
+  });
+  const got = await Promise.race([profile, late]);
+  clearTimeout(timer);
+  if (got.late) {
+    console.log(`[hongguo] profile of person ${userID} is late; showing the works without it`);
+  }
+  if (!got.info) {
+    const page = { layout: "grid", items };
+    if (works.hasMore && works.cursor) page.cursor = works.cursor;
+    return page;
+  }
 
+  const info = got.info;
   const meta = [];
   for (const tag of [...(info.tags || []), ...(info.labels || [])]) {
     if (tag) meta.push({ value: tag });
@@ -396,7 +421,7 @@ async function handlePersonCollection(client, userID, req) {
     title: info.name,
     header,
     layout: "grid",
-    items: works.items.filter((w) => w.seriesId).map(workToCard),
+    items,
   };
   if (works.hasMore && works.cursor) page.cursor = works.cursor;
   return page;
@@ -545,16 +570,21 @@ export async function play(req) {
   try {
     const pb = await client.resolvePlayback(episodeId);
     if (pb.audioUrl) {
+      console.log(`[hongguo] play rejected for episode=${episodeId}: separate audio stream unsupported`);
       throw host.error("unavailable", "暂不支持音视频分离的作品");
     }
     let keyHex = "";
     if (pb.protected || pb.streams.some((s) => s.protected)) {
       if (!pb.keyMaterial) {
+        console.log(`[hongguo] play failed for episode=${episodeId}: protected stream missing spade_a key material`);
         throw host.error("unavailable", "该集已加密，但未获取到解密密钥");
       }
       try {
         keyHex = client.contentKey({ protected: true, keyMaterial: pb.keyMaterial }).hex;
-      } catch {
+      } catch (keyErr) {
+        console.log(
+          `[hongguo] play failed for episode=${episodeId}: content key derivation error: ${keyErr?.message || keyErr}`
+        );
         throw host.error("unavailable", "无法解密该集视频");
       }
     }
@@ -580,6 +610,7 @@ export async function play(req) {
       });
 
     if (streams.length === 0) {
+      console.log(`[hongguo] play failed for episode=${episodeId}: no valid http/https stream URLs`);
       throw host.error("unavailable", "没有可用的视频流");
     }
 

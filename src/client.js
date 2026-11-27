@@ -110,8 +110,12 @@ const DURATION_CACHE_TTL_SEC = 3600;
 const SEEN_CACHE_PREFIX = "hongguo_seen:";
 const SEEN_CACHE_TTL_SEC = 1800;
 const MAX_CACHED_SEEN = 4000;
+const DEVICE_ROTATE_LOCK_KEY = "hongguo_device_rotating";
+const DEVICE_ROTATE_LOCK_TTL_SEC = 5;
+const DEVICE_ROTATE_WAIT_MS = 3000;
+const DEVICE_ROTATE_POLL_MS = 40;
 const SERIES_BATCH_SIZE = 10;
-const MAX_RETRY_WAIT_MS = 10000;
+const MAX_RETRY_WAIT_MS = 2000;
 
 const SEASON_SUFFIX_RE = /\s*(第\s*[0-9一二三四五六七八九十百]+\s*[季部期]|[0-9]+)\s*$/;
 
@@ -188,7 +192,12 @@ function guestReady(p) {
   );
 }
 
+// guestCookie is the Cookie header of a guest device: the same cookies the
+// SDK sends, or none before the device has a ticket. The plugin always sends
+// it explicitly, even empty, so the host never adds cookies from its own jar
+// (plugin-design.md §11), such as those of a device already replaced.
 function guestCookie(p) {
+  if (!p || !p.ttreq) return "";
   return (
     `passport_csrf_token=; passport_csrf_token_default=; ` +
     `store-region=${p.store_region || ""}; store-region-src=${p.store_region_src || ""}; ` +
@@ -281,7 +290,7 @@ export class HongguoClient {
     this.deviceResets = options.deviceResets ?? 3;
     this.clock = options.clock || (() => Date.now());
     this.fetchFn = options.fetch || ((url, init) => fetch(url, init));
-    this._inFreshDevice = false;
+    this._inflightRegister = null;
   }
 
   _loadProfile() {
@@ -322,9 +331,7 @@ export class HongguoClient {
     out["x-ss-dp"] = AID;
     out["lc"] = "101";
     out["x-reading-request"] = readingRequestID(ticket, randomInt31());
-    if (p && p.ttreq) {
-      out["Cookie"] = guestCookie(p);
-    }
+    out["Cookie"] = guestCookie(p);
     return out;
   }
 
@@ -340,6 +347,9 @@ export class HongguoClient {
     }
     if (!Object.keys(hdrs).some((k) => k.toLowerCase() === "accept")) {
       hdrs["Accept"] = "application/json";
+    }
+    if (!Object.keys(hdrs).some((k) => k.toLowerCase() === "cookie")) {
+      hdrs["Cookie"] = "";
     }
     let resp;
     try {
@@ -366,7 +376,13 @@ export class HongguoClient {
       });
     }
     if (resp.status === 429) {
-      throw new HongguoError(ErrCode.RateLimited, "HTTP 429", { httpStatus: 429 });
+      let retryAfter = 0;
+      const ra = resp.headers?.get?.("retry-after");
+      if (ra) {
+        const n = Number(String(ra).trim());
+        if (Number.isFinite(n) && n > 0) retryAfter = n;
+      }
+      throw new HongguoError(ErrCode.RateLimited, "HTTP 429", { httpStatus: 429, retryAfter });
     }
     if (resp.status < 200 || resp.status >= 300) {
       throw new HongguoError(ErrCode.APIError, `HTTP ${resp.status}`, { httpStatus: resp.status });
@@ -435,96 +451,255 @@ export class HongguoClient {
         if (signal?.aborted || isAbortError(err)) {
           throw err;
         }
+        const rateLimited = isErr(err, ErrCode.RateLimited);
         if (!isRetryable(err) || attempt + 1 >= this.retryAttempts) {
+          if (rateLimited) {
+            const waitSec = Math.ceil(retryAfterSeconds(err, 30));
+            console.log(
+              `[hongguo] rate limited (code=${err.bizCode || err.httpStatus || "unknown"} wait=${waitSec}s), giving up after ${attempt + 1} attempt(s)`
+            );
+          }
           throw err;
         }
         let backoffMs = Math.min(300 * (1 << attempt), 5000);
         const jitter = 0.8 + 0.4 * ((randomInt31() % 100) / 100);
         backoffMs = Math.round(backoffMs * jitter);
-        const waitMs = Math.round(retryAfterSeconds(err, backoffMs / 1000) * 1000);
+        const waitSec = retryAfterSeconds(err, backoffMs / 1000);
+        const waitMs = Math.round(waitSec * 1000);
         if (waitMs > MAX_RETRY_WAIT_MS) {
+          if (rateLimited) {
+            console.log(
+              `[hongguo] rate limited (code=${err.bizCode || err.httpStatus || "unknown"} wait=${Math.ceil(waitSec)}s > ${MAX_RETRY_WAIT_MS / 1000}s), failing fast`
+            );
+          }
           throw err;
+        }
+        if (rateLimited) {
+          console.log(
+            `[hongguo] rate limited (code=${err.bizCode || err.httpStatus || "unknown"} wait=${waitMs}ms), retrying attempt ${attempt + 1}`
+          );
         }
         await sleep(waitMs, signal);
       }
     }
   }
 
-  async ensureGuest(needTicket = true) {
+  _readRotateLock() {
+    try {
+      const raw = host.cache.get(DEVICE_ROTATE_LOCK_KEY);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj.token !== "string") return null;
+      if (Date.now() - (Number(obj.startedAt) || 0) > DEVICE_ROTATE_LOCK_TTL_SEC * 1000) {
+        return null;
+      }
+      return obj;
+    } catch {
+      return null;
+    }
+  }
+
+  _writeRotateLock(lock) {
+    try {
+      host.cache.set(DEVICE_ROTATE_LOCK_KEY, JSON.stringify(lock), DEVICE_ROTATE_LOCK_TTL_SEC);
+    } catch {
+      // Ignore cache quota error.
+    }
+  }
+
+  _clearRotateLock(token) {
+    try {
+      const cur = this._readRotateLock();
+      if (cur && cur.token === token) {
+        host.cache.delete(DEVICE_ROTATE_LOCK_KEY);
+      }
+    } catch {
+      // Ignore cache error.
+    }
+  }
+
+  _profileSatisfies(p, failedDeviceId, needTicket) {
+    if (!guestReady(p)) return false;
+    if (needTicket && !p.ttreq) return false;
+    if (failedDeviceId && p.device_id_str === failedDeviceId) return false;
+    return true;
+  }
+
+  async _waitForRotatedDevice(failedDeviceId, needTicket) {
+    const deadline = Date.now() + DEVICE_ROTATE_WAIT_MS;
+    while (Date.now() < deadline) {
+      const cur = this._loadProfile();
+      if (this._profileSatisfies(cur, failedDeviceId, needTicket)) {
+        return cur;
+      }
+      const lock = this._readRotateLock();
+      if (!lock || (failedDeviceId && lock.failedId && lock.failedId !== failedDeviceId)) {
+        const after = this._loadProfile();
+        return this._profileSatisfies(after, failedDeviceId, needTicket) ? after : null;
+      }
+      await sleep(DEVICE_ROTATE_POLL_MS);
+    }
+    const finalProfile = this._loadProfile();
+    return this._profileSatisfies(finalProfile, failedDeviceId, needTicket) ? finalProfile : null;
+  }
+
+  async _registerFreshProfile(failedDeviceId, needTicket) {
+    const existing = this._loadProfile();
+    if (this._profileSatisfies(existing, failedDeviceId, needTicket)) {
+      if (failedDeviceId) {
+        console.log(
+          `[hongguo] device already rotated from ${failedDeviceId} to ${existing.device_id_str}, reusing`
+        );
+      }
+      return existing;
+    }
+
+    if (this._inflightRegister) {
+      const shared = await this._inflightRegister;
+      if (this._profileSatisfies(shared, failedDeviceId, needTicket)) {
+        return shared;
+      }
+    }
+
+    const activeLock = this._readRotateLock();
+    if (activeLock && (!failedDeviceId || !activeLock.failedId || activeLock.failedId === failedDeviceId)) {
+      const waited = await this._waitForRotatedDevice(failedDeviceId, needTicket);
+      if (waited) {
+        console.log(
+          `[hongguo] reused device=${waited.device_id_str} rotated by concurrent call`
+        );
+        return waited;
+      }
+    }
+
+    // Re-check storage right before acquiring the lock.
+    const beforeLock = this._loadProfile();
+    if (this._profileSatisfies(beforeLock, failedDeviceId, needTicket)) {
+      return beforeLock;
+    }
+
+    const token = hexEncode(host.crypto.randomBytes(6));
+    this._writeRotateLock({
+      failedId: failedDeviceId || "",
+      token,
+      startedAt: Date.now(),
+    });
+
+    const task = (async () => {
+      try {
+        const nowMs = this.clock();
+        const p = newAnonymousProfile(this.device, nowMs);
+        const body = buildRegisterBody(p, nowMs);
+        const qs = new URLSearchParams({ req_id: p.req_id, tt_data: "a" }).toString();
+        const headers = {
+          "User-Agent": userAgent(p.device),
+          "Content-Type": "application/octet-stream;tt-data=a",
+          "log-encode-type": "gzip",
+          "sdk-version": "2",
+          "passport-sdk-version": "5051452",
+          "x-vc-bdturing-sdk-version": "4.0.3.cn",
+          "x-ss-dp": AID,
+          "X-SS-STUB": contentMD5(body),
+          Cookie: "",
+        };
+        const { json, cookies } = await this._doRaw(
+          "POST",
+          `${this.registerOrigin}${PATH_REGISTER}?${qs}`,
+          headers,
+          body
+        );
+        const reg = parseRegister(json);
+        p.device_id_str = reg.deviceId;
+        p.install_id_str = reg.installId;
+        if (cookies.ttreq) p.ttreq = cookies.ttreq;
+        if (cookies["store-region"]) p.store_region = cookies["store-region"];
+        if (cookies["store-region-src"]) p.store_region_src = cookies["store-region-src"];
+        if (needTicket && Object.keys(cookies).length > 0 && !p.ttreq) {
+          throw new HongguoError(ErrCode.AnonymousLimited, "guest ticket missing");
+        }
+        // Do not overwrite a newer device already saved by another concurrent call.
+        const latest = this._loadProfile();
+        if (this._profileSatisfies(latest, failedDeviceId, needTicket)) {
+          console.log(
+            `[hongguo] keeping concurrently registered device=${latest.device_id_str}`
+          );
+          return latest;
+        }
+        this._saveProfile(p);
+        console.log(
+          `[hongguo] registered anonymous device=${p.device_id_str}${failedDeviceId ? ` (replaced ${failedDeviceId})` : ""}`
+        );
+        return p;
+      } finally {
+        this._clearRotateLock(token);
+      }
+    })();
+
+    this._inflightRegister = task;
+    try {
+      return await task;
+    } finally {
+      if (this._inflightRegister === task) {
+        this._inflightRegister = null;
+      }
+    }
+  }
+
+  async ensureGuest(needTicket = true, ctx = null) {
     let p = this._loadProfile();
     if (p && !p.device) {
       p.device = this.device;
       this._saveProfile(p);
     }
-    if (guestReady(p) && (!needTicket || p.ttreq)) {
-      return p;
+    if (!guestReady(p) || (needTicket && !p.ttreq)) {
+      p = await this._registerFreshProfile("", needTicket);
     }
-    const nowMs = this.clock();
-    if (!p) {
-      p = newAnonymousProfile(this.device, nowMs);
-      this._saveProfile(p);
-    }
-    const body = buildRegisterBody(p, nowMs);
-    const qs = new URLSearchParams({ req_id: p.req_id, tt_data: "a" }).toString();
-    const headers = {
-      "User-Agent": userAgent(p.device),
-      "Content-Type": "application/octet-stream;tt-data=a",
-      "log-encode-type": "gzip",
-      "sdk-version": "2",
-      "passport-sdk-version": "5051452",
-      "x-vc-bdturing-sdk-version": "4.0.3.cn",
-      "x-ss-dp": AID,
-      "X-SS-STUB": contentMD5(body),
-    };
-    const { json, cookies } = await this._doRaw(
-      "POST",
-      `${this.registerOrigin}${PATH_REGISTER}?${qs}`,
-      headers,
-      body
-    );
-    const reg = parseRegister(json);
-    p.device_id_str = reg.deviceId;
-    p.install_id_str = reg.installId;
-    if (cookies.ttreq) p.ttreq = cookies.ttreq;
-    if (cookies["store-region"]) p.store_region = cookies["store-region"];
-    if (cookies["store-region-src"]) p.store_region_src = cookies["store-region-src"];
-    if (needTicket && Object.keys(cookies).length > 0 && !p.ttreq) {
-      throw new HongguoError(ErrCode.AnonymousLimited, "guest ticket missing");
-    }
-    this._saveProfile(p);
+    if (ctx) ctx.deviceId = p.device_id_str;
     return p;
   }
 
-  async resetDevice() {
-    this._resetProfile();
-    await this.ensureGuest(false);
+  // resetDevice replaces failedDeviceId with a fresh anonymous device. When
+  // another call already replaced it, the stored device is reused as is.
+  async resetDevice(failedDeviceId = "") {
+    const targetFailed = failedDeviceId || this._loadProfile()?.device_id_str || "";
+    return this._registerFreshProfile(targetFailed, false);
   }
 
-  async _withFreshDevice(playback, fn) {
-    if (this.deviceResets <= 0 || this._inFreshDevice) {
-      return fn();
+  // _withFreshDevice runs fn, replacing the device and running it again when
+  // the server rejects the device (or, for playback, limits it). fn receives
+  // a context that records the device it used, so a rotation can tell
+  // whether another call already replaced that device. A nested call passes
+  // its caller's context as parentCtx and leaves the retries to the caller.
+  async _withFreshDevice(playback, fn, parentCtx = null) {
+    if (parentCtx) {
+      return fn(parentCtx);
     }
-    this._inFreshDevice = true;
-    try {
-      for (let i = 0; ; i++) {
+    if (this.deviceResets <= 0) {
+      return fn({ deviceId: "" });
+    }
+    for (let i = 0; ; i++) {
+      const ctx = { deviceId: "" };
+      try {
+        return await fn(ctx);
+      } catch (err) {
+        const needsFresh =
+          isErr(err, ErrCode.DeviceRejected) ||
+          (playback && isErr(err, ErrCode.AnonymousLimited));
+        if (i >= this.deviceResets || !needsFresh) {
+          throw err;
+        }
+        const failedId = ctx.deviceId || this._loadProfile()?.device_id_str || "";
+        const reason = err.bizCode ? `code=${err.bizCode}` : err.kind || err.message;
+        console.log(
+          `[hongguo] device ${failedId || "none"} refused (${reason}); rotating, attempt ${i + 1}/${this.deviceResets}`
+        );
         try {
-          return await fn();
-        } catch (err) {
-          const needsFresh =
-            isErr(err, ErrCode.DeviceRejected) ||
-            (playback && isErr(err, ErrCode.AnonymousLimited));
-          if (i >= this.deviceResets || !needsFresh) {
-            throw err;
-          }
-          try {
-            await this.resetDevice();
-          } catch {
-            throw err;
-          }
+          await this.resetDevice(failedId);
+        } catch (rotErr) {
+          console.log(`[hongguo] device rotation failed: ${rotErr?.message || rotErr}`);
+          throw err;
         }
       }
-    } finally {
-      this._inFreshDevice = false;
     }
   }
 
@@ -566,9 +741,9 @@ export class HongguoClient {
   }
 
   async discover(opts = {}) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       const channel = resolveDiscoverChannel(opts.channel || "");
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const id = this._identity(p);
       if (opts.cursor) {
         const next = decodeFeedCursor(opts.cursor);
@@ -614,7 +789,7 @@ export class HongguoClient {
   }
 
   async search(keyword, opts = {}) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       if (!keyword) throw new Error("missing search query");
       const tab = resolveSearchTab(opts.tab || "");
       const offset = searchOffset(opts.cursor || "");
@@ -630,7 +805,7 @@ export class HongguoClient {
         }
         selected = uniq.join(",");
       }
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const count = opts.pageSize > 0 ? opts.pageSize : 20;
       const pairs = signedSearchPairsFor(this._identity(p), keyword, count, offset, tab);
       if (selected) pairs.push(["selected_items", selected]);
@@ -656,14 +831,14 @@ export class HongguoClient {
       const cursor =
         parsed.hasMore && parsed.nextOffset > offset ? String(parsed.nextOffset) : "";
       return { items: parsed.items, hasMore: parsed.hasMore, cursor };
-    });
+    }, opts.ctx || null);
   }
 
   async suggest(prefix) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       const q = String(prefix || "").trim();
       if (!q) return [];
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedSuggestPairs(this._identity(p), q),
@@ -681,8 +856,8 @@ export class HongguoClient {
   }
 
   async hotSearch() {
-    return this._withFreshDevice(false, async () => {
-      const p = await this.ensureGuest(true);
+    return this._withFreshDevice(false, async (ctx) => {
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedHotSearchPairs(this._identity(p)),
@@ -704,7 +879,7 @@ export class HongguoClient {
   }
 
   async newReleases(q = {}) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       const cur = decodeShortCursor(q.cursor || "");
       let date = q.date || "";
       if (date && !validDate(date)) {
@@ -716,7 +891,7 @@ export class HongguoClient {
       if (q.cursor) {
         date = cur.date;
       }
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedNewReleasePairs(this._identity(p), date, cur),
@@ -767,12 +942,12 @@ export class HongguoClient {
     }
   }
 
-  async getSeriesDetail(seriesID) {
-    return this._withFreshDevice(false, async () => {
+  async getSeriesDetail(seriesID, parentCtx = null) {
+    return this._withFreshDevice(false, async (ctx) => {
       if (!validID(seriesID)) {
-        throw new Error("invalid series ID");
+        throw new HongguoError(ErrCode.InvalidOptions, "invalid series ID", { invalidId: true });
       }
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const body = seriesBody(seriesID);
       const ticket = this.clock();
       const { query, headers } = signPOST(
@@ -792,11 +967,11 @@ export class HongguoClient {
       const detail = parseSeries(json);
       this._cacheEpisodeDurations(detail.episodes);
       return detail;
-    });
+    }, parentCtx);
   }
 
-  async getSeriesBatch(seriesIDs) {
-    return this._withFreshDevice(false, async () => {
+  async getSeriesBatch(seriesIDs, parentCtx = null) {
+    return this._withFreshDevice(false, async (ctx) => {
       const ids = [];
       const seen = new Set();
       for (const id of seriesIDs || []) {
@@ -810,7 +985,7 @@ export class HongguoClient {
       for (let start = 0; start < ids.length; start += SERIES_BATCH_SIZE) {
         const chunk = ids.slice(start, start + SERIES_BATCH_SIZE);
         const body = seriesBatchBody(chunk);
-        const p = await this.ensureGuest(true);
+        const p = await this.ensureGuest(true, ctx);
         const ticket = this.clock();
         const { query, headers } = signPOST(
           PATH_SERIES_BATCH,
@@ -833,13 +1008,13 @@ export class HongguoClient {
         }
       }
       return ids.filter((id) => found[id]).map((id) => found[id]);
-    });
+    }, parentCtx);
   }
 
-  async getAlbum(albumID) {
-    return this._withFreshDevice(false, async () => {
-      if (!validID(albumID)) throw new Error("invalid album ID");
-      const p = await this.ensureGuest(true);
+  async getAlbum(albumID, parentCtx = null) {
+    return this._withFreshDevice(false, async (ctx) => {
+      if (!validID(albumID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid album ID", { invalidId: true });
+      const p = await this.ensureGuest(true, ctx);
       const body = albumBody(albumID);
       const ticket = this.clock();
       const { query, headers } = signPOST(
@@ -857,13 +1032,13 @@ export class HongguoClient {
         body
       );
       return parseAlbum(json, albumID);
-    });
+    }, parentCtx);
   }
 
   async seriesRecommend(seriesID) {
-    return this._withFreshDevice(false, async () => {
-      if (!validID(seriesID)) throw new Error("invalid series ID");
-      const p = await this.ensureGuest(true);
+    return this._withFreshDevice(false, async (ctx) => {
+      if (!validID(seriesID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid series ID", { invalidId: true });
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedPlanPairs(this._identity(p), seriesID, host.crypto.uuid()),
@@ -891,8 +1066,8 @@ export class HongguoClient {
     });
   }
 
-  async _seriesSeasons(seriesID) {
-    const p = await this.ensureGuest(true);
+  async _seriesSeasons(seriesID, ctx = null) {
+    const p = await this.ensureGuest(true, ctx);
     const ticket = this.clock();
     const { query, headers } = signGET(
       signedSeasonPairs(this._identity(p), seriesID, host.crypto.uuid()),
@@ -909,10 +1084,10 @@ export class HongguoClient {
   }
 
   async seasons(seriesID, preloadedSeries = null) {
-    return this._withFreshDevice(false, async () => {
-      const series = preloadedSeries || (await this.getSeriesDetail(seriesID)).series;
+    return this._withFreshDevice(false, async (ctx) => {
+      const series = preloadedSeries || (await this.getSeriesDetail(seriesID, ctx)).series;
       try {
-        const list = await this._seriesSeasons(series.id);
+        const list = await this._seriesSeasons(series.id, ctx);
         if (list.length > 0) {
           for (const s of list) {
             if (s.seriesId === series.id) s.status = series.status;
@@ -930,7 +1105,7 @@ export class HongguoClient {
       }
       if (series.relatedAlbumId) {
         try {
-          const album = await this.getAlbum(series.relatedAlbumId);
+          const album = await this.getAlbum(series.relatedAlbumId, ctx);
           if (album.seasons.length > 0) return album;
         } catch {
           // Fallback to search.
@@ -968,7 +1143,7 @@ export class HongguoClient {
       const q = chars.length > 6 ? chars.slice(0, 6).join("") : base;
       let page = null;
       try {
-        page = await this.search(q, { pageSize: 20 });
+        page = await this.search(q, { pageSize: 20, ctx });
       } catch (err) {
         if (!isErr(err, ErrCode.AnonymousLimited)) throw err;
       }
@@ -982,7 +1157,7 @@ export class HongguoClient {
         candidates.push(item.id);
       }
       if (candidates.length > 0) {
-        const details = await this.getSeriesBatch(candidates);
+        const details = await this.getSeriesBatch(candidates, ctx);
         for (const d of details) {
           if (series.relatedAlbumId && d.series.relatedAlbumId !== series.relatedAlbumId) continue;
           out.push({
@@ -1000,8 +1175,8 @@ export class HongguoClient {
     });
   }
 
-  async _shortFilterPost(body) {
-    const p = await this.ensureGuest(true);
+  async _shortFilterPost(body, ctx = null) {
+    const p = await this.ensureGuest(true, ctx);
     const ticket = this.clock();
     const { query, headers } = signPOST(
       PATH_SHORT_FILTER,
@@ -1021,10 +1196,10 @@ export class HongguoClient {
   }
 
   async shortFilterPanel(genre = "") {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       const scene = shortFilterScene(genre);
       const body = shortFilterBody(scene, null, true, { offset: 0, seen: [], session: "" });
-      const res = await this._shortFilterPost(body);
+      const res = await this._shortFilterPost(body, ctx);
       if (res.rows.length === 0) {
         throw new HongguoError(ErrCode.ContentUnavailable, "filter panel empty");
       }
@@ -1072,7 +1247,7 @@ export class HongguoClient {
   }
 
   async shortFilter(q = {}) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       let selections = q.selections || {};
       for (const [key, values] of Object.entries(selections)) {
         if (!SHORT_FILTER_KEYS.includes(key)) {
@@ -1097,7 +1272,7 @@ export class HongguoClient {
           : "";
       const scene = shortFilterScene(genre);
       const body = shortFilterBody(scene, selections, false, { ...cur, seen });
-      const res = await this._shortFilterPost(body);
+      const res = await this._shortFilterPost(body, ctx);
       if (res.items.length === 0 && cur.offset === 0) {
         throw new HongguoError(ErrCode.ContentUnavailable, "no matching series");
       }
@@ -1117,7 +1292,7 @@ export class HongguoClient {
   }
 
   async shortRank(q = {}) {
-    return this._withFreshDevice(false, async () => {
+    return this._withFreshDevice(false, async (ctx) => {
       const cur = decodeShortCursor(q.cursor || "");
       let content = String(q.content || "").trim();
       let board = String(q.board || "").trim();
@@ -1130,7 +1305,7 @@ export class HongguoClient {
       }
       if (!content) content = "all";
       const seen = this._loadSeen(cur);
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedShortRankPairs(this._identity(p), content, board, { ...cur, seen }),
@@ -1187,9 +1362,9 @@ export class HongguoClient {
   }
 
   async person(userID) {
-    return this._withFreshDevice(false, async () => {
-      if (!validID(userID)) throw new Error("invalid user ID");
-      const p = await this.ensureGuest(true);
+    return this._withFreshDevice(false, async (ctx) => {
+      if (!validID(userID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid user ID", { invalidId: true });
+      const p = await this.ensureGuest(true, ctx);
       const ticket = this.clock();
       const { query, headers } = signGET(
         signedProfilePairs(this._identity(p), userID),
@@ -1231,13 +1406,13 @@ export class HongguoClient {
   }
 
   async personWorks(userID, cursor = "") {
-    return this._withFreshDevice(false, async () => {
-      if (!validID(userID)) throw new Error("invalid user ID");
+    return this._withFreshDevice(false, async (ctx) => {
+      if (!validID(userID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid user ID", { invalidId: true });
       const cur = decodeWorksCursor(cursor);
       if (cursor && cur.userId !== userID) {
         throw new Error("cursor belongs to another person");
       }
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       let tab = cur.tab;
       if (!tab) {
         const tabsJson = await this._postUserProfile(p, userID, userWorksTabsBody(userID));
@@ -1254,7 +1429,7 @@ export class HongguoClient {
     });
   }
 
-  async _episodeDurationMs(seriesID, episodeID) {
+  async _episodeDurationMs(seriesID, episodeID, ctx = null) {
     try {
       const cached = host.cache.get(DURATION_CACHE_PREFIX + episodeID);
       if (cached) {
@@ -1264,7 +1439,7 @@ export class HongguoClient {
     } catch {
       // Ignore cache error.
     }
-    const detail = await this.getSeriesDetail(seriesID);
+    const detail = await this.getSeriesDetail(seriesID, ctx);
     for (const ep of detail.episodes) {
       if (ep.id === episodeID) {
         return ep.durationSeconds > 0 ? ep.durationSeconds * 1000 + 1000 : DANMAKU_FALLBACK_DURATION;
@@ -1274,15 +1449,15 @@ export class HongguoClient {
   }
 
   async listDanmaku(seriesID, episodeID, opts = {}) {
-    return this._withFreshDevice(false, async () => {
-      if (!validID(seriesID)) throw new Error("invalid series ID");
-      if (!validID(episodeID)) throw new Error("invalid episode ID");
+    return this._withFreshDevice(false, async (ctx) => {
+      if (!validID(seriesID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid series ID", { invalidId: true });
+      if (!validID(episodeID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid episode ID", { invalidId: true });
       const cur = decodeDanmakuCursor(opts.cursor || "");
       if (opts.cursor && cur.episodeId !== episodeID) {
         throw new Error("cursor belongs to another episode");
       }
       if (!opts.cursor) {
-        cur.duration = await this._episodeDurationMs(seriesID, episodeID);
+        cur.duration = await this._episodeDurationMs(seriesID, episodeID, ctx);
         cur.start = opts.startMs || 0;
         if (cur.start >= cur.duration) {
           return { items: [], startMs: cur.start, endMs: cur.start, total: 0, hasMore: false, cursor: "" };
@@ -1296,7 +1471,7 @@ export class HongguoClient {
         opts.pageSize || 0,
         cur.next
       );
-      const p = await this.ensureGuest(true);
+      const p = await this.ensureGuest(true, ctx);
       const path = PATH_DANMAKU(episodeID);
       const ticket = this.clock();
       const { query, headers } = signPOST(
@@ -1337,10 +1512,10 @@ export class HongguoClient {
   }
 
   async resolvePlayback(episodeID) {
-    if (!validID(episodeID)) throw new Error("invalid episode ID");
+    if (!validID(episodeID)) throw new HongguoError(ErrCode.InvalidOptions, "invalid episode ID", { invalidId: true });
     const v5Body = playbackV5Body(episodeID);
-    return this._withFreshDevice(true, async () => {
-      const p = await this.ensureGuest(true);
+    return this._withFreshDevice(true, async (ctx) => {
+      const p = await this.ensureGuest(true, ctx);
       let json = null;
       let lastErr = null;
 
