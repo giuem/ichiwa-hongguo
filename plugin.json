@@ -1,0 +1,28 @@
+{
+  "id": "hongguo",
+  "name": "红果短剧",
+  "description": "红果短剧片源插件，支持推荐、真人剧、漫剧、排行、筛选、搜索、详情、多季、演员主页、弹幕与播放。",
+  "kind": "source",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "main": "index.js",
+  "icon": "icon.png",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/giuem/ichiwa-hongguo",
+  "permissions": {
+    "network": [
+      "api5-normal-sinfonlinea.fqnovel.com",
+      "log5-applog-lq.fqnovel.com",
+      "*.fqnovelpic.com",
+      "*.byteimg.com",
+      "*.qznovelvod.com"
+    ]
+  },
+  "capabilities": [
+    "search",
+    "search.suggest",
+    "search.home",
+    "danmaku",
+    "refresh"
+  ]
+}

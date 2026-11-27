@@ -54,6 +54,8 @@ HONGGUO_LIVE=1 node --test test/live.test.js
 go -C tools/vectors run . > test/vectors/vectors.json
 ```
 
+向量覆盖签名和密钥原语、整个签名请求（查询串和全部请求头）、游标编码，以及 `test/vectors/responses/` 里真实响应（数组截到 4 项）的解析结果。CI 会重新生成并检查 `test/vectors` 没有变化。
+
 ## 免责声明
 
 ### 1. 项目目的与性质
