@@ -345,11 +345,59 @@ async function handleRankCollection(client, req) {
   return page;
 }
 
-async function handleFilterCollection(client, req) {
-  const reqFilters = req.filters || {};
-  const genre = String(reqFilters.genre || "").trim();
+const FILTER_GENRE_KEY = "genre";
+const FILTER_GENRES = new Set(["short_play", "comic_series", "ai_series"]);
 
+// buildFilterRows turns the panel's rows into FilterRows. The values of the
+// rows other than the genre carry a "<genre>:" prefix, so a choice made
+// under one genre is dropped, statelessly, once the genre changes. It
+// returns the rows and the selections that still apply, unprefixed.
+export function buildFilterRows(panelRows, chosen) {
+  let genre = "";
+  const genreRow = panelRows.find((r) => r.key === FILTER_GENRE_KEY);
+  const wanted = String(chosen?.[FILTER_GENRE_KEY] || "").trim();
+  if (genreRow && wanted && genreRow.options.some((o) => o.value === wanted)) {
+    genre = wanted;
+  }
+  const prefix = `${genre}:`;
+  const selections = {};
+  const rows = [];
+  for (const row of panelRows) {
+    const options = [{ value: "", title: "全部" }];
+    if (row.key === FILTER_GENRE_KEY) {
+      for (const o of row.options) options.push({ value: o.value, title: o.name });
+      if (genre) selections[row.key] = [genre];
+      rows.push({ key: row.key, title: stripAllPrefix(row.name), options, value: genre });
+      continue;
+    }
+    const val = String(chosen?.[row.key] || "").trim();
+    const raw = val.startsWith(prefix) ? val.slice(prefix.length) : "";
+    let selected = "";
+    for (const o of row.options) {
+      const encoded = prefix + o.value;
+      options.push({ value: encoded, title: o.name });
+      if (raw && o.value === raw) {
+        selections[row.key] = [raw];
+        selected = encoded;
+      }
+    }
+    rows.push({ key: row.key, title: stripAllPrefix(row.name), options, value: selected });
+  }
+  return { rows, selections };
+}
+
+// pageError describes a failed list for CollectionPage.error.
+function pageError(err, context) {
+  const he = toHostError(err, context);
+  const out = { code: he.code || "plugin" };
+  if (he.message) out.message = he.message;
+  if (he.retryAfter > 0) out.retryAfter = he.retryAfter;
+  return out;
+}
+
+async function handleFilterCollection(client, req) {
   if (req.cursor) {
+    // The cursor carries the selections; send nothing else with it.
     const res = await client.shortFilter({ cursor: req.cursor });
     const page = {
       title: "筛选",
@@ -360,49 +408,30 @@ async function handleFilterCollection(client, req) {
     return page;
   }
 
-  const panelRows = await getFilterPanelCached(client, genre);
-  const selections = {};
-  const activeValues = {};
-  for (const row of panelRows) {
-    const val = String(reqFilters[row.key] || "").trim();
-    if (val && row.options.some((o) => o.value === val)) {
-      selections[row.key] = [val];
-      activeValues[row.key] = val;
-    } else {
-      activeValues[row.key] = "";
-    }
-  }
-
-  let items = [];
-  let cursor = "";
+  const reqFilters = req.filters || {};
+  const wanted = String(reqFilters[FILTER_GENRE_KEY] || "").trim();
+  const panelRows = await getFilterPanelCached(client, FILTER_GENRES.has(wanted) ? wanted : "");
+  const { rows, selections } = buildFilterRows(panelRows, reqFilters);
+  const page = { title: "筛选", filters: rows, layout: "grid", items: [] };
   try {
     const res = await client.shortFilter({ selections, cursor: "" });
-    items = res.items.map((s) => showToCard(s));
-    if (res.hasMore && res.cursor) cursor = res.cursor;
+    page.items = res.items.map((s) => showToCard(s));
+    if (res.hasMore && res.cursor) page.cursor = res.cursor;
   } catch (err) {
-    if (!isErr(err, ErrCode.ContentUnavailable)) {
-      throw err;
+    if (isErr(err, ErrCode.ContentUnavailable)) {
+      // Nothing matches these selections.
+      return page;
     }
+    if (isAbort(err)) throw err;
+    // The rows are in: show them with the error so the user can change the
+    // selections or retry.
+    page.error = pageError(err, "collection");
   }
-
-  const filters = panelRows.map((row) => ({
-    key: row.key,
-    title: stripAllPrefix(row.name),
-    options: [
-      { value: "", title: "全部" },
-      ...row.options.map((o) => ({ value: o.value, title: o.name })),
-    ],
-    value: activeValues[row.key] || "",
-  }));
-
-  const page = {
-    title: "筛选",
-    filters,
-    layout: "grid",
-    items,
-  };
-  if (cursor) page.cursor = cursor;
   return page;
+}
+
+function isAbort(err) {
+  return err?.name === "AbortError";
 }
 
 async function handlePersonCollection(client, userID, req) {
