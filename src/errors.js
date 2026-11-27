@@ -1,4 +1,5 @@
-// Internal SDK errors and mapping to Ichiwa plugin host.error() codes (plugin-design.md §10).
+// Internal SDK errors and mapping to Ichiwa plugin host.error() codes
+// (ported from openhongguo sdk/errors.go; protocol: plugin-design.md §10).
 import { ErrorKind, banWindow } from "./protocol/codes.js";
 
 export const ErrCode = Object.freeze({
@@ -30,6 +31,7 @@ export class HongguoError extends Error {
     this.bizKind = extra.bizKind || "";
     this.bizMessage = extra.bizMessage || "";
     this.retryAfter = extra.retryAfter || 0;
+    this.invalidId = !!extra.invalidId;
   }
 }
 
@@ -79,15 +81,43 @@ export function retryAfterSeconds(err, fallbackSec) {
   return fallbackSec;
 }
 
+function logInternalError(err, context) {
+  const parts = [];
+  if (context) parts.push(`op=${context}`);
+  if (err instanceof HongguoError) {
+    parts.push(`kind=${err.kind}`);
+    if (err.httpStatus) parts.push(`http=${err.httpStatus}`);
+    if (err.bizCode) parts.push(`bizCode=${err.bizCode}`);
+    if (err.bizName) parts.push(`bizName=${err.bizName}`);
+    if (err.bizKind) parts.push(`bizKind=${err.bizKind}`);
+    if (err.bizMessage) parts.push(`bizMsg=${err.bizMessage}`);
+  }
+  if (err?.message) parts.push(`msg=${err.message}`);
+  console.log(`[hongguo] error: ${parts.join(" ") || String(err)}`);
+}
+
+const NOT_FOUND_MESSAGES = {
+  media: "找不到这部剧",
+  play: "找不到这一集",
+  danmaku: "找不到这一集",
+  collection: "找不到这个页面",
+};
+
 export function toHostError(err, context = "") {
-  if (err && typeof err.code === "string" && ["unavailable", "rateLimited", "notFound", "network", "plugin"].includes(err.code)) {
+  if (
+    err &&
+    typeof err.code === "string" &&
+    ["unavailable", "rateLimited", "notFound", "network", "plugin"].includes(err.code)
+  ) {
     return err;
   }
+  logInternalError(err, context);
+
   if (isErr(err, ErrCode.AuthRequired)) {
     return host.error("unavailable", "该内容需要登录才能观看");
   }
   if (isErr(err, ErrCode.AnonymousLimited)) {
-    return host.error("unavailable", "服务端暂时限制了匿名访问，请稍后再试");
+    return host.error("unavailable", "服务端暂时限制了匿名访问，请稍后再试", { retryAfter: 30 });
   }
   if (isErr(err, ErrCode.RateLimited)) {
     const wait = Math.ceil(retryAfterSeconds(err, 30));
@@ -96,15 +126,22 @@ export function toHostError(err, context = "") {
   if (isErr(err, ErrCode.ChallengeRequired)) {
     return host.error("rateLimited", "触发平台验证，请稍后再试", { retryAfter: 60 });
   }
+  // notFound only on evidence that the ID itself does not exist: an ID that
+  // is not a Hongguo ID at all, or BOOK_NOT_EXIST_ERROR (101104) on a media
+  // lookup. The server answers most unknown IDs with the broad 101000, which
+  // also covers takedowns and temporary failures, so that stays unavailable.
+  if (isErr(err, ErrCode.InvalidOptions) && err.invalidId && NOT_FOUND_MESSAGES[context]) {
+    return host.error("notFound", NOT_FOUND_MESSAGES[context]);
+  }
   if (isErr(err, ErrCode.ContentUnavailable)) {
     const bizCode = err instanceof HongguoError ? err.bizCode : 0;
-    if (context === "media" && (bizCode === 101104 || bizCode === 101145)) {
-      return host.error("notFound", "该作品不存在或已下架");
+    if (context === "media" && bizCode === 101104) {
+      return host.error("notFound", "这部剧不存在或已下架");
     }
     return host.error("unavailable", "该内容已下架或暂不可用");
   }
   if (isErr(err, ErrCode.Transport)) {
     return host.error("network", "网络连接失败，请检查网络后重试");
   }
-  return host.error("plugin", err?.message ? `红果片源出错：${err.message}` : "红果片源出错");
+  return host.error("plugin", "红果片源暂时出错，请稍后重试");
 }

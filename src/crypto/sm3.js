@@ -1,4 +1,4 @@
-// Pure JS GM/T 0004-2012 SM3 hash.
+// Pure JS GM/T 0004-2012 SM3 hash (ported from openhongguo internal/protocol/sign/sm3.go).
 import { readU32BE, writeU32BE } from "./bytes.js";
 
 function rol32(v, n) {
